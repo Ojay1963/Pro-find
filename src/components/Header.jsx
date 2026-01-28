@@ -52,13 +52,13 @@ export default function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={closeMenu}>
           <img src={logo} alt="Profind Logo" className="h-9 w-9 object-contain rounded-full shadow" />
-          <span className="text-2xl font-bold text-green-700 tracking-wide">
+          <span className="text-xl md:text-2xl font-bold text-green-700 tracking-wide">
             PROFIND
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-8 text-gray-700 font-medium">
+        <nav className="hidden md:flex lg:gap-8 md:gap-5 text-gray-700 font-medium text-sm lg:text-base">
           {navLinks.map(({ to, label }) => (
             <Link
               key={to}
@@ -72,7 +72,7 @@ export default function Header() {
         </nav>
 
         {/* Desktop Contact & CTA */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3 lg:gap-4 flex-wrap justify-end">
           <button
             type="button"
             onClick={toggleTheme}
@@ -101,21 +101,21 @@ export default function Header() {
               </a>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600">
             <PhoneIcon />
             <span>+234 (708-220-6013)</span>
           </div>
           {isLoggedIn ? (
             <Link
               to="/dashboard"
-              className="btn-primary text-sm px-5 py-2 text-center"
+              className="btn-primary text-sm px-4 lg:px-5 py-2 text-center"
             >
               Dashboard
             </Link>
           ) : (
             <a
               href="#"
-              className="btn-primary text-sm px-5 py-2 text-center"
+              className="btn-primary text-sm px-4 lg:px-5 py-2 text-center"
               onClick={handleGetStarted}
             >
               Get Started

@@ -13,7 +13,7 @@ function FeaturedProperties({
 }) {
   const { search } = useContext(SearchContext);
 
-  const groupSize = 3;
+  const [groupSize, setGroupSize] = useState(3);
   const [currentGroup, setCurrentGroup] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -191,6 +191,24 @@ function FeaturedProperties({
   };
 
   useEffect(() => {
+    const updateGroupSize = () => {
+      if (window.innerWidth < 640) {
+        setGroupSize(1);
+        return;
+      }
+      if (window.innerWidth < 1024) {
+        setGroupSize(2);
+        return;
+      }
+      setGroupSize(3);
+    };
+
+    updateGroupSize();
+    window.addEventListener('resize', updateGroupSize);
+    return () => window.removeEventListener('resize', updateGroupSize);
+  }, []);
+
+  useEffect(() => {
     if (showAll || totalGroups <= 1) {
       clearIntervalSafe();
       return;
@@ -228,6 +246,18 @@ function FeaturedProperties({
     );
 
     setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const handlePointerEnter = (event) => {
+    if (event.pointerType === 'mouse') {
+      setIsPaused(true);
+    }
+  };
+
+  const handlePointerLeave = (event) => {
+    if (event.pointerType === 'mouse') {
+      setIsPaused(false);
+    }
   };
 
   const getShowingText = () => {
@@ -273,8 +303,8 @@ function FeaturedProperties({
           <>
             <div
               className="relative"
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
+              onPointerEnter={handlePointerEnter}
+              onPointerLeave={handlePointerLeave}
             >
               <div className={`flex ${showAll ? 'flex-wrap justify-center gap-6' : 'justify-center gap-6'}`}>
                 {displayedProperties.map((property, index) => (

@@ -1,7 +1,21 @@
 ﻿// Footer component
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 export default function Footer() {
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = (event) => {
+    event.preventDefault();
+    if (!email.trim()) {
+      toast.error('Please enter your email to subscribe.');
+      return;
+    }
+    toast.success('Thanks for subscribing!');
+    setEmail('');
+  };
+
   return (
     <footer className="site-footer w-full bg-gray-900 text-white pt-16 pb-8 mt-12">
       <div className="container mx-auto px-4">
@@ -75,9 +89,18 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-3">Newsletter</h4>
             <p className="text-gray-400 text-sm mb-2">Subscribe to get the latest property updates</p>
-            <form className="flex flex-col sm:flex-row gap-2 w-full">
-              <input type="email" className="px-3 py-2 rounded bg-gray-800 text-white text-sm border-none focus:ring-2 focus:ring-green-400 w-full sm:w-auto" placeholder="Your email" />
-              <button className="btn-primary px-4 py-2 text-sm w-full sm:w-auto mt-2 sm:mt-0">Subscribe</button>
+            <form className="flex flex-col md:flex-col lg:flex-row gap-2 w-full" onSubmit={handleSubscribe}>
+              <input
+                type="email"
+                className="px-3 py-2 rounded bg-gray-800 text-white text-sm border-none focus:ring-2 focus:ring-green-400 w-full"
+                placeholder="Your email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+              <button className="btn-primary px-4 py-2 text-sm w-full lg:w-auto lg:mt-0">
+                Subscribe
+              </button>
             </form>
           </div>
         </div>

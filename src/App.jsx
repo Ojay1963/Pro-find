@@ -37,7 +37,7 @@ function App() {
 
   return (
     <SearchProvider>
-      <Router>
+      <Router basename={import.meta.env.BASE_URL}>
         <ScrollToTop />
 
         <AppShell />
