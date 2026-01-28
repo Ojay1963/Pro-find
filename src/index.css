@@ -1,0 +1,335 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #16a34a;
+  --color-primary-700: #15803d;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532d;
+  
+  --color-nigerian-green: #008751;
+  --color-nigerian-white: #FFFFFF;
+  --color-nigerian-green-light: #009A49;
+  
+  --font-sans: 'Inter', 'system-ui', 'sans-serif';
+  --font-display: 'Sora', 'Inter', 'system-ui', 'sans-serif';
+}
+
+/* Custom styles */
+@layer base {
+  body {
+    @apply antialiased text-gray-900;
+    background-color: #f8fafc;
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+}
+
+
+@layer components {
+  .btn-primary {
+    @apply bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
+  }
+
+  .input-spotlight {
+    @apply transition-shadow transition-colors;
+  }
+}
+
+.home-content {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.home-content .container {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fade-left {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-right {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float-slower {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-up,
+  .animate-float-slow,
+  .animate-fade-left,
+  .animate-fade-right,
+  .animate-pop-in,
+  .animate-float-slower {
+    animation: none;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .animate-fade-in {
+    animation: fade-in 400ms ease-out both;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 600ms ease-out both;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 4s ease-in-out infinite;
+  }
+
+  .animate-float-slower {
+    animation: float-slower 7s ease-in-out infinite;
+  }
+
+  .animate-fade-left {
+    animation: fade-left 650ms ease-out both;
+  }
+
+  .animate-fade-right {
+    animation: fade-right 650ms ease-out both;
+  }
+
+  .animate-pop-in {
+    animation: pop-in 520ms ease-out both;
+  }
+}
+
+.input-spotlight:focus {
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+}
+
+.dashboard-page button,
+.dashboard-page a {
+  cursor: pointer;
+}
+
+.dark body {
+  background-color: #0b1220;
+  color: #e5e7eb;
+}
+
+.dark .bg-white {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #0b1220 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #111827 !important;
+}
+
+.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-black {
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: #d7e1f3 !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-slate-400,
+.dark .text-slate-300,
+.dark .text-slate-200 {
+  color: #d7e1f3 !important;
+}
+
+.dark .text-green-700 {
+  color: #86efac !important;
+}
+
+.dark .text-green-600 {
+  color: #4ade80 !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.dark .border-emerald-100,
+.dark .border-green-50 {
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-green-50 {
+  background-color: #111827 !important;
+}
+
+.dark .from-emerald-50 {
+  --tw-gradient-from: #0f172a !important;
+  --tw-gradient-to: rgba(15, 23, 42, 0) !important;
+}
+
+.dark .via-white {
+  --tw-gradient-stops: var(--tw-gradient-from), #111827, var(--tw-gradient-to) !important;
+}
+
+.dark .to-green-50 {
+  --tw-gradient-to: #0f172a !important;
+}
+
+.dark .card {
+  background-color: #0f172a;
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+}
+
+.dark .btn-secondary {
+  background-color: transparent;
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #e2e8f0;
+}
+
+.dark .btn-secondary:hover {
+  background-color: rgba(148, 163, 184, 0.1);
+}
+
+.dark .btn-primary {
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.2);
+}
+
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl {
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.45) !important;
+}
+
+.dark .bg-white\/90,
+.dark .bg-white\/80,
+.dark .bg-white\/95,
+.dark .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+.dark .backdrop-blur,
+.dark .backdrop-blur-lg,
+.dark .backdrop-blur-xl {
+  backdrop-filter: blur(14px);
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: transparent;
+  color: #e2e8f0;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgba(226, 232, 240, 0.6);
+}
+
+/* Leaflet Map Fix */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+}
