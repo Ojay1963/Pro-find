@@ -1163,6 +1163,10 @@ if (isProd && hasDist) {
   })
 }
 
-app.listen(port, () => {
-  console.log(`AI server listening on http://localhost:${port}`)
-})
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`AI server listening on http://localhost:${port}`)
+  })
+}
+
+export default app
