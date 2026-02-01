@@ -63,12 +63,18 @@ export default function Dashboard() {
     );
   }
 
-  const favoriteProperties = properties.filter(p => favorites.includes(p.id));
-  const viewedProperties = properties.filter(p => recentlyViewed.includes(p.id));
+  const storedListings = storage.getListings().map((listing) => ({
+    ...listing,
+    image: listing.image || listing.images?.[0]?.preview || listing.images?.[0] || listing.imageUrl,
+    badge: listing.badge || listing.listingType || 'For Sale'
+  }));
+  const allProperties = [...properties, ...storedListings];
+  const favoriteProperties = allProperties.filter(p => favorites.includes(p.id));
+  const viewedProperties = allProperties.filter(p => recentlyViewed.includes(p.id));
 
   const userRole = currentUser?.role || localStorage.getItem('profind_user_role') || 'seeker';
   const userName = currentUser?.name || localStorage.getItem('profind_user_name') || 'User';
-  const userId = currentUser?.id || localStorage.getItem('profind_user_id');
+  const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id') || '0');
   const userEmail = currentUser?.email || localStorage.getItem('profind_user_email');
   const userPhone = currentUser?.phone;
 
@@ -93,7 +99,7 @@ export default function Dashboard() {
 
   // Get user's listings
   const allListings = storage.getListings();
-  const myListings = allListings.filter(l => l.userId === userId || l.contactEmail === currentUser?.email);
+  const myListings = allListings.filter(l => l.ownerId === userId || l.contactEmail === currentUser?.email);
 
   // Get inquiries
   const allInquiries = storage.getInquiries();
@@ -126,18 +132,11 @@ export default function Dashboard() {
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
       // Clear ALL user session data
-      localStorage.removeItem('profind_user_name');
-      localStorage.removeItem('profind_user_role');
-      localStorage.removeItem('profind_user_id');
-      localStorage.removeItem('currentUser'); // Add this if it exists
-      
-      // Clear from storage utility
-      if (storage.clearCurrentUser) {
-        storage.clearCurrentUser();
-      }
+      localStorage.removeItem('currentUser');
+      storage.logout();
       
       // Clear any other potential user storage
-      sessionStorage.clear(); // Clear session storage too
+      sessionStorage.clear();
       
       // Reset state
       setCurrentUser(null);

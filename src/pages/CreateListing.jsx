@@ -130,18 +130,17 @@ export default function CreateListing() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep(step)) return;
 
     // In a real app, this would upload to backend
     const currentUser = storage.getCurrentUser();
-    const userId = currentUser?.id || localStorage.getItem('profind_user_id');
+    const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id') || '0');
     
     const listing = {
       ...formData,
-      id: Date.now(),
-      userId: userId,
+      ownerId: userId,
       badge: formData.listingType === 'Buy' ? 'For Sale' : formData.listingType,
       createdAt: new Date().toISOString(),
       status: 'pending'
@@ -152,17 +151,15 @@ export default function CreateListing() {
       storage.updateListing(parseInt(editId), listing);
       // Update virtual tour if provided
       if (formData.virtualTourUrl) {
-        storage.addVirtualTour(listing.id, formData.virtualTourUrl);
+        storage.addVirtualTour(parseInt(editId), formData.virtualTourUrl);
       }
       toast.success('Listing updated successfully!');
     } else {
       // Create new listing
-      const listings = JSON.parse(localStorage.getItem('profind_listings') || '[]');
-      listings.push(listing);
-      localStorage.setItem('profind_listings', JSON.stringify(listings));
+      const savedListing = await storage.addListing(listing);
       // Save virtual tour if provided
       if (formData.virtualTourUrl) {
-        storage.addVirtualTour(listing.id, formData.virtualTourUrl);
+        storage.addVirtualTour(savedListing.id, formData.virtualTourUrl);
       }
       toast.success('Listing created successfully! It will be reviewed before publishing.');
     }

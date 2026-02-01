@@ -18,7 +18,7 @@ export default function ScheduleViewingForm({ propertyId, propertyTitle, agentId
     '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Save inquiry
     const inquiry = {
@@ -29,9 +29,14 @@ export default function ScheduleViewingForm({ propertyId, propertyTitle, agentId
       ...formData,
       type: 'viewing'
     };
-    storage.addInquiry(inquiry);
-    storage.trackListingInquiry(propertyId);
-    toast.success('Viewing scheduled! The agent will confirm the appointment.');
+    try {
+      await storage.addInquiry(inquiry);
+      storage.trackListingInquiry(propertyId);
+      toast.success('Viewing scheduled! The agent will confirm the appointment.');
+    } catch (error) {
+      toast.error(error.message || 'Failed to schedule viewing. Please try again.');
+      return;
+    }
     setFormData({
       name: '',
       email: '',

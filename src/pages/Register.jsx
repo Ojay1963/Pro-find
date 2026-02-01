@@ -38,7 +38,7 @@ const Register = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (validateForm()) {
@@ -56,12 +56,16 @@ const Register = () => {
         })
       };
       
-      storage.addUser(userData);
-      toast.success('Account created successfully! Please check your email to verify your account.');
-      // In a real app, send verification email here
-      setFormData(initialFormData)
-      setErrors({})
-      navigate('/registration-success')
+      try {
+        await storage.addUser(userData)
+        toast.success('Account created successfully! Please check your email to verify your account.')
+        // In a real app, send verification email here
+        setFormData(initialFormData)
+        setErrors({})
+        navigate('/registration-success')
+      } catch (error) {
+        toast.error(error.message || 'Registration failed. Please try again.')
+      }
     }
   }
 

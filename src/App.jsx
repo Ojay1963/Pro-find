@@ -1,5 +1,6 @@
 import React from 'react'
 import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 
 import ScrollToTop from './components/ScrollToTop';
@@ -33,6 +34,41 @@ import GlobalTips from './components/GlobalTips';
 function App() {
   React.useEffect(() => {
     storage.cleanupFloorPlans();
+    void storage.syncAll();
+  }, []);
+
+  React.useEffect(() => {
+    const idleLimitMs = 2 * 60 * 1000; // 2 minutes
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    let didExpire = false;
+
+    const markActivity = () => {
+      localStorage.setItem('profind_last_active', String(Date.now()));
+    };
+
+    const checkIdle = () => {
+      const token = localStorage.getItem('profind_token');
+      if (!token) return;
+      const lastActive = Number(localStorage.getItem('profind_last_active') || Date.now());
+      if (Date.now() - lastActive > idleLimitMs) {
+        if (didExpire) return;
+        didExpire = true;
+        toast.error('Session expired due to inactivity.');
+        storage.logout();
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 800);
+      }
+    };
+
+    activityEvents.forEach((event) => window.addEventListener(event, markActivity));
+    const interval = setInterval(checkIdle, 10 * 1000);
+    markActivity();
+
+    return () => {
+      activityEvents.forEach((event) => window.removeEventListener(event, markActivity));
+      clearInterval(interval);
+    };
   }, []);
 
   return (

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaBath, FaBed, FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaRulerCombined } from 'react-icons/fa';
 import { SearchContext } from '../contexts/SearchContext.jsx';
 import properties from './propertiesData';
+import { storage } from '../utils/localStorage';
 import FavoriteButton from './FavoriteButton';
 
 function FeaturedProperties({
@@ -30,7 +31,14 @@ function FeaturedProperties({
     return match ? Number(match[0]) : 0;
   };
 
-  let filtered = properties.filter((property) => {
+  const storedListings = storage.getListings().map((listing) => ({
+    ...listing,
+    image: listing.image || listing.images?.[0]?.preview || listing.images?.[0] || listing.imageUrl,
+    features: listing.features || listing.amenities || [],
+    badge: listing.badge || listing.listingType || 'For Sale'
+  }));
+
+  let filtered = [...properties, ...storedListings].filter((property) => {
     if (
       search.location &&
       !normalizeText(property.location).includes(normalizeText(search.location))

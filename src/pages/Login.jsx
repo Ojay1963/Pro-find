@@ -14,24 +14,15 @@ const Login = () => {
   })
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Validate credentials
-    const users = storage.getUsers()
-    const user = users.find(u => u.email === formData.email && u.password === formData.password)
-
-    if (user) {
-      // Set current user session
-      localStorage.setItem('profind_user_role', user.role)
-      localStorage.setItem('profind_user_name', user.name)
-      localStorage.setItem('profind_user_id', user.id)
-      localStorage.setItem('profind_user_email', user.email)
-
+    try {
+      await storage.login(formData.email, formData.password)
       toast.success('Login successful!')
       navigate('/dashboard')
-    } else {
-      toast.error('Invalid email or password. Please try again.')
+    } catch (error) {
+      toast.error(error.message || 'Invalid email or password. Please try again.')
     }
   }
 
@@ -178,4 +169,3 @@ const Login = () => {
 }
 
 export default Login
-

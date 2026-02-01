@@ -79,7 +79,7 @@ export default function BulkUpload() {
 
     setUploading(true);
     const currentUser = storage.getCurrentUser();
-    const userId = currentUser?.id || localStorage.getItem('profind_user_id');
+    const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id') || '0');
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -104,8 +104,7 @@ export default function BulkUpload() {
           }
 
           const listing = {
-            id: Date.now() + index,
-            userId: userId,
+            ownerId: userId,
             title: row.title,
             description: row.description || '',
             location: row.location,
@@ -124,7 +123,6 @@ export default function BulkUpload() {
             contactPhone: row.contactPhone || currentUser?.phone || '',
             virtualTourUrl: row.virtualTourUrl || '',
             badge: row.listingType === 'Buy' ? 'For Sale' : row.listingType,
-            createdAt: new Date().toISOString(),
             status: 'pending'
           };
 
@@ -134,27 +132,31 @@ export default function BulkUpload() {
         }
       });
 
-      // Save all listings
-      const existingListings = storage.getListings();
-      const updatedListings = [...existingListings, ...listings];
-      localStorage.setItem('profind_listings', JSON.stringify(updatedListings));
+      const saveListings = async () => {
+        const savedListings = await Promise.all(listings.map((listing) => storage.addListing(listing)));
+        savedListings.forEach((listing, idx) => {
+          const source = listings[idx]
+          if (source.virtualTourUrl) {
+            storage.addVirtualTour(listing.id, source.virtualTourUrl);
+          }
+        });
+      };
 
-      // Save virtual tours
-      listings.forEach(listing => {
-        if (listing.virtualTourUrl) {
-          storage.addVirtualTour(listing.id, listing.virtualTourUrl);
+      void saveListings().then(() => {
+        setUploading(false);
+
+        if (errors.length > 0) {
+          toast.error(`${listings.length} listings created, ${errors.length} errors`);
+        } else {
+          toast.success(`${listings.length} listings uploaded successfully! They will be reviewed before publishing.`);
         }
-      });
 
-      setUploading(false);
-      
-      if (errors.length > 0) {
-        toast.error(`${listings.length} listings created, ${errors.length} errors`);
-      } else {
-        toast.success(`${listings.length} listings uploaded successfully! They will be reviewed before publishing.`);
-      }
-      
-      setTimeout(() => navigate('/dashboard'), 1500);
+        setTimeout(() => navigate('/dashboard'), 1500);
+      }).catch((error) => {
+        console.error('Bulk upload failed', error)
+        setUploading(false);
+        toast.error('Bulk upload failed. Please try again.');
+      });
     };
     reader.readAsText(file);
   };

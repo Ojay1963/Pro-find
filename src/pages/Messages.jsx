@@ -10,7 +10,8 @@ import properties from '../components/propertiesData';
 export default function Messages() {
   const { conversationId } = useParams();
   const currentUser = storage.getCurrentUser();
-  const userId = currentUser?.id || localStorage.getItem('profind_user_id');
+  const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
+  const apiBase = import.meta.env.VITE_API_BASE || '';
   
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -19,15 +20,42 @@ export default function Messages() {
 
   useEffect(() => {
     if (userId) {
-      const userConversations = storage.getConversations(userId);
-      setConversations(userConversations);
-      
-      if (conversationId) {
-        const conv = userConversations.find(c => c.id === parseInt(conversationId));
-        if (conv) setSelectedConversation(conv);
-      }
+      void storage.syncAll().then(() => {
+        const userConversations = storage.getConversations(userId);
+        setConversations(userConversations);
+
+        if (conversationId) {
+          const conv = userConversations.find(c => c.id === parseInt(conversationId));
+          if (conv) setSelectedConversation(conv);
+        }
+      });
     }
   }, [userId, conversationId]);
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!selectedConversation?.id) return;
+      const token = localStorage.getItem('profind_token');
+      if (!token) return;
+      try {
+        const response = await fetch(`${apiBase}/api/conversations/${selectedConversation.id}/messages`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (response.ok && data?.messages) {
+          setSelectedConversation((prev) => ({ ...prev, messages: data.messages }));
+          const updated = storage.getConversations(userId).map((conv) =>
+            conv.id === selectedConversation.id ? { ...conv, messages: data.messages } : conv
+          );
+          localStorage.setItem('profind_conversations', JSON.stringify(updated));
+          setConversations(updated);
+        }
+      } catch (error) {
+        console.error('Failed to load messages', error);
+      }
+    };
+    void loadMessages();
+  }, [selectedConversation?.id, apiBase]);
 
   const getOtherParticipant = (conversation) => {
     const otherId = conversation.participantIds.find(id => id !== userId);
@@ -124,7 +152,8 @@ export default function Messages() {
               ) : (
                 sortedConversations.map(conv => {
                   const other = getOtherParticipant(conv);
-                  const lastMessage = conv.messages[conv.messages.length - 1];
+                  const messages = conv.messages || [];
+                  const lastMessage = messages[messages.length - 1];
                   const prop = conv.propertyId ? getPropertyInfo(conv.propertyId) : null;
                   
                   return (
@@ -198,12 +227,12 @@ export default function Messages() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {selectedConversation.messages.length === 0 ? (
+                  {(selectedConversation.messages || []).length === 0 ? (
                     <div className="text-center text-gray-500 mt-8">
                       <p>No messages yet. Start the conversation!</p>
                     </div>
                   ) : (
-                    selectedConversation.messages.map(message => {
+                    (selectedConversation.messages || []).map(message => {
                       const isSender = message.senderId === userId;
                       return (
                         <div

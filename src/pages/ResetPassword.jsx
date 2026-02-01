@@ -17,22 +17,19 @@ const ResetPassword = () => {
   });
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (formData.newPassword !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    const users = storage.getUsers();
-    const userIndex = users.findIndex(u => u.email === formData.email);
-    if (userIndex !== -1) {
-      users[userIndex].password = formData.newPassword;
-      storage.setUsers(users);
+    try {
+      await storage.resetPassword(formData.email, formData.newPassword)
       toast.success('Password reset successful! You can now log in.');
       navigate('/login');
-    } else {
-      toast.error('Email not found. Please check and try again.');
+    } catch (error) {
+      toast.error(error.message || 'Email not found. Please check and try again.');
     }
   };
 

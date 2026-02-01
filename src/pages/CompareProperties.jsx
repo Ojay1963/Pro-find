@@ -10,14 +10,20 @@ export default function CompareProperties() {
   const [searchParams] = useSearchParams();
   const [selectedIds, setSelectedIds] = useState([]);
   const [comparisonProperties, setComparisonProperties] = useState([]);
+  const storedListings = storage.getListings().map((listing) => ({
+    ...listing,
+    image: listing.image || listing.images?.[0]?.preview || listing.images?.[0] || listing.imageUrl,
+    badge: listing.badge || listing.listingType || 'For Sale'
+  }));
+  const allProperties = [...properties, ...storedListings];
 
   useEffect(() => {
     const ids = searchParams.get('ids')?.split(',').map(id => parseInt(id)) || [];
     setSelectedIds(ids);
     
-    const props = ids.map(id => properties.find(p => p.id === id)).filter(Boolean);
+    const props = ids.map(id => allProperties.find(p => p.id === id)).filter(Boolean);
     setComparisonProperties(props);
-  }, [searchParams]);
+  }, [searchParams, allProperties]);
 
   const removeProperty = (id) => {
     const updated = selectedIds.filter(pid => pid !== id);
@@ -38,7 +44,7 @@ export default function CompareProperties() {
       const updated = [...selectedIds, id];
       window.history.pushState({}, '', `/compare?ids=${updated.join(',')}`);
       setSelectedIds(updated);
-      const prop = properties.find(p => p.id === id);
+      const prop = allProperties.find(p => p.id === id);
       if (prop) setComparisonProperties([...comparisonProperties, prop]);
     }
   };
@@ -72,7 +78,7 @@ export default function CompareProperties() {
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
             <h2 className="text-xl font-bold mb-4">Add Properties to Compare</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {properties.slice(0, 8).map(property => (
+              {allProperties.slice(0, 8).map(property => (
                 <button
                   key={property.id}
                   onClick={() => addProperty(property.id)}

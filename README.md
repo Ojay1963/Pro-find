@@ -1,3 +1,14 @@
+# Profind
+
+## Local development
+
+- Create `.env` using `.env.example` and set `MONGODB_URI` + `JWT_SECRET`.
+- Start the backend: `npm run server`
+- Start the frontend: `npm run dev`
+- Optional: set `VITE_API_BASE=http://localhost:3001` if frontend and backend run on different ports/domains.
+
+---
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

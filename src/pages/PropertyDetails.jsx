@@ -13,14 +13,17 @@ import ContactAgentForm from '../components/ContactAgentForm';
 import PropertyShare from '../components/PropertyShare';
 import PropertyCard from '../components/PropertyCard';
 import { FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaCalendarAlt, FaCar, FaStar, FaShieldAlt } from 'react-icons/fa';
+import { storage } from '../utils/localStorage';
 
 
 export default function PropertyDetails() {
   const { id } = useParams();
-  const property = properties.find((p) => String(p.id) === String(id));
+  const storedListing = storage.getListingById(parseInt(id));
+  const property = properties.find((p) => String(p.id) === String(id)) || storedListing;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showContactModal, setShowContactModal] = useState(false);
   const isRental = property?.badge?.toLowerCase() === 'for rent';
+  const tours = storage.getPropertyMedia(property?.id);
 
   const formatNaira = (value) =>
     `₦${Number(value || 0).toLocaleString('en-NG')}`;
@@ -62,7 +65,8 @@ export default function PropertyDetails() {
     setCurrentImageIndex((prev) => (prev - 1 + (property.images?.length || 1)) % (property.images?.length || 1));
   };
 
-  const currentImage = property.images?.[currentImageIndex] || property.image;
+  const resolveImage = (img) => (img?.preview || img?.url || img);
+  const currentImage = resolveImage(property.images?.[currentImageIndex]) || property.image;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -256,12 +260,12 @@ export default function PropertyDetails() {
             {/* Virtual Tours */}
             <VirtualTour
               propertyId={property.id}
-              tours={property.virtualTours || []}
+              tours={property.virtualTours || tours || []}
             />
 
             {/* Mortgage */}
             {!isRental && (
-              <MortgageCalculator propertyPrice={property.price.replace(/[₦,]/g, '')} />
+              <MortgageCalculator propertyPrice={String(property.price || '').replace(/[₦,]/g, '')} />
             )}
 
             {/* Schedule Viewing */}

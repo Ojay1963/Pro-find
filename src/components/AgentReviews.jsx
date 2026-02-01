@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaStar, FaUser, FaCalendar } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
 import toast from 'react-hot-toast';
@@ -6,8 +6,24 @@ import toast from 'react-hot-toast';
 export default function AgentReviews({ agentId }) {
   const currentUser = storage.getCurrentUser();
   const userId = currentUser?.id || localStorage.getItem('profind_user_id');
-  const reviews = storage.getAgentReviews(agentId);
+  const [reviews, setReviews] = useState(storage.getAgentReviews(agentId));
   const agent = storage.getUsers().find(u => u.id === agentId);
+  const apiBase = import.meta.env.VITE_API_BASE || '';
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        const response = await fetch(`${apiBase}/api/agents/${agentId}/reviews`);
+        const data = await response.json();
+        if (response.ok && data?.reviews) {
+          setReviews(data.reviews);
+        }
+      } catch (error) {
+        console.error('Failed to load reviews', error);
+      }
+    };
+    void loadReviews();
+  }, [agentId, apiBase]);
   
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({

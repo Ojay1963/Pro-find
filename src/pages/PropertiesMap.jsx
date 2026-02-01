@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import properties from '../components/propertiesData';
+import { storage } from '../utils/localStorage';
 import { Link } from 'react-router-dom';
 
 // Fix for default marker icons
@@ -84,6 +85,12 @@ function MapView({ properties, selectedProperty, onPropertySelect }) {
 export default function PropertiesMap() {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [mapCenter] = useState([6.5244, 3.3792]); // Lagos, Nigeria
+  const storedListings = storage.getListings().map((listing) => ({
+    ...listing,
+    image: listing.image || listing.images?.[0]?.preview || listing.images?.[0] || listing.imageUrl,
+    badge: listing.badge || listing.listingType || 'For Sale'
+  }));
+  const allProperties = [...properties, ...storedListings];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -96,7 +103,7 @@ export default function PropertiesMap() {
             style={{ height: '100%', width: '100%' }}
           >
             <MapView
-              properties={properties}
+              properties={allProperties}
               selectedProperty={selectedProperty}
               onPropertySelect={setSelectedProperty}
             />
@@ -106,7 +113,7 @@ export default function PropertiesMap() {
           <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-sm max-h-[80vh] overflow-y-auto z-[1000]">
             <h2 className="font-bold mb-3">Properties on Map</h2>
             <div className="space-y-2">
-              {properties.slice(0, 10).map((property) => (
+              {allProperties.slice(0, 10).map((property) => (
                 <div
                   key={property.id}
                   onClick={() => setSelectedProperty(property)}

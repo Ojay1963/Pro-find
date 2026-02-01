@@ -13,11 +13,13 @@ export default function ContactAgentForm({ propertyId, propertyTitle, agentName 
     message: '',
     preferredContact: 'email'
   });
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSuccessMessage('');
     const currentUser = storage.getCurrentUser();
-    const userId = currentUser?.id || localStorage.getItem('profind_user_id');
+    const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
     
     // Save inquiry
     const inquiry = {
@@ -28,12 +30,17 @@ export default function ContactAgentForm({ propertyId, propertyTitle, agentName 
       ...formData,
       type: 'contact'
     };
-    storage.addInquiry(inquiry);
-    storage.trackListingInquiry(propertyId);
+    try {
+      await storage.addInquiry(inquiry);
+      storage.trackListingInquiry(propertyId);
+    } catch (error) {
+      toast.error(error.message || 'Failed to send inquiry. Please try again.');
+      return;
+    }
     
     // Create conversation if user is logged in
     if (userId && agentId) {
-      const conversation = storage.getOrCreateConversation(userId, agentId, propertyId);
+      const conversation = await storage.getOrCreateConversation(userId, agentId, propertyId);
       if (formData.message) {
         storage.addMessage(conversation.id, {
           senderId: userId,
@@ -41,20 +48,23 @@ export default function ContactAgentForm({ propertyId, propertyTitle, agentName 
           read: false
         });
         toast.success('Message sent! Opening conversation...');
+        setSuccessMessage('Your message was sent successfully.');
         setTimeout(() => navigate('/messages'), 1000);
       } else {
         toast.success('Your inquiry has been sent! The agent will contact you soon.');
+        setSuccessMessage('Your inquiry was sent successfully.');
       }
     } else {
       toast.success('Your inquiry has been sent! The agent will contact you soon.');
+      setSuccessMessage('Your inquiry was sent successfully.');
     }
     
     setFormData({ name: '', email: '', phone: '', message: '', preferredContact: 'email' });
   };
 
-  const handleStartChat = () => {
+  const handleStartChat = async () => {
     const currentUser = storage.getCurrentUser();
-    const userId = currentUser?.id || localStorage.getItem('profind_user_id');
+    const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
     
     if (!userId) {
       toast.error('Please log in to start a chat');
@@ -67,7 +77,7 @@ export default function ContactAgentForm({ propertyId, propertyTitle, agentName 
       return;
     }
     
-    const conversation = storage.getOrCreateConversation(userId, agentId, propertyId);
+    await storage.getOrCreateConversation(userId, agentId, propertyId);
     navigate('/messages');
   };
 
@@ -75,6 +85,11 @@ export default function ContactAgentForm({ propertyId, propertyTitle, agentName 
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
       <h3 className="text-xl font-bold mb-4">Contact Agent</h3>
       <p className="text-gray-600 mb-4">Interested in this property? Contact {agentName} for more information.</p>
+      {successMessage && (
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          {successMessage}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

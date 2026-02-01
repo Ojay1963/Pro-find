@@ -95,6 +95,17 @@ const AiChatBot = () => {
     )
   }
 
+  const setAssistantText = (assistantId, text) => {
+    if (!text) return
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === assistantId
+          ? { ...message, text }
+          : message
+      )
+    )
+  }
+
   const fetchNonStreamReply = async (apiMessages) => {
     const response = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
@@ -129,6 +140,7 @@ const AiChatBot = () => {
     setIsTyping(true)
 
     let timeoutId
+    let receivedText = ''
     try {
       const controller = new AbortController()
       timeoutId = setTimeout(() => controller.abort(), 20000)
@@ -174,7 +186,13 @@ const AiChatBot = () => {
           const payload = JSON.parse(dataText)
           const type = payload.type || eventType
           if (type === 'response.output_text.delta') {
+            receivedText += payload.delta || ''
             appendAssistantDelta(assistantId, payload.delta)
+            return
+          }
+          if (type === 'response.output_text.done') {
+            receivedText = payload.text || receivedText
+            setAssistantText(assistantId, payload.text)
             return
           }
           if (type === 'response.completed' || type === 'response.error') {
@@ -200,13 +218,14 @@ const AiChatBot = () => {
         await reader.cancel().catch(() => {})
       }
 
-      setMessages((prev) =>
-        prev.map((message) =>
-          message.id === assistantId && message.text.trim().length === 0
-            ? { ...message, text: 'I am here to help. What details can you share?' }
-            : message
+      if (!receivedText.trim()) {
+        const reply = await fetchNonStreamReply(buildApiMessages([...messages, userMessage]))
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === assistantId ? { ...message, text: reply } : message
+          )
         )
-      )
+      }
     } catch (error) {
       try {
         const reply = await fetchNonStreamReply(buildApiMessages([...messages, userMessage]))
