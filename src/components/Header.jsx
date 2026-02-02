@@ -159,13 +159,23 @@ export default function Header() {
               {label}
             </Link>
           ))}
-          <a
-            href="#"
-            className="btn-primary text-sm w-full mt-4 text-center py-2"
-            onClick={handleGetStarted}
-          >
-            Get Started
-          </a>
+          {isLoggedIn ? (
+            <Link
+              to="/dashboard"
+              className="btn-primary text-sm w-full mt-4 text-center py-2"
+              onClick={closeMenu}
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <a
+              href="#"
+              className="btn-primary text-sm w-full mt-4 text-center py-2"
+              onClick={handleGetStarted}
+            >
+              Get Started
+            </a>
+          )}
           <div className="flex items-center gap-3 mt-4">
             {[
               { label: 'Facebook', href: 'https://facebook.com', icon: FaFacebookF },
