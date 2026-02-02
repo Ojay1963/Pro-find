@@ -188,9 +188,9 @@ export default function AdminPanel() {
             {activeTab === 'listings' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold">Listing Moderation</h2>
-                    <div className="flex gap-4 text-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <h2 className="text-xl sm:text-2xl font-bold">Listing Moderation</h2>
+                    <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
                       <span className="text-orange-600">Pending: {pendingListings.length}</span>
                       <span className="text-green-600">Approved: {approvedListings.length}</span>
                       <span className="text-red-600">Rejected: {rejectedListings.length}</span>
