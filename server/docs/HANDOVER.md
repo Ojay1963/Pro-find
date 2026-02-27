@@ -59,12 +59,4 @@ Set user role to `admin` in the database:
 db.users.updateOne({ email: "admin@example.com" }, { $set: { role: "admin" } })
 ```
 
-Alternative (one-time endpoint):
-1) Set `ADMIN_PROMOTE_TOKEN` in `.env`
-2) Restart backend
-3) Call:
-```
-POST /api/admin/promote
-Header: x-admin-token: <ADMIN_PROMOTE_TOKEN>
-Body: { "email": "admin@example.com" }
-```
+Use only direct DB role updates for initial admin bootstrap.

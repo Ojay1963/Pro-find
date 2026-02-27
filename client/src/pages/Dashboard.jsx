@@ -133,7 +133,7 @@ export default function Dashboard() {
     if (window.confirm('Are you sure you want to logout?')) {
       // Clear ALL user session data
       localStorage.removeItem('currentUser');
-      storage.logout();
+      void storage.logout();
       
       // Clear any other potential user storage
       sessionStorage.clear();

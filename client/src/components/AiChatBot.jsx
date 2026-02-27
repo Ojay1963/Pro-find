@@ -13,6 +13,7 @@ const MAX_HISTORY = 12
 const systemPrompt =
   'You are Profind AI, a concise real-estate assistant. Ask for city, budget, beds/baths, timeline, and goals. Keep replies under 80 words.'
 const API_BASE = import.meta.env.VITE_API_BASE || ''
+const CSRF_KEY = 'profind_csrf_token'
 
 const AiChatBot = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -107,10 +108,13 @@ const AiChatBot = () => {
   }
 
   const fetchNonStreamReply = async (apiMessages) => {
+    const csrfToken = localStorage.getItem(CSRF_KEY)
     const response = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
       },
       body: JSON.stringify({ messages: apiMessages })
     })
@@ -144,12 +148,15 @@ const AiChatBot = () => {
     try {
       const controller = new AbortController()
       timeoutId = setTimeout(() => controller.abort(), 20000)
+      const csrfToken = localStorage.getItem(CSRF_KEY)
       const response = await fetch(`${API_BASE}/api/chat/stream`, {
         method: 'POST',
         signal: controller.signal,
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'text/event-stream'
+          Accept: 'text/event-stream',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
         },
         body: JSON.stringify({
           messages: buildApiMessages([...messages, userMessage])

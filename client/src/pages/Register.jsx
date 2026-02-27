@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { FaUser, FaEnvelope, FaLock, FaPhone, FaHome, FaBuilding, FaUserTie, FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaEye, FaEyeSlash } from 'react-icons/fa'
 import Header from '../components/Header'
@@ -8,6 +9,34 @@ import toast from 'react-hot-toast'
 
 const Register = () => {
   const navigate = useNavigate()
+  const registerSchema = z
+    .object({
+      name: z.string().min(1, 'Full name is required'),
+      email: z.string().email('Enter a valid email address'),
+      password: z.string().min(6, 'Password must be at least 6 characters'),
+      confirmPassword: z.string().min(1, 'Please confirm your password'),
+      phone: z.string().min(1, 'Phone number is required'),
+      role: z.enum(['seeker', 'owner', 'agent']),
+      licenseNumber: z.string().optional(),
+      companyName: z.string().optional()
+    })
+    .superRefine((data, ctx) => {
+      if (data.password !== data.confirmPassword) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['confirmPassword'],
+          message: 'Passwords do not match'
+        })
+      }
+
+      if (data.role === 'agent' && (!data.licenseNumber || data.licenseNumber.trim().length === 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['licenseNumber'],
+          message: 'License number is required for agents'
+        })
+      }
+    })
   const initialFormData = {
     name: '',
     email: '',
@@ -24,18 +53,22 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const validateForm = () => {
-    const newErrors = {}
-    
-    if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+    const result = registerSchema.safeParse(formData)
+    if (result.success) {
+      setErrors({})
+      return true
     }
 
+    const newErrors = {}
+    result.error.issues.forEach((issue) => {
+      const field = issue.path[0]
+      if (field && !newErrors[field]) {
+        newErrors[field] = issue.message
+      }
+    })
+
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return false
   }
 
   const handleSubmit = async (e) => {
@@ -58,8 +91,7 @@ const Register = () => {
       
       try {
         await storage.addUser(userData)
-        toast.success('Account created successfully! Please check your email to verify your account.')
-        // In a real app, send verification email here
+        toast.success('Account created successfully!')
         setFormData(initialFormData)
         setErrors({})
         navigate('/registration-success')
@@ -140,7 +172,10 @@ const Register = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, role: 'owner'})}
+                    onClick={() => {
+                      setFormData({...formData, role: 'owner'})
+                      if (errors.role) setErrors({...errors, role: ''})
+                    }}
                     className={`p-3 border rounded-lg flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
                       formData.role === 'owner'
                         ? 'border-green-600 bg-green-50'
@@ -152,7 +187,10 @@ const Register = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, role: 'agent'})}
+                    onClick={() => {
+                      setFormData({...formData, role: 'agent'})
+                      if (errors.role) setErrors({...errors, role: ''})
+                    }}
                     className={`p-3 border rounded-lg flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
                       formData.role === 'agent'
                         ? 'border-green-600 bg-green-50'
@@ -163,6 +201,7 @@ const Register = () => {
                     <span>Real Estate Agent</span>
                   </button>
                 </div>
+                {errors.role && <p className="text-red-500 text-sm -mt-3 mb-3">{errors.role}</p>}
 
                 <div>
                   <label className="block text-gray-700 mb-2">Full Name</label>
@@ -173,12 +212,18 @@ const Register = () => {
                       name="fullName"
                       autoComplete="off"
                       placeholder="Enter your full name"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        errors.name ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => {
+                        setFormData({...formData, name: e.target.value})
+                        if (errors.name) setErrors({...errors, name: ''})
+                      }}
                       required
                     />
                   </div>
+                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -190,12 +235,18 @@ const Register = () => {
                       name="email"
                       autoComplete="off"
                       placeholder="example@email.com"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        errors.email ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) => {
+                        setFormData({...formData, email: e.target.value})
+                        if (errors.email) setErrors({...errors, email: ''})
+                      }}
                       required
                     />
                   </div>
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -207,12 +258,18 @@ const Register = () => {
                       name="phone"
                       autoComplete="off"
                       placeholder="0803 123 4567"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        errors.phone ? 'border-red-500' : 'border-gray-300'
+                      }`}
                       value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      onChange={(e) => {
+                        setFormData({...formData, phone: e.target.value})
+                        if (errors.phone) setErrors({...errors, phone: ''})
+                      }}
                       required
                     />
                   </div>
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -289,20 +346,32 @@ const Register = () => {
                       <input
                         type="text"
                         placeholder="Enter your real estate license number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                          errors.licenseNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         value={formData.licenseNumber}
-                        onChange={(e) => setFormData({...formData, licenseNumber: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, licenseNumber: e.target.value})
+                          if (errors.licenseNumber) setErrors({...errors, licenseNumber: ''})
+                        }}
                       />
+                      {errors.licenseNumber && <p className="text-red-500 text-sm mt-1">{errors.licenseNumber}</p>}
                     </div>
                     <div>
                       <label className="block text-gray-700 mb-2">Company Name (Optional)</label>
                       <input
                         type="text"
                         placeholder="Your real estate company"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                          errors.companyName ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         value={formData.companyName}
-                        onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, companyName: e.target.value})
+                          if (errors.companyName) setErrors({...errors, companyName: ''})
+                        }}
                       />
+                      {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
                     </div>
                   </>
                 )}

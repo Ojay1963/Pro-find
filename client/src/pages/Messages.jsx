@@ -35,11 +35,9 @@ export default function Messages() {
   useEffect(() => {
     const loadMessages = async () => {
       if (!selectedConversation?.id) return;
-      const token = localStorage.getItem('profind_token');
-      if (!token) return;
       try {
         const response = await fetch(`${apiBase}/api/conversations/${selectedConversation.id}/messages`, {
-          headers: { Authorization: `Bearer ${token}` }
+          credentials: 'include'
         });
         const data = await response.json();
         if (response.ok && data?.messages) {

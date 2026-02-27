@@ -23,13 +23,14 @@ import ContactPage from './pages/ContactPage';
 import AdminPanel from './pages/AdminPanel';
 import CompareProperties from './pages/CompareProperties';
 import AgentProfile from './pages/AgentProfile';
-import EmailVerification from './pages/EmailVerification';
 import Messages from './pages/Messages';
 import BulkUpload from './pages/BulkUpload';
 import ResetPassword from './pages/ResetPassword';
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
 import GlobalTips from './components/GlobalTips';
+import RequireAuth from './components/RequireAuth';
+import RequireAdmin from './components/RequireAdmin';
 
 function App() {
   React.useEffect(() => {
@@ -47,14 +48,14 @@ function App() {
     };
 
     const checkIdle = () => {
-      const token = localStorage.getItem('profind_token');
-      if (!token) return;
+      const userId = localStorage.getItem('profind_user_id');
+      if (!userId) return;
       const lastActive = Number(localStorage.getItem('profind_last_active') || Date.now());
       if (Date.now() - lastActive > idleLimitMs) {
         if (didExpire) return;
         didExpire = true;
         toast.error('Session expired due to inactivity.');
-        storage.logout();
+        void storage.logout();
         setTimeout(() => {
           window.location.href = '/login';
         }, 800);
@@ -96,21 +97,20 @@ function AppShell() {
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/registration-success" element={<RegistrationSuccess />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-listing" element={<CreateListing />} />
+          <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+          <Route path="/create-listing" element={<RequireAuth><CreateListing /></RequireAuth>} />
           <Route path="/properties" element={<Properties />} />
           <Route path="/properties/map" element={<PropertiesMap />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/property/:id" element={<PropertyDetails />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/compare" element={<CompareProperties />} />
+          <Route path="/admin" element={<RequireAdmin><AdminPanel /></RequireAdmin>} />
+          <Route path="/compare" element={<RequireAuth><CompareProperties /></RequireAuth>} />
           <Route path="/agent/:id" element={<AgentProfile />} />
-          <Route path="/verify-email" element={<EmailVerification />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/messages/:conversationId" element={<Messages />} />
-          <Route path="/bulk-upload" element={<BulkUpload />} />
+          <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+          <Route path="/messages/:conversationId" element={<RequireAuth><Messages /></RequireAuth>} />
+          <Route path="/bulk-upload" element={<RequireAdmin><BulkUpload /></RequireAdmin>} />
         </Routes>
       </main>
       <GlobalTips />

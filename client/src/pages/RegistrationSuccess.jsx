@@ -24,19 +24,16 @@ const RegistrationSuccess = () => {
               <p className="text-gray-600 mb-2">
                 Your account has been created successfully. Welcome to PROFIND!
               </p>
-              <p className="text-sm text-blue-600">
-                Please check your email to verify your account.
-              </p>
             </div>
 
             <div className="space-y-3 pt-4">
-              <button
-                onClick={() => navigate('/login')}
-                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
-              >
-                Sign In Now
-              </button>
-              
+                <button
+                  onClick={() => navigate('/login')}
+                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                >
+                  Sign In Now
+                </button>
+
               <Link
                 to="/"
                 className="block w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition-colors font-semibold"

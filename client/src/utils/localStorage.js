@@ -1,16 +1,19 @@
 const API_BASE = import.meta.env.VITE_API_BASE || ''
-
-const getToken = () => localStorage.getItem('profind_token')
+const CSRF_KEY = 'profind_csrf_token'
 
 const apiRequest = async (path, options = {}) => {
   const headers = new Headers(options.headers || {})
-  const token = getToken()
-  if (token) headers.set('Authorization', `Bearer ${token}`)
+  const method = String(options.method || 'GET').toUpperCase()
+  const csrfToken = localStorage.getItem(CSRF_KEY)
+  if (csrfToken && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    headers.set('x-csrf-token', csrfToken)
+  }
   if (options.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: 'include',
     headers
   })
   const data = await response.json().catch(() => ({}))
@@ -27,8 +30,8 @@ const safeRequest = (path, options) =>
     return null
   })
 
-const setAuthSession = (user, token) => {
-  if (token) localStorage.setItem('profind_token', token)
+const setAuthSession = (user, csrfToken) => {
+  if (csrfToken) localStorage.setItem(CSRF_KEY, csrfToken)
   if (user) {
     localStorage.setItem('profind_user_role', user.role || 'seeker')
     localStorage.setItem('profind_user_name', user.name || 'User')
@@ -38,8 +41,9 @@ const setAuthSession = (user, token) => {
   }
 }
 
+
 const clearAuthSession = () => {
-  localStorage.removeItem('profind_token')
+  localStorage.removeItem(CSRF_KEY)
   localStorage.removeItem('profind_user_role')
   localStorage.removeItem('profind_user_name')
   localStorage.removeItem('profind_user_id')
@@ -90,11 +94,12 @@ export const storage = {
     const listings = await safeRequest('/api/listings')
     if (listings?.listings) writeJson('profind_listings', listings.listings)
 
-    const token = getToken()
-    if (!token) return
-
     const me = await safeRequest('/api/auth/me')
-    if (me?.user) setAuthSession(me.user)
+    if (!me?.user) {
+      clearAuthSession()
+      return
+    }
+    setAuthSession(me.user, me.csrfToken)
 
     const favorites = await safeRequest('/api/favorites')
     if (favorites?.favorites) writeJson('profind_favorites', favorites.favorites)
@@ -126,22 +131,12 @@ export const storage = {
 
   // Auth
   addUser: async (user) => {
-    const payload = {
-      name: user.name,
-      email: user.email,
-      password: user.password,
-      phone: user.phone,
-      role: user.role,
-      licenseNumber: user.licenseNumber,
-      companyName: user.companyName
-    }
     const data = await apiRequest('/api/auth/register', {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(user)
     })
-    setAuthSession(data.user, data.token)
-    await storage.syncAll()
-    return data.user
+    if (data?.user) setAuthSession(data.user, data.csrfToken)
+    return data?.user
   },
 
   login: async (email, password) => {
@@ -149,21 +144,29 @@ export const storage = {
       method: 'POST',
       body: JSON.stringify({ email, password })
     })
-    setAuthSession(data.user, data.token)
+    const serverUser = data?.user
+    setAuthSession(serverUser, data?.csrfToken)
     await storage.syncAll()
-    return data.user
+    return serverUser
   },
 
-  logout: () => {
+  logout: async () => {
+    await safeRequest('/api/auth/logout', { method: 'POST' })
     clearAuthSession()
   },
 
-  resetPassword: async (email, newPassword) => {
-    await apiRequest('/api/auth/reset-password', {
+  requestPasswordReset: async (email) => {
+    return apiRequest('/api/auth/reset-password/request', {
       method: 'POST',
-      body: JSON.stringify({ email, newPassword })
+      body: JSON.stringify({ email })
     })
   },
+
+  confirmPasswordReset: async (token, newPassword) =>
+    apiRequest('/api/auth/reset-password/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword })
+    }),
 
   // Favorites
   getFavorites: () => readJson('profind_favorites', []),
@@ -221,6 +224,34 @@ export const storage = {
   saveUserPreferences: (preferences) => {
     writeJson('profind_user_preferences', preferences)
     void safeRequest('/api/preferences', { method: 'PUT', body: JSON.stringify(preferences) })
+  },
+
+  // Monetization & Payments
+  getMonetizationPlans: async () => {
+    const data = await apiRequest('/api/monetization/plans')
+    return data?.plans || []
+  },
+
+  initializePayment: async ({ planCode, listingId, callbackUrl }) =>
+    apiRequest('/api/payments/initialize', {
+      method: 'POST',
+      body: JSON.stringify({ planCode, listingId, callbackUrl })
+    }),
+
+  verifyPayment: async (reference) =>
+    apiRequest('/api/payments/verify', {
+      method: 'POST',
+      body: JSON.stringify({ reference })
+    }),
+
+  getMyPaymentOrders: async () => {
+    const data = await apiRequest('/api/payments/orders/me')
+    return data?.orders || []
+  },
+
+  getMySubscriptions: async () => {
+    const data = await apiRequest('/api/subscriptions/me')
+    return data || { activeSubscription: null, subscriptions: [] }
   },
 
   // Inquiries Management
