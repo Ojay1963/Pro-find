@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import logo from '../assets/Untitled design.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaMoon, FaSun } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,7 +66,7 @@ export default function Header() {
 
   const handleInstallApp = async () => {
     if (showIosHint && !deferredPrompt) {
-      window.alert('To install this app on iPhone: tap Share in Safari, then tap "Add to Home Screen".');
+      toast('To install on iPhone: tap Share in Safari, then "Add to Home Screen".');
       return;
     }
     if (!deferredPrompt) return;
