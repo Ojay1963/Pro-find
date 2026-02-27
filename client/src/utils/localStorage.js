@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || ''
+const API_BASE = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 const CSRF_KEY = 'profind_csrf_token'
 
 const apiRequest = async (path, options = {}) => {

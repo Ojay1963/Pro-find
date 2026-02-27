@@ -12,7 +12,7 @@ const STORAGE_KEY = 'profind-ai-chat-v1'
 const MAX_HISTORY = 12
 const systemPrompt =
   'You are Profind AI, a concise real-estate assistant. Ask for city, budget, beds/baths, timeline, and goals. Keep replies under 80 words.'
-const API_BASE = import.meta.env.VITE_API_BASE || ''
+const API_BASE = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 const CSRF_KEY = 'profind_csrf_token'
 
 const AiChatBot = () => {

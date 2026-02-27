@@ -84,6 +84,7 @@ export default function Header() {
     { to: '/about', label: 'About' },
     { to: '/services', label: 'Services' },
     { to: '/contact', label: 'Contact' },
+    ...(localStorage.getItem('profind_user_name') ? [{ to: '/upgrade', label: 'Upgrade' }] : []),
   ];
 
   // Check if user is logged in (in real app, use auth context)

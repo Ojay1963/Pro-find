@@ -11,7 +11,7 @@ export default function Messages() {
   const { conversationId } = useParams();
   const currentUser = storage.getCurrentUser();
   const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
-  const apiBase = import.meta.env.VITE_API_BASE || '';
+  const apiBase = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
   
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);

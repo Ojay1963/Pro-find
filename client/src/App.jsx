@@ -26,6 +26,7 @@ import AgentProfile from './pages/AgentProfile';
 import Messages from './pages/Messages';
 import BulkUpload from './pages/BulkUpload';
 import ResetPassword from './pages/ResetPassword';
+import Upgrade from './pages/Upgrade';
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
 import GlobalTips from './components/GlobalTips';
@@ -111,6 +112,7 @@ function AppShell() {
           <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
           <Route path="/messages/:conversationId" element={<RequireAuth><Messages /></RequireAuth>} />
           <Route path="/bulk-upload" element={<RequireAdmin><BulkUpload /></RequireAdmin>} />
+          <Route path="/upgrade" element={<RequireAuth><Upgrade /></RequireAuth>} />
         </Routes>
       </main>
       <GlobalTips />

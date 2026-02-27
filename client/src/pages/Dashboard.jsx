@@ -236,6 +236,14 @@ export default function Dashboard() {
                       Explore new listings
                     </Link>
                   </div>
+                  <div className="mt-4">
+                    <Link
+                      to="/upgrade"
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-green-200 text-green-700 font-semibold hover:bg-green-100 transition-colors"
+                    >
+                      Upgrade and Promote
+                    </Link>
+                  </div>
                   <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
                     {[
                       { label: 'Favorites', value: favorites.length },

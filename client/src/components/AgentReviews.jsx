@@ -8,7 +8,7 @@ export default function AgentReviews({ agentId }) {
   const userId = currentUser?.id || localStorage.getItem('profind_user_id');
   const [reviews, setReviews] = useState(storage.getAgentReviews(agentId));
   const agent = storage.getUsers().find(u => u.id === agentId);
-  const apiBase = import.meta.env.VITE_API_BASE || '';
+  const apiBase = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
   useEffect(() => {
     const loadReviews = async () => {
