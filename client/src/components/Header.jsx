@@ -7,6 +7,9 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaMoon, FaSun } from
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [canInstall, setCanInstall] = useState(false);
+  const [showIosHint, setShowIosHint] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,6 +18,32 @@ export default function Header() {
     const shouldUseDark = stored ? stored === 'dark' : prefersDark;
     setIsDark(shouldUseDark);
     document.documentElement.classList.toggle('dark', shouldUseDark);
+  }, []);
+
+  useEffect(() => {
+    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    setShowIosHint(isIos && !isStandalone);
+
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      setDeferredPrompt(event);
+      setCanInstall(true);
+    };
+
+    const handleInstalled = () => {
+      setDeferredPrompt(null);
+      setCanInstall(false);
+      setShowIosHint(false);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleInstalled);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -33,6 +62,20 @@ export default function Header() {
   };
 
   const closeMenu = () => setMenuOpen(false);
+
+  const handleInstallApp = async () => {
+    if (showIosHint && !deferredPrompt) {
+      window.alert('To install this app on iPhone: tap Share in Safari, then tap "Add to Home Screen".');
+      return;
+    }
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if (choice.outcome === 'accepted') {
+      setCanInstall(false);
+      setDeferredPrompt(null);
+    }
+  };
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -73,6 +116,17 @@ export default function Header() {
 
         {/* Desktop Contact & CTA */}
         <div className="hidden md:flex items-center gap-3 lg:gap-4 flex-wrap justify-end">
+          {(canInstall || showIosHint) && (
+            <button
+              type="button"
+              onClick={handleInstallApp}
+              className="h-10 px-3 rounded-full border border-green-600 text-green-700 bg-white hover:bg-green-50 transition-colors text-sm font-medium"
+              title={showIosHint ? 'Use your browser Share menu and choose Add to Home Screen.' : 'Install app'}
+              disabled={!canInstall && !showIosHint}
+            >
+              Install App
+            </button>
+          )}
           <button
             type="button"
             onClick={toggleTheme}
@@ -140,6 +194,17 @@ export default function Header() {
           className="md:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
           aria-label="Mobile navigation"
         >
+          {(canInstall || showIosHint) && (
+            <button
+              type="button"
+              onClick={handleInstallApp}
+              className="mb-3 inline-flex items-center justify-center gap-2 px-4 py-2 border border-green-600 text-green-700 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-60"
+              disabled={!canInstall && !showIosHint}
+              title={showIosHint ? 'Use your browser Share menu and choose Add to Home Screen.' : 'Install app'}
+            >
+              <span className="text-sm font-medium">Install App</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={toggleTheme}
