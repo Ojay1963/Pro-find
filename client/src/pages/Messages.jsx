@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaUser, FaEnvelope, FaPaperPlane, FaSearch, FaHome } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
+import { resolveApiBase } from '../utils/apiBase';
 import toast from 'react-hot-toast';
 import properties from '../components/propertiesData';
 
@@ -11,7 +12,7 @@ export default function Messages() {
   const { conversationId } = useParams();
   const currentUser = storage.getCurrentUser();
   const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
-  const apiBase = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  const apiBase = resolveApiBase();
   
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);

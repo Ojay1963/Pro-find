@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaHome, FaHeart, FaEye, FaSearch, FaPlus, FaEdit, FaChartLine, FaEnvelope, FaTrash, FaCheckCircle, FaClock, FaUser, FaShieldAlt, FaBell, FaTimes, FaComments, FaSignOutAlt } from 'react-icons/fa';
@@ -9,9 +9,15 @@ import toast from 'react-hot-toast';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [currentUser, setCurrentUser] = useState(storage.getCurrentUser());
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [qaOverview, setQaOverview] = useState(null);
+  const [qaTrend, setQaTrend] = useState({ series: [] });
+  const [qaMetric, setQaMetric] = useState('property_viewed');
+  const [qaUpdatedAt, setQaUpdatedAt] = useState(null);
+  const [qaLoading, setQaLoading] = useState(false);
   
   // Initialize data only if user is logged in
   const favorites = isLoggedIn ? storage.getFavorites() : [];
@@ -28,6 +34,7 @@ export default function Dashboard() {
       const loggedIn = !!(userData || localStorageName || localStorageId);
       
       setIsLoggedIn(loggedIn);
+      setCurrentUser(userData);
       
       if (!loggedIn) {
         console.log('User not logged in, redirecting to home...');
@@ -47,6 +54,42 @@ export default function Dashboard() {
     
     return () => clearInterval(interval);
   }, [navigate]);
+
+  useEffect(() => {
+    if (location.state?.justLoggedIn) {
+      toast.success('Logged in successfully!');
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, navigate]);
+
+  const derivedUserRole = currentUser?.role || localStorage.getItem('profind_user_role') || 'seeker';
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    if (!['owner', 'agent', 'admin'].includes(derivedUserRole)) return;
+    let cancelled = false;
+    const loadInsights = async () => {
+      setQaLoading(true);
+      try {
+        const [overview, trend] = await Promise.all([
+          storage.getAnalyticsOverview(),
+          storage.getAnalyticsTrends(14)
+        ]);
+        if (cancelled) return;
+        setQaOverview(overview);
+        setQaTrend(trend || { series: [] });
+        setQaUpdatedAt(new Date().toISOString());
+      } catch (error) {
+        if (!cancelled) toast.error(error.message || 'Failed to load QA insights');
+      } finally {
+        if (!cancelled) setQaLoading(false);
+      }
+    };
+    void loadInsights();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoggedIn, derivedUserRole]);
 
   // If not logged in, don't render the dashboard content
   if (!isLoggedIn) {
@@ -72,7 +115,7 @@ export default function Dashboard() {
   const favoriteProperties = allProperties.filter(p => favorites.includes(p.id));
   const viewedProperties = allProperties.filter(p => recentlyViewed.includes(p.id));
 
-  const userRole = currentUser?.role || localStorage.getItem('profind_user_role') || 'seeker';
+  const userRole = derivedUserRole;
   const userName = currentUser?.name || localStorage.getItem('profind_user_name') || 'User';
   const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id') || '0');
   const userEmail = currentUser?.email || localStorage.getItem('profind_user_email');
@@ -129,25 +172,14 @@ export default function Dashboard() {
 
   const priceAlerts = storage.getPriceAlerts();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('Are you sure you want to logout?')) {
-      // Clear ALL user session data
-      localStorage.removeItem('currentUser');
-      void storage.logout();
-      
-      // Clear any other potential user storage
+      await storage.logout();
       sessionStorage.clear();
-      
-      // Reset state
       setCurrentUser(null);
       setIsLoggedIn(false);
-      
       toast.success('Logged out successfully!');
-      
-      // Force immediate redirect
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 100);
+      navigate('/', { replace: true });
     }
   };
 
@@ -236,14 +268,16 @@ export default function Dashboard() {
                       Explore new listings
                     </Link>
                   </div>
-                  <div className="mt-4">
-                    <Link
-                      to="/upgrade"
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-green-200 text-green-700 font-semibold hover:bg-green-100 transition-colors"
-                    >
-                      Upgrade and Promote
-                    </Link>
-                  </div>
+                  {(userRole === 'owner' || userRole === 'agent') && (
+                    <div className="mt-4">
+                      <Link
+                        to="/upgrade"
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-green-200 text-green-700 font-semibold hover:bg-green-100 transition-colors"
+                      >
+                        Upgrade and Promote
+                      </Link>
+                    </div>
+                  )}
                   <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
                     {[
                       { label: 'Favorites', value: favorites.length },
@@ -308,6 +342,44 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+                {(userRole === 'owner' || userRole === 'agent' || userRole === 'admin') && (
+                  <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold">Platform QA Insights</h3>
+                        <p className="text-sm text-gray-600">
+                          Last updated: {qaUpdatedAt ? new Date(qaUpdatedAt).toLocaleTimeString() : 'Not yet'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={qaMetric}
+                          onChange={(event) => setQaMetric(event.target.value)}
+                          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                        >
+                          <option value="search_submitted">Searches</option>
+                          <option value="property_viewed">Property Views</option>
+                          <option value="inquiry_submitted">Inquiries</option>
+                          <option value="payment_started">Payment Starts</option>
+                          <option value="payment_verified">Payment Verified</option>
+                        </select>
+                      </div>
+                    </div>
+                    {qaLoading ? (
+                      <p className="text-gray-500 text-sm">Loading insights...</p>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                          <StatPill label="Searches" value={qaOverview?.counts?.search_submitted || 0} />
+                          <StatPill label="Views" value={qaOverview?.counts?.property_viewed || 0} />
+                          <StatPill label="Inquiries" value={qaOverview?.counts?.inquiry_submitted || 0} />
+                          <StatPill label="Avg Latency" value={`${qaOverview?.qa?.avgLatencyMs || 0} ms`} />
+                        </div>
+                        <TrendLineChartLite data={qaTrend?.series || []} metric={qaMetric} />
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -321,7 +393,7 @@ export default function Dashboard() {
                     {favoriteProperties.map(property => (
                       <Link key={property.id} to={`/property/${property.id}`} className="group border border-gray-100 rounded-2xl overflow-hidden bg-white/90 shadow-sm hover:shadow-lg transition-all">
                         <div className="relative aspect-square overflow-hidden">
-                          <img src={property.image} alt={property.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <img src={property.image} alt={property.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                           <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
                             <h3 className="font-semibold text-white">{property.title}</h3>
                             <p className="text-xs text-white/80">{property.location}</p>
@@ -348,7 +420,7 @@ export default function Dashboard() {
                     {viewedProperties.map(property => (
                       <Link key={property.id} to={`/property/${property.id}`} className="group border border-gray-100 rounded-2xl overflow-hidden bg-white/90 shadow-sm hover:shadow-lg transition-all">
                         <div className="relative aspect-square overflow-hidden">
-                          <img src={property.image} alt={property.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <img src={property.image} alt={property.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                           <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
                             <h3 className="font-semibold text-white">{property.title}</h3>
                             <p className="text-xs text-white/80">{property.location}</p>
@@ -446,6 +518,19 @@ export default function Dashboard() {
                             View
                           </Link>
                           <button
+                            onClick={async () => {
+                              try {
+                                await storage.notifySavedSearch(search.id);
+                                toast.success('Saved search digest sent.');
+                              } catch (error) {
+                                toast.error(error.message || 'Could not send digest.');
+                              }
+                            }}
+                            className="px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50"
+                          >
+                            Send Digest
+                          </button>
+                          <button
                             onClick={() => {
                               storage.deleteSavedSearch(search.id);
                               window.location.reload();
@@ -512,6 +597,8 @@ export default function Dashboard() {
                             <img 
                               src={listing.images[0].preview || listing.images[0]} 
                               alt={listing.title}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full aspect-square object-cover"
                             />
                           )}
@@ -704,6 +791,45 @@ export default function Dashboard() {
         </div>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+function StatPill({ label, value }) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+      <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
+      <p className="text-lg font-bold text-gray-900 mt-1">{value}</p>
+    </div>
+  );
+}
+
+function TrendLineChartLite({ data, metric }) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <p className="text-sm text-gray-500">No trend data yet.</p>;
+  }
+  const width = 640;
+  const height = 180;
+  const pad = 20;
+  const values = data.map((item) => Number(item?.[metric] || 0));
+  const max = Math.max(...values, 1);
+  const points = values
+    .map((value, index) => {
+      const x = pad + (index / Math.max(values.length - 1, 1)) * (width - pad * 2);
+      const y = height - pad - (value / max) * (height - pad * 2);
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <div>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-44 rounded-lg bg-gray-50 border border-gray-200">
+        <polyline fill="none" stroke="#2563EB" strokeWidth="3" points={points} />
+      </svg>
+      <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+        <span>{data[0]?.day || ''}</span>
+        <span>{data[data.length - 1]?.day || ''}</span>
+      </div>
     </div>
   );
 }

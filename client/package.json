@@ -9,7 +9,7 @@
     "build:gh": "cross-env VITE_BASE_PATH=/Pro-find/ vite build && node scripts/copy-404.js",
     "lint": "eslint .",
     "test": "vitest",
-    "test:smoke": "vitest run src/__tests__/app.smoke.test.jsx",
+    "test:smoke": "vitest run src/__tests__/app.smoke.test.jsx --pool=threads",
     "preview": "vite preview",
     "predeploy": "npm run build:gh",
     "deploy": "gh-pages -d dist"

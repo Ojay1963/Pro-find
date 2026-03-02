@@ -51,6 +51,7 @@ const Register = () => {
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validateForm = () => {
     const result = registerSchema.safeParse(formData)
@@ -73,8 +74,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
     
     if (validateForm()) {
+      setIsSubmitting(true)
       // Save user data
       const userData = {
         name: formData.name,
@@ -97,6 +100,8 @@ const Register = () => {
         navigate('/registration-success')
       } catch (error) {
         toast.error(error.message || 'Registration failed. Please try again.')
+      } finally {
+        setIsSubmitting(false)
       }
     }
   }
@@ -378,9 +383,10 @@ const Register = () => {
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
                 >
-                  Create Account
+                  {isSubmitting ? 'Creating Account...' : 'Create Account'}
                 </button>
 
                 <div className="text-center">

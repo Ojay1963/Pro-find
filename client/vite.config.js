@@ -60,5 +60,17 @@ export default defineConfig(({ mode }) => {
         '/api': 'http://localhost:3001',
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom'],
+            map: ['leaflet', 'react-leaflet'],
+            charts: ['recharts'],
+            motion: ['framer-motion']
+          }
+        }
+      }
+    }
   }
 })

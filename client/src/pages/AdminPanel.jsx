@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { FaShieldAlt, FaCheckCircle, FaTimesCircle, FaList, FaUsers, FaCheck, FaBan, FaEye } from 'react-icons/fa';
+import { FaShieldAlt, FaCheckCircle, FaTimesCircle, FaList, FaUsers, FaCheck, FaBan, FaEye, FaChartLine, FaServer } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
 import toast from 'react-hot-toast';
 
@@ -16,9 +16,72 @@ export default function AdminPanel() {
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [selectedMessages, setSelectedMessages] = useState([]);
+  const [qaMetrics, setQaMetrics] = useState(null);
+  const [funnelMetrics, setFunnelMetrics] = useState({});
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [trendDays, setTrendDays] = useState(14);
+  const [trendData, setTrendData] = useState({ days: 14, series: [], events: [] });
+  const [qaLoading, setQaLoading] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState('property_viewed');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
   const currentUser = storage.getCurrentUser();
-  if (!currentUser || currentUser.role !== 'admin') {
+  const isAdmin = Boolean(currentUser && currentUser.role === 'admin')
+
+  const loadAdminData = async () => {
+    try {
+      await storage.syncAll();
+      const [adminUsers, adminConversations] = await Promise.all([
+        storage.adminGetUsers(),
+        storage.adminGetConversations()
+      ]);
+      setListings(storage.getListings());
+      setUsers(adminUsers);
+      setVerifications(storage.getAgentVerifications());
+      setInquiries(storage.getInquiries());
+      setConversations(adminConversations);
+    } catch (error) {
+      toast.error(error.message || 'Failed to load admin data');
+    }
+  };
+
+  const loadQaData = async (days = trendDays) => {
+    setQaLoading(true);
+    try {
+      const [qaData, funnelData, healthData, trends] = await Promise.all([
+        storage.adminGetQaMetrics(),
+        storage.adminGetFunnelMetrics(),
+        storage.adminGetSystemHealth(),
+        storage.adminGetAnalyticsTrends(days)
+      ]);
+      setQaMetrics(qaData);
+      setFunnelMetrics(funnelData || {});
+      setSystemHealth(healthData);
+      setTrendData(trends || { days, series: [], events: [] });
+      setLastUpdatedAt(new Date().toISOString());
+    } catch (error) {
+      toast.error(error.message || 'Failed to load QA insights');
+    } finally {
+      setQaLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    void loadAdminData();
+    void loadQaData(trendDays);
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin || activeTab !== 'qa' || !autoRefresh) return;
+    const timer = setInterval(() => {
+      void loadQaData(trendDays);
+    }, 60000);
+    return () => clearInterval(timer);
+  }, [isAdmin, activeTab, autoRefresh, trendDays]);
+
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -33,25 +96,6 @@ export default function AdminPanel() {
       </div>
     );
   }
-
-  useEffect(() => {
-    const loadAdminData = async () => {
-      try {
-        await storage.syncAll();
-        const adminUsers = await storage.adminGetUsers();
-        const adminConversations = await storage.adminGetConversations();
-        setListings(storage.getListings());
-        setUsers(adminUsers);
-        setVerifications(storage.getAgentVerifications());
-        setInquiries(storage.getInquiries());
-        setConversations(adminConversations);
-      } catch (error) {
-        toast.error(error.message || 'Failed to load admin data');
-      }
-    };
-
-    void loadAdminData();
-  }, []);
 
   const pendingListings = listings.filter(l => l.status === 'pending');
   const approvedListings = listings.filter(l => l.status === 'approved');
@@ -134,6 +178,24 @@ export default function AdminPanel() {
     }
   };
 
+  const qaKpis = useMemo(() => {
+    const searches = Number(funnelMetrics.search_submitted || 0);
+    const views = Number(funnelMetrics.property_viewed || 0);
+    const inquiriesCount = Number(funnelMetrics.inquiry_submitted || 0);
+    const starts = Number(funnelMetrics.payment_started || 0);
+    const verified = Number(funnelMetrics.payment_verified || 0);
+    const inquiryRate = views > 0 ? ((inquiriesCount / views) * 100).toFixed(1) : '0.0';
+    const paymentCompletion = starts > 0 ? ((verified / starts) * 100).toFixed(1) : '0.0';
+    return { searches, views, inquiriesCount, starts, verified, inquiryRate, paymentCompletion };
+  }, [funnelMetrics]);
+  const metricConfig = {
+    search_submitted: { label: 'Searches', color: '#7C3AED' },
+    property_viewed: { label: 'Property views', color: '#2563EB' },
+    inquiry_submitted: { label: 'Inquiries', color: '#059669' },
+    payment_started: { label: 'Payment starts', color: '#D97706' },
+    payment_verified: { label: 'Payment verified', color: '#DC2626' }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
@@ -156,6 +218,7 @@ export default function AdminPanel() {
                   { id: 'users', label: 'All Users', icon: FaUsers },
                   { id: 'inquiries', label: 'All Inquiries', icon: FaList, count: inquiries.length },
                   { id: 'messages', label: 'All Messages', icon: FaList, count: conversations.length },
+                  { id: 'qa', label: 'Platform QA', icon: FaChartLine },
                 ].map(item => {
                   const Icon = item.icon;
                   return (
@@ -455,10 +518,215 @@ export default function AdminPanel() {
                 </div>
               </div>
             )}
+
+            {activeTab === 'qa' && (
+              <div className="space-y-6">
+                <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-emerald-50 p-5 shadow-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold flex items-center gap-2">
+                        <FaChartLine className="text-indigo-600" />
+                        Platform QA Insights
+                      </h2>
+                      <p className="text-sm text-gray-600 mt-1">Live health, conversion funnel, and trend movement.</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Last updated: {lastUpdatedAt ? new Date(lastUpdatedAt).toLocaleTimeString() : 'Not yet'}
+                        {' '}| Auto-refresh: {autoRefresh ? 'On (60s)' : 'Off'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {[7, 14, 30].map((days) => (
+                        <button
+                          key={days}
+                          type="button"
+                          onClick={() => {
+                            setTrendDays(days);
+                            void loadQaData(days);
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-sm border ${
+                            trendDays === days ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300'
+                          }`}
+                        >
+                          {days}d
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => void loadQaData(trendDays)}
+                        className="px-3 py-1.5 rounded-full text-sm border border-gray-300 bg-white text-gray-700"
+                      >
+                        Refresh
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAutoRefresh((prev) => !prev)}
+                        className={`px-3 py-1.5 rounded-full text-sm border ${
+                          autoRefresh ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-300'
+                        }`}
+                      >
+                        {autoRefresh ? 'Auto On' : 'Auto Off'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <KpiCard label="API Requests" value={qaMetrics?.requests || 0} tone="indigo" />
+                  <KpiCard label="Error Rate" value={`${qaMetrics?.failedRatePct || 0}%`} tone="rose" />
+                  <KpiCard label="Inquiry Rate" value={`${qaKpis.inquiryRate}%`} tone="emerald" />
+                  <KpiCard label="Payment Completion" value={`${qaKpis.paymentCompletion}%`} tone="amber" />
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                  <div className="xl:col-span-3 bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Event Trend</h3>
+                      <select
+                        value={selectedMetric}
+                        onChange={(event) => setSelectedMetric(event.target.value)}
+                        className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                      >
+                        {Object.entries(metricConfig).map(([key, value]) => (
+                          <option key={key} value={key}>{value.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {qaLoading ? (
+                      <p className="text-sm text-gray-500">Loading trends...</p>
+                    ) : (
+                      <TrendLineChart
+                        data={trendData.series || []}
+                        metric={selectedMetric}
+                        color={metricConfig[selectedMetric]?.color || '#2563EB'}
+                        label={metricConfig[selectedMetric]?.label || 'Metric'}
+                      />
+                    )}
+                  </div>
+                  <div className="xl:col-span-2 bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Funnel Snapshot</h3>
+                    <FunnelBars counts={funnelMetrics} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Reliability</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <MetricCard label="Failed API Calls" value={qaMetrics?.failedApi || 0} />
+                      <MetricCard label="Avg Latency" value={`${qaMetrics?.avgLatencyMs || 0} ms`} />
+                      <MetricCard label="429 Rate Limited" value={qaMetrics?.rateLimited || 0} />
+                      <MetricCard label="Server Errors" value={qaMetrics?.serverErrors || 0} />
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <FaServer className="text-blue-600" />
+                      System Health
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <MetricCard label="Uptime" value={`${systemHealth?.uptimeSeconds || 0}s`} />
+                      <MetricCard label="Memory RSS" value={`${Math.round((systemHealth?.memory?.rss || 0) / 1024 / 1024)} MB`} />
+                      <MetricCard label="Requests" value={systemHealth?.requests || 0} />
+                      <MetricCard label="Failed API" value={systemHealth?.failedApi || 0} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+function MetricCard({ label, value }) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+      <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
+      <p className="text-xl font-bold text-gray-900 mt-1">{value}</p>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, tone = 'indigo' }) {
+  const toneMap = {
+    indigo: 'from-indigo-50 to-white border-indigo-100 text-indigo-700',
+    rose: 'from-rose-50 to-white border-rose-100 text-rose-700',
+    emerald: 'from-emerald-50 to-white border-emerald-100 text-emerald-700',
+    amber: 'from-amber-50 to-white border-amber-100 text-amber-700'
+  };
+  const style = toneMap[tone] || toneMap.indigo;
+  return (
+    <div className={`rounded-xl border p-4 bg-gradient-to-br ${style}`}>
+      <p className="text-xs uppercase tracking-[0.2em] text-gray-500">{label}</p>
+      <p className="text-2xl font-bold mt-2">{value}</p>
+    </div>
+  );
+}
+
+function TrendLineChart({ data, metric, color, label }) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <p className="text-sm text-gray-500">No trend data yet.</p>;
+  }
+  const width = 720;
+  const height = 220;
+  const pad = 22;
+  const values = data.map((item) => Number(item?.[metric] || 0));
+  const max = Math.max(...values, 1);
+  const points = values
+    .map((value, index) => {
+      const x = pad + (index / Math.max(values.length - 1, 1)) * (width - pad * 2);
+      const y = height - pad - (value / max) * (height - pad * 2);
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm text-gray-600">{label}</p>
+        <p className="text-sm font-semibold text-gray-900">{values[values.length - 1] || 0} today</p>
+      </div>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-56 rounded-lg bg-gray-50 border border-gray-200">
+        <polyline fill="none" stroke={color} strokeWidth="3" points={points} />
+      </svg>
+      <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+        <span>{data[0]?.day || ''}</span>
+        <span>{data[data.length - 1]?.day || ''}</span>
+      </div>
+    </div>
+  );
+}
+
+function FunnelBars({ counts = {} }) {
+  const rows = [
+    { key: 'search_submitted', label: 'Searches' },
+    { key: 'property_viewed', label: 'Property views' },
+    { key: 'inquiry_submitted', label: 'Inquiries' },
+    { key: 'payment_started', label: 'Payment starts' },
+    { key: 'payment_verified', label: 'Payment verified' }
+  ];
+  const max = Math.max(...rows.map((row) => Number(counts[row.key] || 0)), 1);
+  return (
+    <div className="space-y-3">
+      {rows.map((row) => {
+        const value = Number(counts[row.key] || 0);
+        const width = `${Math.round((value / max) * 100)}%`;
+        return (
+          <div key={row.key}>
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="text-gray-600">{row.label}</span>
+              <span className="font-semibold text-gray-900">{value}</span>
+            </div>
+            <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+              <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500" style={{ width }} />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

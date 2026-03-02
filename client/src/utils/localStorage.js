@@ -1,21 +1,48 @@
-const API_BASE = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+import { resolveApiBase } from './apiBase'
+
+const API_BASE = resolveApiBase()
 const CSRF_KEY = 'profind_csrf_token'
+const AUTH_TOKEN_KEY = 'profind_auth_token'
+const AUTH_CHANGE_EVENT = 'profind-auth-changed'
+const ANALYTICS_SESSION_KEY = 'profind_analytics_session'
+const REQUEST_TIMEOUT_MS = 45000
+
+const emitAuthChange = () => {
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT))
+}
 
 const apiRequest = async (path, options = {}) => {
   const headers = new Headers(options.headers || {})
   const method = String(options.method || 'GET').toUpperCase()
   const csrfToken = localStorage.getItem(CSRF_KEY)
+  const authToken = localStorage.getItem(AUTH_TOKEN_KEY)
   if (csrfToken && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
     headers.set('x-csrf-token', csrfToken)
+  }
+  if (authToken && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${authToken}`)
   }
   if (options.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    credentials: 'include',
-    headers
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  let response
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      credentials: 'include',
+      headers,
+      signal: options.signal || controller.signal
+    })
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.')
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutId)
+  }
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
     const message = data?.error || 'Request failed'
@@ -30,8 +57,9 @@ const safeRequest = (path, options) =>
     return null
   })
 
-const setAuthSession = (user, csrfToken) => {
+const setAuthSession = (user, csrfToken, token) => {
   if (csrfToken) localStorage.setItem(CSRF_KEY, csrfToken)
+  if (token) localStorage.setItem(AUTH_TOKEN_KEY, token)
   if (user) {
     localStorage.setItem('profind_user_role', user.role || 'seeker')
     localStorage.setItem('profind_user_name', user.name || 'User')
@@ -39,16 +67,19 @@ const setAuthSession = (user, csrfToken) => {
     localStorage.setItem('profind_user_email', user.email || '')
     writeJson('profind_current_user', user)
   }
+  emitAuthChange()
 }
 
 
 const clearAuthSession = () => {
   localStorage.removeItem(CSRF_KEY)
+  localStorage.removeItem(AUTH_TOKEN_KEY)
   localStorage.removeItem('profind_user_role')
   localStorage.removeItem('profind_user_name')
   localStorage.removeItem('profind_user_id')
   localStorage.removeItem('profind_user_email')
   localStorage.removeItem('profind_current_user')
+  emitAuthChange()
 }
 
 const readJson = (key, fallback) => {
@@ -63,6 +94,18 @@ const readJson = (key, fallback) => {
 
 const writeJson = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value))
+}
+
+const getAnalyticsSessionId = () => {
+  let sessionId = localStorage.getItem(ANALYTICS_SESSION_KEY)
+  if (sessionId) return sessionId
+  if (window.crypto?.randomUUID) {
+    sessionId = window.crypto.randomUUID()
+  } else {
+    sessionId = `${Date.now()}-${Math.floor(Math.random() * 1e9)}`
+  }
+  localStorage.setItem(ANALYTICS_SESSION_KEY, sessionId)
+  return sessionId
 }
 
 export const storage = {
@@ -135,7 +178,6 @@ export const storage = {
       method: 'POST',
       body: JSON.stringify(user)
     })
-    if (data?.user) setAuthSession(data.user, data.csrfToken)
     return data?.user
   },
 
@@ -145,7 +187,7 @@ export const storage = {
       body: JSON.stringify({ email, password })
     })
     const serverUser = data?.user
-    setAuthSession(serverUser, data?.csrfToken)
+    setAuthSession(serverUser, data?.csrfToken, data?.token)
     await storage.syncAll()
     return serverUser
   },
@@ -167,6 +209,40 @@ export const storage = {
       method: 'POST',
       body: JSON.stringify({ token, newPassword })
     }),
+
+  subscribeNewsletter: async (email) =>
+    apiRequest('/api/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    }),
+
+  trackEvent: async (event, metadata = {}) => {
+    if (!event) return false
+    try {
+      await apiRequest('/api/analytics/events', {
+        method: 'POST',
+        body: JSON.stringify({
+          event,
+          sessionId: getAnalyticsSessionId(),
+          metadata
+        })
+      })
+      return true
+    } catch (error) {
+      console.error(`Analytics tracking failed for ${event}`, error)
+      return false
+    }
+  },
+
+  getAnalyticsOverview: async () => {
+    const data = await apiRequest('/api/analytics/overview')
+    return data || { counts: {}, qa: null }
+  },
+
+  getAnalyticsTrends: async (days = 14) => {
+    const data = await apiRequest(`/api/analytics/trends?days=${Number(days) || 14}`)
+    return data || { days: 14, series: [], events: [] }
+  },
 
   // Favorites
   getFavorites: () => readJson('profind_favorites', []),
@@ -204,10 +280,15 @@ export const storage = {
 
   saveSearch: (searchCriteria) => {
     const searches = storage.getSavedSearches()
-    const newSearch = { id: Date.now(), ...searchCriteria, createdAt: new Date().toISOString() }
+    const tempId = Date.now()
+    const newSearch = { id: tempId, ...searchCriteria, createdAt: new Date().toISOString() }
     searches.push(newSearch)
     writeJson('profind_saved_searches', searches)
-    void safeRequest('/api/saved-searches', { method: 'POST', body: JSON.stringify(searchCriteria) })
+    void safeRequest('/api/saved-searches', { method: 'POST', body: JSON.stringify(searchCriteria) }).then((response) => {
+      if (!response?.search?.id) return
+      const latest = storage.getSavedSearches().map((item) => (item.id === tempId ? response.search : item))
+      writeJson('profind_saved_searches', latest)
+    })
     return newSearch
   },
 
@@ -216,6 +297,11 @@ export const storage = {
     const updated = searches.filter((s) => s.id !== searchId)
     writeJson('profind_saved_searches', updated)
     void safeRequest(`/api/saved-searches/${searchId}`, { method: 'DELETE' })
+  },
+
+  notifySavedSearch: async (searchId) => {
+    const data = await apiRequest(`/api/saved-searches/${searchId}/notify`, { method: 'POST' })
+    return data
   },
 
   // User preferences
@@ -425,6 +511,26 @@ export const storage = {
   adminGetConversationMessages: async (conversationId) => {
     const data = await apiRequest(`/api/admin/conversations/${conversationId}/messages`)
     return data?.messages || []
+  },
+
+  adminGetQaMetrics: async () => {
+    const data = await apiRequest('/api/admin/qa')
+    return data?.qa || null
+  },
+
+  adminGetFunnelMetrics: async () => {
+    const data = await apiRequest('/api/admin/analytics/funnel')
+    return data?.counts || {}
+  },
+
+  adminGetAnalyticsTrends: async (days = 14) => {
+    const data = await apiRequest(`/api/admin/analytics/trends?days=${Number(days) || 14}`)
+    return data || { days: 14, series: [], events: [] }
+  },
+
+  adminGetSystemHealth: async () => {
+    const data = await apiRequest('/api/admin/system/health')
+    return data || null
   },
 
   updateUser: (userId, updates) => {

@@ -40,8 +40,67 @@ const smtpPort = Number(process.env.SMTP_PORT || 0)
 const smtpUser = process.env.SMTP_USER || ''
 const smtpPass = process.env.SMTP_PASS || ''
 const smtpFrom = process.env.SMTP_FROM || ''
+const emailUser = process.env.EMAIL || ''
+const emailSecret = process.env.EMAILSECRET || ''
+const smtpAllowSelfSigned = String(process.env.SMTP_ALLOW_SELF_SIGNED || '').toLowerCase() === 'true'
+const otpDebugMode = String(process.env.OTP_DEBUG || '').toLowerCase() === 'true' && !isProd
+const otpTtlMinutesRaw = Number(process.env.OTP_TTL_MINUTES || 10)
+const otpCooldownSecondsRaw = Number(process.env.OTP_COOLDOWN_SECONDS || 60)
+const otpMaxAttemptsRaw = Number(process.env.OTP_MAX_ATTEMPTS || 5)
+const otpTtlMinutes = Number.isFinite(otpTtlMinutesRaw) ? Math.min(Math.max(Math.round(otpTtlMinutesRaw), 1), 30) : 10
+const otpCooldownSeconds = Number.isFinite(otpCooldownSecondsRaw)
+  ? Math.min(Math.max(Math.round(otpCooldownSecondsRaw), 15), 600)
+  : 60
+const otpMaxAttempts = Number.isFinite(otpMaxAttemptsRaw) ? Math.min(Math.max(Math.round(otpMaxAttemptsRaw), 3), 10) : 5
+const adminEmail = String(process.env.ADMIN_EMAIL || '')
+  .trim()
+  .toLowerCase()
 const paystackSecretKey = (process.env.PAYSTACK_SECRET_KEY || '').trim()
 const paystackWebhookSecret = (process.env.PAYSTACK_WEBHOOK_SECRET || paystackSecretKey).trim()
+const processStartMs = Date.now()
+
+const runtimeStats = {
+  requests: 0,
+  failedApi: 0,
+  serverErrors: 0,
+  rateLimited: 0,
+  apiLatencyMs: []
+}
+
+const OTP_TTL_MS = otpTtlMinutes * 60 * 1000
+
+const otpTransportHost = smtpHost || 'smtp.gmail.com'
+const otpTransportPort = smtpPort || 587
+const otpTransportUser = emailUser || smtpUser
+const otpTransportPass = emailSecret || smtpPass
+const otpFrom = smtpFrom || otpTransportUser
+
+let otpTransporter = null
+if (otpTransportUser && otpTransportPass) {
+  try {
+    otpTransporter = nodemailer.createTransport({
+      host: otpTransportHost,
+      port: otpTransportPort,
+      secure: otpTransportPort === 465,
+      auth: {
+        user: otpTransportUser,
+        pass: otpTransportPass
+      },
+      ...(smtpAllowSelfSigned ? { tls: { rejectUnauthorized: false } } : {}),
+      connectionTimeout: 90_000,
+      greetingTimeout: 30_000,
+      socketTimeout: 90_000
+    })
+    console.log('OTP email transporter created successfully')
+    console.log(`Using email: ${otpTransportUser}`)
+    otpTransporter.verify().then(
+      () => console.log('OTP email server connection successful'),
+      () => console.log('OTP email configuration verification failed')
+    )
+  } catch (error) {
+    console.log('OTP email transporter initialization failed', error)
+  }
+}
 
 if (!jwtSecret) {
   throw new Error('Missing JWT_SECRET')
@@ -90,6 +149,23 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'SAMEORIGIN')
   res.setHeader('Referrer-Policy', 'no-referrer')
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+  next()
+})
+
+app.use((req, res, next) => {
+  const isApi = req.path.startsWith('/api')
+  const start = Date.now()
+  if (isApi) runtimeStats.requests += 1
+
+  res.on('finish', () => {
+    if (!isApi) return
+    const latency = Date.now() - start
+    runtimeStats.apiLatencyMs.push(latency)
+    if (runtimeStats.apiLatencyMs.length > 500) runtimeStats.apiLatencyMs.shift()
+    if (res.statusCode >= 400) runtimeStats.failedApi += 1
+    if (res.statusCode >= 500) runtimeStats.serverErrors += 1
+    if (res.statusCode === 429) runtimeStats.rateLimited += 1
+  })
   next()
 })
 
@@ -291,12 +367,47 @@ const comparisonSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+const newsletterSubscriptionSchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true, index: true },
+    email: { type: String, unique: true, index: true, required: true },
+    source: { type: String, default: 'footer' }
+  },
+  { timestamps: true }
+)
+
+const funnelEventSchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true, index: true },
+    userId: { type: Number, index: true },
+    sessionId: String,
+    event: { type: String, index: true },
+    metadata: mongoose.Schema.Types.Mixed
+  },
+  { timestamps: true }
+)
+
+const otpChallengeSchema = new mongoose.Schema(
+  {
+    id: { type: Number, unique: true, index: true },
+    email: { type: String, index: true, required: true },
+    purpose: { type: String, default: 'email_verification', index: true },
+    otpHash: { type: String, required: true },
+    expiresAt: { type: Date, index: true, required: true },
+    attempts: { type: Number, default: 0 },
+    lastSentAt: { type: Date, required: true }
+  },
+  { timestamps: true }
+)
+otpChallengeSchema.index({ email: 1, purpose: 1 }, { unique: true })
+otpChallengeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+
 const monetizationPlanSchema = new mongoose.Schema(
   {
     code: { type: String, unique: true, index: true },
     name: String,
     description: String,
-    type: { type: String, enum: ['agent_subscription', 'featured_boost'] },
+    type: { type: String, enum: ['agent_subscription', 'owner_subscription', 'featured_boost'] },
     durationDays: Number,
     priceKobo: Number,
     currency: { type: String, default: 'NGN' },
@@ -310,7 +421,7 @@ const paymentOrderSchema = new mongoose.Schema(
     id: { type: Number, unique: true, index: true },
     userId: { type: Number, index: true },
     email: String,
-    type: { type: String, enum: ['agent_subscription', 'featured_boost'] },
+    type: { type: String, enum: ['agent_subscription', 'owner_subscription', 'featured_boost'] },
     planCode: String,
     listingId: Number,
     durationDays: Number,
@@ -371,6 +482,9 @@ const Verification = mongoose.model('AgentVerification', verificationSchema)
 const Review = mongoose.model('AgentReview', reviewSchema)
 const VirtualTour = mongoose.model('VirtualTour', virtualTourSchema)
 const Comparison = mongoose.model('Comparison', comparisonSchema)
+const NewsletterSubscription = mongoose.model('NewsletterSubscription', newsletterSubscriptionSchema)
+const FunnelEvent = mongoose.model('FunnelEvent', funnelEventSchema)
+const OtpChallenge = mongoose.model('OtpChallenge', otpChallengeSchema)
 const MonetizationPlan = mongoose.model('MonetizationPlan', monetizationPlanSchema)
 const PaymentOrder = mongoose.model('PaymentOrder', paymentOrderSchema)
 const PaymentTransaction = mongoose.model('PaymentTransaction', paymentTransactionSchema)
@@ -446,7 +560,9 @@ const requireCsrf = (req, res, next) => {
     '/auth/register',
     '/auth/reset-password',
     '/auth/reset-password/request',
-    '/auth/reset-password/confirm'
+    '/auth/reset-password/confirm',
+    '/auth/otp/send',
+    '/auth/otp/verify'
   ])
   if (csrfExemptPaths.has(req.path)) return next()
   const hasAuthCookie = Boolean(req.cookies?.[authCookieName])
@@ -468,7 +584,7 @@ const apiLimiter = rateLimit({
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: isProd ? 5 : 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many login attempts. Please try again later.' }
@@ -479,6 +595,22 @@ const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false
+})
+
+const otpSendLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 5 : 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many OTP requests. Please try again later.' }
+})
+
+const otpVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isProd ? 20 : 80,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many OTP verification attempts. Please try again later.' }
 })
 
 const chatLimiter = rateLimit({
@@ -529,6 +661,16 @@ const monetizationDefaults = [
     active: true
   },
   {
+    code: 'owner_sub_monthly',
+    name: 'Owner Pro Monthly',
+    description: 'Monthly subscription for property owners with premium listing access.',
+    type: 'owner_subscription',
+    durationDays: 30,
+    priceKobo: 200000,
+    currency: 'NGN',
+    active: true
+  },
+  {
     code: 'featured_boost_7d',
     name: 'Featured Boost 7 Days',
     description: 'Promote a listing in featured sections for 7 days.',
@@ -552,10 +694,16 @@ const monetizationDefaults = [
 
 let monetizationSeeded = false
 const ensureMonetizationPlans = async () => {
+  const defaultCodes = monetizationDefaults.map((plan) => plan.code)
+
   if (monetizationSeeded) {
-    const count = await MonetizationPlan.countDocuments({})
-    if (count >= monetizationDefaults.length) return
+    const existingActiveDefaults = await MonetizationPlan.countDocuments({
+      code: { $in: defaultCodes },
+      active: true
+    })
+    if (existingActiveDefaults >= monetizationDefaults.length) return
   }
+
   for (const plan of monetizationDefaults) {
     await MonetizationPlan.updateOne({ code: plan.code }, { $set: plan }, { upsert: true })
   }
@@ -600,7 +748,7 @@ const verifyPaystackSignature = (req) => {
 }
 
 const grantEntitlementForOrder = async (order, paymentData = {}) => {
-  if (order.type === 'agent_subscription') {
+  if (order.type === 'agent_subscription' || order.type === 'owner_subscription') {
     const now = new Date()
     const current = await Subscription.findOne({ userId: order.userId }).sort({ endsAt: -1 })
     const base = current?.endsAt && current.endsAt > now ? current.endsAt : now
@@ -615,10 +763,12 @@ const grantEntitlementForOrder = async (order, paymentData = {}) => {
       amountKobo: order.amountKobo,
       currency: order.currency
     })
-    await User.updateOne(
-      { id: order.userId },
-      { $set: { verified: true, verifiedAt: new Date().toISOString() } }
-    )
+    if (order.type === 'agent_subscription') {
+      await User.updateOne(
+        { id: order.userId },
+        { $set: { verified: true, verifiedAt: new Date().toISOString() } }
+      )
+    }
     return { subscriptionEndsAt: endsAt.toISOString() }
   }
 
@@ -668,6 +818,34 @@ const sendPasswordResetEmail = async (email, token) => {
   return {}
 }
 
+const generateOtpCode = () => `${Math.floor(100000 + Math.random() * 900000)}`
+const hashOtp = (otp) => crypto.createHash('sha256').update(String(otp)).digest('hex')
+
+const sendOtpEmailMessage = async (email, otp) => {
+  if (!otpTransporter || !otpFrom) {
+    if (isProd) throw new Error('OTP email is not configured')
+    return { debugOtp: otpDebugMode ? otp : undefined }
+  }
+
+  await otpTransporter.sendMail({
+    from: otpFrom,
+    to: email,
+    subject: 'Your OTP Code',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Your OTP Code</h2>
+        <div style="background-color: #e6f3ff; padding: 20px; text-align: center; border-radius: 8px;">
+          <h1 style="color: #007bff; font-size: 36px; margin: 0;">${otp}</h1>
+        </div>
+        <p style="margin-top: 12px; color: #444;">This code will expire in 10 minutes.</p>
+      </div>
+    `,
+    text: `Your OTP code is: ${otp}. This code will expire in 10 minutes.`
+  })
+
+  return {}
+}
+
 const inquirySchemaInput = z.object({
   propertyId: idSchema.optional(),
   propertyTitle: z.string().optional(),
@@ -686,7 +864,7 @@ const inquirySchemaInput = z.object({
   type: z.string().optional()
 })
 
-const listingInputSchema = z.record(z.any())
+const listingInputSchema = z.record(z.string(), z.any())
 
 const conversationInputSchema = z.object({
   participantId: z.number(),
@@ -712,10 +890,10 @@ const priceAlertInputSchema = z.object({
 })
 
 const verificationInputSchema = z.object({
-  credentials: z.record(z.any())
+  credentials: z.record(z.string(), z.any())
 })
 
-const savedSearchInputSchema = z.record(z.any())
+const savedSearchInputSchema = z.record(z.string(), z.any())
 
 const preferencesInputSchema = z.object({
   notifications: z.boolean().optional(),
@@ -730,6 +908,21 @@ const virtualTourInputSchema = z.object({
 
 const comparisonInputSchema = z.object({
   propertyIds: z.array(idSchema).min(1)
+})
+
+const newsletterSubscribeSchema = z.object({
+  email: z.string().email()
+})
+
+const otpSendSchema = z.object({
+  email: z.string().email(),
+  purpose: z.enum(['email_verification', 'password_reset', 'login']).optional()
+})
+
+const otpVerifySchema = z.object({
+  email: z.string().email(),
+  otp: z.string().regex(/^\d{6}$/),
+  purpose: z.enum(['email_verification', 'password_reset', 'login']).optional()
 })
 
 const adminUserUpdateSchema = z.object({
@@ -756,6 +949,12 @@ const paymentVerifySchema = z.object({
   reference: z.string().min(8)
 })
 
+const funnelEventInputSchema = z.object({
+  event: z.string().min(3),
+  sessionId: z.string().min(3).optional(),
+  metadata: z.record(z.string(), z.any()).optional()
+})
+
 app.use(async (req, res, next) => {
   try {
     await connectDb()
@@ -773,11 +972,12 @@ app.use('/api', requireCsrf)
 app.post('/api/auth/register', authLimiter, async (req, res) => {
   const parse = authRegisterSchema.safeParse(req.body)
   if (!parse.success) return res.status(400).json({ error: 'Invalid data' })
-  const { name, email, password, phone, role, licenseNumber, companyName } = parse.data
+  const { name, password, phone, role, licenseNumber, companyName } = parse.data
+  const email = String(parse.data.email).trim().toLowerCase()
   if (role && !allowedRoles.includes(role)) {
     return res.status(400).json({ error: 'Invalid role' })
   }
-  const normalizedRole = role || 'seeker'
+  const normalizedRole = email && adminEmail && email === adminEmail ? 'admin' : role || 'seeker'
   const existing = await User.findOne({ email })
   if (existing) return res.status(409).json({ error: 'Email already registered' })
   const passwordHash = await bcrypt.hash(password, 10)
@@ -792,19 +992,26 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     companyName,
     emailVerified: true
   })
-  const token = signToken(user)
-  const csrfToken = setAuthCookies(res, token)
-  res.json({ user: toUserResponse(user), csrfToken })
+  res.status(201).json({
+    ok: true,
+    message: 'Account created successfully. Please sign in.',
+    user: toUserResponse(user)
+  })
 })
 
 app.post('/api/auth/login', authLimiter, loginLimiter, async (req, res) => {
   const parse = authLoginSchema.safeParse(req.body)
   if (!parse.success) return res.status(400).json({ error: 'Invalid data' })
-  const { email, password } = parse.data
+  const email = String(parse.data.email).trim().toLowerCase()
+  const { password } = parse.data
   const user = await User.findOne({ email })
   if (!user) return res.status(401).json({ error: 'Invalid credentials' })
   const ok = await bcrypt.compare(password, user.passwordHash)
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' })
+  if (adminEmail && email === adminEmail && user.role !== 'admin') {
+    user.role = 'admin'
+    await user.save()
+  }
   const token = signToken(user)
   const csrfToken = setAuthCookies(res, token)
   res.json({ user: toUserResponse(user), csrfToken })
@@ -894,6 +1101,216 @@ app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
   })
 })
 
+app.post('/api/auth/otp/send', authLimiter, otpSendLimiter, async (req, res) => {
+  const parse = otpSendSchema.safeParse(req.body)
+  if (!parse.success) return res.status(400).json({ success: false, error: 'Email is required' })
+
+  if (!otpTransporter || !otpFrom) {
+    return res.status(503).json({
+      success: false,
+      error: 'OTP email service is not configured. Set EMAIL and EMAILSECRET (or SMTP_* vars).'
+    })
+  }
+
+  const email = String(parse.data.email).trim().toLowerCase()
+  const purpose = parse.data.purpose || 'email_verification'
+  const now = Date.now()
+  const existing = await OtpChallenge.findOne({ email, purpose })
+  if (existing?.lastSentAt) {
+    const retryAfterMs = otpCooldownSeconds * 1000 - (now - new Date(existing.lastSentAt).getTime())
+    if (retryAfterMs > 0) {
+      return res.status(429).json({
+        success: false,
+        error: `Please wait ${Math.ceil(retryAfterMs / 1000)}s before requesting another OTP`
+      })
+    }
+  }
+
+  const otp = generateOtpCode()
+  const expiresAt = new Date(now + OTP_TTL_MS)
+  await OtpChallenge.updateOne(
+    { email, purpose },
+    {
+      $set: {
+        id: existing?.id || createNumericId(),
+        email,
+        purpose,
+        otpHash: hashOtp(otp),
+        expiresAt,
+        attempts: 0,
+        lastSentAt: new Date(now)
+      }
+    },
+    { upsert: true }
+  )
+
+  try {
+    const mailResult = await sendOtpEmailMessage(email, otp)
+    res.json({
+      success: true,
+      message: 'OTP sent successfully. It expires soon.',
+      expiresAt: expiresAt.toISOString(),
+      purpose,
+      ...(mailResult?.debugOtp ? { debugOtp: mailResult.debugOtp } : {})
+    })
+  } catch (error) {
+    console.log('send OTP error:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send OTP'
+    })
+  }
+})
+
+app.post('/api/auth/otp/verify', authLimiter, otpVerifyLimiter, async (req, res) => {
+  const parse = otpVerifySchema.safeParse(req.body)
+  if (!parse.success) return res.status(400).json({ success: false, error: 'Email and OTP are required' })
+
+  const email = String(parse.data.email).trim().toLowerCase()
+  const purpose = parse.data.purpose || 'email_verification'
+  const otp = parse.data.otp
+  const entry = await OtpChallenge.findOne({ email, purpose })
+  if (!entry) return res.status(400).json({ success: false, error: 'OTP not found or expired' })
+
+  if (Date.now() > new Date(entry.expiresAt).getTime()) {
+    await OtpChallenge.deleteOne({ _id: entry._id })
+    return res.status(400).json({ success: false, error: 'OTP expired' })
+  }
+
+  if (entry.attempts >= otpMaxAttempts) {
+    await OtpChallenge.deleteOne({ _id: entry._id })
+    return res.status(429).json({ success: false, error: 'Too many attempts. Request a new OTP.' })
+  }
+
+  if (entry.otpHash !== hashOtp(otp)) {
+    entry.attempts += 1
+    await entry.save()
+    return res.status(400).json({ success: false, error: 'Invalid OTP' })
+  }
+
+  await OtpChallenge.deleteOne({ _id: entry._id })
+  await User.updateOne({ email }, { $set: { emailVerified: true } })
+  return res.json({ success: true, message: 'OTP verified successfully', purpose })
+})
+
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  const parse = newsletterSubscribeSchema.safeParse(req.body)
+  if (!parse.success) return res.status(400).json({ error: 'Invalid email' })
+
+  const email = parse.data.email.trim().toLowerCase()
+  await NewsletterSubscription.updateOne(
+    { email },
+    {
+      $setOnInsert: {
+        id: createNumericId(),
+        email,
+        source: 'footer'
+      }
+    },
+    { upsert: true }
+  )
+
+  res.json({ ok: true })
+})
+
+app.post('/api/analytics/events', async (req, res) => {
+  const parse = funnelEventInputSchema.safeParse(req.body)
+  if (!parse.success) return res.status(400).json({ error: 'Invalid analytics event' })
+
+  let userId = null
+  const header = req.headers.authorization || ''
+  const bearerToken = header.startsWith('Bearer ') ? header.slice(7) : null
+  const token = req.cookies?.[authCookieName] || bearerToken
+  if (token) {
+    const decoded = verifyToken(token)
+    if (decoded?.id) userId = decoded.id
+  }
+
+  await FunnelEvent.create({
+    id: createNumericId(),
+    userId: userId || undefined,
+    sessionId: parse.data.sessionId,
+    event: parse.data.event,
+    metadata: parse.data.metadata || {}
+  })
+
+  res.json({ ok: true })
+})
+
+app.get('/api/analytics/overview', requireAuth, async (_req, res) => {
+  const events = ['search_submitted', 'property_viewed', 'inquiry_submitted', 'payment_started', 'payment_verified']
+  const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+  const rows = await FunnelEvent.aggregate([
+    { $match: { createdAt: { $gte: since }, event: { $in: events } } },
+    { $group: { _id: '$event', count: { $sum: 1 } } }
+  ])
+  const counts = Object.fromEntries(events.map((event) => [event, 0]))
+  rows.forEach((row) => {
+    counts[row._id] = row.count
+  })
+
+  const avgLatency =
+    runtimeStats.apiLatencyMs.length > 0
+      ? Math.round(runtimeStats.apiLatencyMs.reduce((sum, n) => sum + n, 0) / runtimeStats.apiLatencyMs.length)
+      : 0
+  const failedRatePct =
+    runtimeStats.requests > 0 ? Number(((runtimeStats.failedApi / runtimeStats.requests) * 100).toFixed(2)) : 0
+
+  res.json({
+    since: since.toISOString(),
+    counts,
+    qa: {
+      failedRatePct,
+      avgLatencyMs: avgLatency,
+      requests: runtimeStats.requests
+    }
+  })
+})
+
+app.get('/api/analytics/trends', requireAuth, async (req, res) => {
+  const events = ['search_submitted', 'property_viewed', 'inquiry_submitted', 'payment_started', 'payment_verified']
+  const daysRaw = Number(req.query.days || 14)
+  const days = Number.isFinite(daysRaw) ? Math.max(7, Math.min(30, Math.round(daysRaw))) : 14
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+  const rows = await FunnelEvent.aggregate([
+    { $match: { createdAt: { $gte: since }, event: { $in: events } } },
+    {
+      $group: {
+        _id: {
+          day: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+          },
+          event: '$event'
+        },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { '_id.day': 1 } }
+  ])
+
+  const series = []
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    date.setDate(date.getDate() - i)
+    const dayKey = date.toISOString().slice(0, 10)
+    const seed = { day: dayKey }
+    events.forEach((event) => {
+      seed[event] = 0
+    })
+    series.push(seed)
+  }
+
+  rows.forEach((row) => {
+    const target = series.find((item) => item.day === row._id.day)
+    if (!target) return
+    target[row._id.event] = row.count
+  })
+
+  res.json({ days, series, events })
+})
+
 const finalizeSuccessfulPayment = async (order, paymentData) => {
   if (!order) return null
   if (order.status === 'paid') return order
@@ -950,8 +1367,11 @@ app.post('/api/payments/initialize', requireAuth, async (req, res) => {
   if (plan.type === 'agent_subscription' && req.user.role !== 'agent') {
     return res.status(403).json({ error: 'Only agents can buy this plan' })
   }
+  if (plan.type === 'owner_subscription' && req.user.role !== 'owner') {
+    return res.status(403).json({ error: 'Only property owners can buy this plan' })
+  }
 
-  if (plan.type === 'agent_subscription') {
+  if (plan.type === 'agent_subscription' || plan.type === 'owner_subscription') {
     const now = new Date()
     const active = await Subscription.findOne({
       userId: req.user.id,
@@ -1151,6 +1571,111 @@ app.get('/api/admin/conversations/:id/messages', requireAuth, requireAdmin, asyn
   res.json({ messages })
 })
 
+app.get('/api/admin/analytics/funnel', requireAuth, requireAdmin, async (_req, res) => {
+  const events = ['search_submitted', 'property_viewed', 'inquiry_submitted', 'payment_started', 'payment_verified']
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const rows = await FunnelEvent.aggregate([
+    { $match: { createdAt: { $gte: since }, event: { $in: events } } },
+    { $group: { _id: '$event', count: { $sum: 1 } } }
+  ])
+  const counts = Object.fromEntries(events.map((event) => [event, 0]))
+  rows.forEach((row) => {
+    counts[row._id] = row.count
+  })
+  res.json({ counts, since: since.toISOString() })
+})
+
+app.get('/api/admin/analytics/trends', requireAuth, requireAdmin, async (req, res) => {
+  const events = ['search_submitted', 'property_viewed', 'inquiry_submitted', 'payment_started', 'payment_verified']
+  const daysRaw = Number(req.query.days || 14)
+  const days = Number.isFinite(daysRaw) ? Math.max(7, Math.min(60, Math.round(daysRaw))) : 14
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+  const rows = await FunnelEvent.aggregate([
+    { $match: { createdAt: { $gte: since }, event: { $in: events } } },
+    {
+      $group: {
+        _id: {
+          day: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+          },
+          event: '$event'
+        },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { '_id.day': 1 } }
+  ])
+
+  const series = []
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    date.setDate(date.getDate() - i)
+    const dayKey = date.toISOString().slice(0, 10)
+    const seed = { day: dayKey }
+    events.forEach((event) => {
+      seed[event] = 0
+    })
+    series.push(seed)
+  }
+
+  rows.forEach((row) => {
+    const target = series.find((item) => item.day === row._id.day)
+    if (!target) return
+    target[row._id.event] = row.count
+  })
+
+  res.json({ days, series, events })
+})
+
+app.get('/api/admin/qa', requireAuth, requireAdmin, async (_req, res) => {
+  const [totalListings, pendingListings, totalUsers, totalInquiries] = await Promise.all([
+    Listing.countDocuments({}),
+    Listing.countDocuments({ status: 'pending' }),
+    User.countDocuments({}),
+    Inquiry.countDocuments({})
+  ])
+  const avgLatency =
+    runtimeStats.apiLatencyMs.length > 0
+      ? Math.round(runtimeStats.apiLatencyMs.reduce((sum, n) => sum + n, 0) / runtimeStats.apiLatencyMs.length)
+      : 0
+  const failedRatePct =
+    runtimeStats.requests > 0 ? Number(((runtimeStats.failedApi / runtimeStats.requests) * 100).toFixed(2)) : 0
+
+  res.json({
+    qa: {
+      totalListings,
+      pendingListings,
+      totalUsers,
+      totalInquiries,
+      requests: runtimeStats.requests,
+      failedApi: runtimeStats.failedApi,
+      serverErrors: runtimeStats.serverErrors,
+      rateLimited: runtimeStats.rateLimited,
+      failedRatePct,
+      avgLatencyMs: avgLatency
+    }
+  })
+})
+
+app.get('/api/admin/system/health', requireAuth, requireAdmin, async (_req, res) => {
+  const avgLatency =
+    runtimeStats.apiLatencyMs.length > 0
+      ? Math.round(runtimeStats.apiLatencyMs.reduce((sum, n) => sum + n, 0) / runtimeStats.apiLatencyMs.length)
+      : 0
+
+  res.json({
+    ok: true,
+    uptimeSeconds: Math.round((Date.now() - processStartMs) / 1000),
+    memory: process.memoryUsage(),
+    avgApiLatencyMs: avgLatency,
+    requests: runtimeStats.requests,
+    failedApi: runtimeStats.failedApi,
+    serverErrors: runtimeStats.serverErrors
+  })
+})
+
 app.get('/api/users', requireAuth, async (req, res) => {
   const users = await User.find().sort({ createdAt: -1 })
   res.json({ users: users.map(toUserResponse) })
@@ -1323,6 +1848,34 @@ app.post('/api/saved-searches', requireAuth, async (req, res) => {
   if (!parse.success) return res.status(400).json({ error: 'Invalid search data' })
   const search = await SavedSearch.create({ id: createNumericId(), userId: req.user.id, criteria: parse.data })
   res.json({ search })
+})
+
+app.post('/api/saved-searches/:id/notify', requireAuth, async (req, res) => {
+  const searchId = Number(req.params.id)
+  const search = await SavedSearch.findOne({ id: searchId, userId: req.user.id })
+  if (!search) return res.status(404).json({ error: 'Saved search not found' })
+  const user = await User.findOne({ id: req.user.id })
+  if (!user?.email) return res.status(400).json({ error: 'No email found for user' })
+
+  const summary = JSON.stringify(search.criteria || {}, null, 2)
+  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass || !smtpFrom) {
+    return res.json({ ok: true, debug: 'SMTP not configured', summary })
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465,
+    auth: { user: smtpUser, pass: smtpPass }
+  })
+
+  await transporter.sendMail({
+    from: smtpFrom,
+    to: user.email,
+    subject: 'Profind saved search alert',
+    text: `Your saved search digest is ready.\n\nCriteria:\n${summary}`
+  })
+  res.json({ ok: true })
 })
 
 app.delete('/api/saved-searches/:id', requireAuth, async (req, res) => {

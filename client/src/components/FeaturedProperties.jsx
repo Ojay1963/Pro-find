@@ -383,6 +383,9 @@ function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
           src={property.image}
           alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          sizes="(max-width: 640px) 100vw, 320px"
           onError={(e) => {
             e.target.src =
               'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=600&fit=crop';
@@ -424,6 +427,10 @@ function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
             <FaBath className="text-green-600" />
             {property.baths} Baths
           </span>
+        </div>
+        <div className="mb-4 flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700">Agent verified</span>
+          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600">Response under 2h</span>
         </div>
 
         <div className="grid grid-cols-2 gap-2">

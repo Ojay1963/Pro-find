@@ -33,6 +33,12 @@ export default function ContactAgentForm({ propertyId, propertyTitle, agentName 
     try {
       await storage.addInquiry(inquiry);
       storage.trackListingInquiry(propertyId);
+      void storage.trackEvent('inquiry_submitted', {
+        propertyId,
+        propertyTitle,
+        agentId,
+        preferredContact: formData.preferredContact
+      });
     } catch (error) {
       toast.error(error.message || 'Failed to send inquiry. Please try again.');
       return;

@@ -2,18 +2,29 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
+import { storage } from '../utils/localStorage';
 import toast from 'react-hot-toast';
 export default function Footer() {
   const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = (event) => {
+  const handleSubscribe = async (event) => {
     event.preventDefault();
+    if (isSubmitting) return;
     if (!email.trim()) {
       toast.error('Please enter your email to subscribe.');
       return;
     }
-    toast.success('Thanks for subscribing!');
-    setEmail('');
+    try {
+      setIsSubmitting(true);
+      await storage.subscribeNewsletter(email.trim());
+      toast.success('Thanks for subscribing!');
+      setEmail('');
+    } catch (error) {
+      toast.error(error.message || 'Unable to subscribe right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -96,10 +107,15 @@ export default function Footer() {
                 placeholder="Your email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                disabled={isSubmitting}
                 required
               />
-              <button className="btn-primary px-4 py-2 text-sm w-full lg:w-auto lg:mt-0">
-                Subscribe
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary px-4 py-2 text-sm w-full lg:w-auto lg:mt-0"
+              >
+                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
               </button>
             </form>
           </div>

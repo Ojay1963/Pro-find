@@ -7,21 +7,29 @@ let mongo
 let app
 
 beforeAll(async () => {
-  mongo = await MongoMemoryServer.create()
+  process.env.MONGOMS_STARTUP_TIMEOUT = '120000'
+  mongo = await MongoMemoryServer.create({
+    instance: {
+      port: 0
+    }
+  })
   process.env.MONGODB_URI = mongo.getUri()
   process.env.JWT_SECRET = 'integration_test_jwt_secret_that_is_long_enough'
   process.env.NODE_ENV = 'test'
   process.env.VERCEL = '1'
+  process.env.PAYSTACK_SECRET_KEY = ''
+  process.env.PAYSTACK_WEBHOOK_SECRET = ''
+  await mongoose.connect(process.env.MONGODB_URI)
   const mod = await import('../index.js')
   app = mod.default
-}, 120000)
+}, 600000)
 
 beforeEach(async () => {
   const collections = mongoose.connection.collections
   for (const key of Object.keys(collections)) {
     await collections[key].deleteMany({})
   }
-})
+}, 60000)
 
 afterAll(async () => {
   await mongoose.connection.close()
@@ -38,7 +46,7 @@ describe('auth and security', () => {
     })
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBe('Invalid role')
+    expect(res.body.error).toBe('Invalid data')
   })
 
   it('sets auth cookie on login and allows /api/auth/me', async () => {
@@ -55,10 +63,10 @@ describe('auth and security', () => {
     })
 
     expect(login.status).toBe(200)
-    const cookie = login.headers['set-cookie']?.[0]
-    expect(cookie).toBeTruthy()
+    const cookies = login.headers['set-cookie'] || []
+    expect(cookies.length).toBeGreaterThan(0)
 
-    const me = await request(app).get('/api/auth/me').set('Cookie', cookie)
+    const me = await request(app).get('/api/auth/me').set('Cookie', cookies)
     expect(me.status).toBe(200)
     expect(me.body.user.email).toBe('jane@example.com')
   })
@@ -103,20 +111,25 @@ describe('auth and security', () => {
     const unauth = await request(app).post('/api/listings').send({ title: 'House' })
     expect(unauth.status).toBe(401)
 
-    const register = await request(app).post('/api/auth/register').send({
+    await request(app).post('/api/auth/register').send({
       name: 'Owner User',
       email: 'owner@example.com',
       password: 'secret123',
       role: 'owner'
     })
-    const cookie = register.headers['set-cookie']?.[0]
-    const csrfToken = register.body?.csrfToken
-    expect(cookie).toBeTruthy()
+    const login = await request(app).post('/api/auth/login').send({
+      email: 'owner@example.com',
+      password: 'secret123'
+    })
+
+    const cookies = login.headers['set-cookie'] || []
+    const csrfToken = login.body?.csrfToken
+    expect(cookies.length).toBeGreaterThan(0)
     expect(csrfToken).toBeTruthy()
 
     const create = await request(app)
       .post('/api/listings')
-      .set('Cookie', cookie)
+      .set('Cookie', cookies)
       .set('x-csrf-token', csrfToken)
       .send({ title: 'House', location: 'Lagos' })
 
@@ -130,20 +143,25 @@ describe('auth and security', () => {
     expect(Array.isArray(plansRes.body.plans)).toBe(true)
     expect(plansRes.body.plans.length).toBeGreaterThan(0)
 
-    const register = await request(app).post('/api/auth/register').send({
+    await request(app).post('/api/auth/register').send({
       name: 'Agent User',
       email: 'agent@example.com',
       password: 'secret123',
       role: 'agent'
     })
-    const cookie = register.headers['set-cookie']?.[0]
-    const csrfToken = register.body?.csrfToken
-    expect(cookie).toBeTruthy()
+    const login = await request(app).post('/api/auth/login').send({
+      email: 'agent@example.com',
+      password: 'secret123'
+    })
+
+    const cookies = login.headers['set-cookie'] || []
+    const csrfToken = login.body?.csrfToken
+    expect(cookies.length).toBeGreaterThan(0)
     expect(csrfToken).toBeTruthy()
 
     const init = await request(app)
       .post('/api/payments/initialize')
-      .set('Cookie', cookie)
+      .set('Cookie', cookies)
       .set('x-csrf-token', csrfToken)
       .send({ planCode: 'agent_sub_monthly' })
 

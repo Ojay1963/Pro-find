@@ -6,6 +6,7 @@ import { storage } from '../utils/localStorage'
 import toast from 'react-hot-toast'
 
 const formatNaira = (kobo) => `NGN ${(Number(kobo || 0) / 100).toLocaleString()}`
+const allowedRoles = new Set(['agent', 'owner'])
 
 const Upgrade = () => {
   const navigate = useNavigate()
@@ -15,8 +16,8 @@ const Upgrade = () => {
   const [selectedListings, setSelectedListings] = useState({})
   const [loading, setLoading] = useState(true)
   const [processingPlan, setProcessingPlan] = useState('')
+  const [currentUser, setCurrentUser] = useState(() => storage.getCurrentUser())
 
-  const currentUser = storage.getCurrentUser()
   const userId = currentUser?.id || Number(localStorage.getItem('profind_user_id') || 0)
   const userRole = currentUser?.role || localStorage.getItem('profind_user_role') || 'seeker'
 
@@ -26,16 +27,32 @@ const Upgrade = () => {
     return all.filter((listing) => listing.ownerId === userId)
   }, [userId])
 
-  const hasActiveAgentSubscription = useMemo(() => {
+  const hasActiveSubscription = useMemo(() => {
     const active = subscriptions?.activeSubscription
     if (!active) return false
     return new Date(active.endsAt).getTime() > Date.now()
   }, [subscriptions])
 
+  const visiblePlans = useMemo(() => {
+    return plans
+      .filter((plan) => {
+        if (plan.type === 'agent_subscription') return userRole === 'agent'
+        if (plan.type === 'owner_subscription') return userRole === 'owner'
+        if (plan.type === 'featured_boost') return userRole === 'agent' || userRole === 'owner' || userRole === 'admin'
+        return false
+      })
+      .filter((plan) => {
+        if (!hasActiveSubscription) return true
+        if (plan.type === 'agent_subscription') return false
+        if (plan.type === 'owner_subscription') return false
+        return true
+      })
+  }, [plans, hasActiveSubscription, userRole])
+
   const loadData = async () => {
     setLoading(true)
     try {
-      await storage.syncAll()
+      void storage.syncAll()
       const [loadedPlans, subInfo] = await Promise.all([
         storage.getMonetizationPlans(),
         storage.getMySubscriptions()
@@ -55,6 +72,12 @@ const Upgrade = () => {
   }, [])
 
   useEffect(() => {
+    const syncUser = () => setCurrentUser(storage.getCurrentUser())
+    window.addEventListener('profind-auth-changed', syncUser)
+    return () => window.removeEventListener('profind-auth-changed', syncUser)
+  }, [])
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search)
     const reference = params.get('reference') || params.get('trxref')
     if (!reference) return
@@ -62,6 +85,7 @@ const Upgrade = () => {
     const verify = async () => {
       try {
         await storage.verifyPayment(reference)
+        void storage.trackEvent('payment_verified', { reference })
         toast.success('Payment verified successfully.')
         await loadData()
       } catch (error) {
@@ -80,6 +104,10 @@ const Upgrade = () => {
       navigate('/login')
       return
     }
+    if (!allowedRoles.has(userRole)) {
+      toast.error('Only agents and property owners can purchase plans.')
+      return
+    }
 
     let listingId
     if (plan.type === 'featured_boost') {
@@ -93,6 +121,11 @@ const Upgrade = () => {
     setProcessingPlan(plan.code)
     try {
       const callbackUrl = `${window.location.origin}/upgrade`
+      void storage.trackEvent('payment_started', {
+        planCode: plan.code,
+        planType: plan.type,
+        listingId: listingId || null
+      })
       const response = await storage.initializePayment({
         planCode: plan.code,
         listingId,
@@ -114,7 +147,7 @@ const Upgrade = () => {
       <main className="flex-1 container mx-auto px-4 py-8 mt-24">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Upgrade and Promote</h1>
-          <p className="text-gray-600">Buy an agent subscription or boost your listings with Paystack.</p>
+          <p className="text-gray-600">Buy your monthly subscription or boost your listings with Paystack.</p>
           <Link to="/dashboard" className="inline-block mt-3 text-green-700 hover:underline">
             Back to dashboard
           </Link>
@@ -127,7 +160,11 @@ const Upgrade = () => {
               Plan: {subscriptions.activeSubscription.planCode} | Ends:{' '}
               {new Date(subscriptions.activeSubscription.endsAt).toLocaleDateString()}
             </p>
-            <p className="text-sm text-green-700 mt-1">Your agent verified badge is active.</p>
+            <p className="text-sm text-green-700 mt-1">
+              {userRole === 'agent'
+                ? 'Your agent verified badge is active.'
+                : 'Your owner subscription is active.'}
+            </p>
           </div>
         )}
 
@@ -135,15 +172,23 @@ const Upgrade = () => {
           <div className="bg-white rounded-xl p-6 border border-gray-200">Loading plans...</div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {plans
-              .filter((plan) => !(plan.type === 'agent_subscription' && hasActiveAgentSubscription))
-              .map((plan) => {
+            {visiblePlans.map((plan) => {
               const isAgentPlan = plan.type === 'agent_subscription'
-              const blocked = isAgentPlan && userRole !== 'agent'
+              const isOwnerPlan = plan.type === 'owner_subscription'
+              const roleBlocked =
+                (isAgentPlan && userRole !== 'agent') ||
+                (isOwnerPlan && userRole !== 'owner') ||
+                (plan.type === 'featured_boost' && !['agent', 'owner', 'admin'].includes(userRole))
+              const listingBlocked = plan.type === 'featured_boost' && myListings.length === 0
+              const blocked = roleBlocked || listingBlocked
               return (
                 <div key={plan.code} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                   <p className="text-xs uppercase tracking-wider text-gray-500">
-                    {plan.type === 'agent_subscription' ? 'Agent Subscription' : 'Featured Boost'}
+                    {plan.type === 'agent_subscription'
+                      ? 'Agent Subscription'
+                      : plan.type === 'owner_subscription'
+                        ? 'Owner Subscription'
+                        : 'Featured Boost'}
                   </p>
                   <h2 className="text-xl font-bold mt-2">{plan.name}</h2>
                   <p className="text-gray-600 mt-1">{plan.description}</p>
@@ -182,7 +227,9 @@ const Upgrade = () => {
                     className="mt-5 w-full bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {blocked
-                      ? 'Agents only'
+                      ? roleBlocked
+                        ? (isAgentPlan ? 'Agents only' : isOwnerPlan ? 'Owners only' : 'Owners/agents only')
+                        : 'Create a listing first'
                       : processingPlan === plan.code
                         ? 'Redirecting...'
                         : 'Pay with Paystack'}
@@ -190,6 +237,12 @@ const Upgrade = () => {
                 </div>
               )
             })}
+            {visiblePlans.length === 0 && (
+              <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm lg:col-span-2">
+                <p className="font-semibold text-gray-800">No plans available right now.</p>
+                <p className="text-sm text-gray-600 mt-1">Please check back shortly or contact support.</p>
+              </div>
+            )}
           </div>
         )}
       </main>

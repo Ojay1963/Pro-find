@@ -1,5 +1,5 @@
 ﻿
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import properties from '../components/propertiesData';
 import FavoriteButton from '../components/FavoriteButton';
@@ -14,6 +14,32 @@ import PropertyShare from '../components/PropertyShare';
 import PropertyCard from '../components/PropertyCard';
 import { FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaCalendarAlt, FaCar, FaStar, FaShieldAlt } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
+
+const getNeighborhoodInsights = (location) => {
+  const raw = String(location || '').toLowerCase()
+  if (raw.includes('lekki') || raw.includes('victoria')) {
+    return [
+      { label: 'Schools', value: '9.0/10' },
+      { label: 'Commute', value: '34 min' },
+      { label: 'Safety', value: 'High' },
+      { label: 'Lifestyle', value: 'Premium' }
+    ]
+  }
+  if (raw.includes('abuja')) {
+    return [
+      { label: 'Schools', value: '8.7/10' },
+      { label: 'Commute', value: '28 min' },
+      { label: 'Safety', value: 'High' },
+      { label: 'Lifestyle', value: 'Balanced' }
+    ]
+  }
+  return [
+    { label: 'Schools', value: '8.2/10' },
+    { label: 'Commute', value: '31 min' },
+    { label: 'Safety', value: 'Good' },
+    { label: 'Lifestyle', value: 'Vibrant' }
+  ]
+}
 
 
 export default function PropertyDetails() {
@@ -36,6 +62,69 @@ export default function PropertyDetails() {
     if (!annual) return null;
     return Math.round(annual / 12);
   };
+
+  useEffect(() => {
+    if (!property?.id) return
+    storage.addRecentlyViewed(property.id)
+    storage.trackListingView(property.id)
+    void storage.trackEvent('property_viewed', {
+      propertyId: property.id,
+      location: property.location,
+      propertyType: property.propertyType || ''
+    })
+  }, [property?.id, property?.location, property?.propertyType])
+
+  useEffect(() => {
+    const title = `${property.title} | Profind`
+    const previousTitle = document.title
+    document.title = title
+
+    const descriptionText = `${property.title} in ${property.location}. ${property.beds || 0} beds, ${property.baths || 0} baths.`
+    let descriptionTag = document.querySelector('meta[name="description"]')
+    if (!descriptionTag) {
+      descriptionTag = document.createElement('meta')
+      descriptionTag.setAttribute('name', 'description')
+      document.head.appendChild(descriptionTag)
+    }
+    const previousDescription = descriptionTag.getAttribute('content') || ''
+    descriptionTag.setAttribute('content', descriptionText)
+
+    let canonical = document.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement('link')
+      canonical.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonical)
+    }
+    canonical.setAttribute('href', window.location.href)
+
+    const ldId = 'property-ld-json'
+    const script = document.createElement('script')
+    script.id = ldId
+    script.type = 'application/ld+json'
+    script.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Residence',
+      name: property.title,
+      description: property.description,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: property.location
+      },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'NGN',
+        price: Number(String(property.price || '').replace(/[^\d]/g, '')) || 0,
+        availability: 'https://schema.org/InStock'
+      }
+    })
+    document.head.appendChild(script)
+
+    return () => {
+      document.title = previousTitle
+      descriptionTag?.setAttribute('content', previousDescription)
+      document.getElementById(ldId)?.remove()
+    }
+  }, [property])
 
   if (!property) {
     return (
@@ -67,6 +156,7 @@ export default function PropertyDetails() {
 
   const resolveImage = (img) => (img?.preview || img?.url || img);
   const currentImage = resolveImage(property.images?.[currentImageIndex]) || property.image;
+  const neighborhoodInsights = getNeighborhoodInsights(property.location)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -78,6 +168,8 @@ export default function PropertyDetails() {
           src={currentImage}
           alt={property.title}
           className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = `https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=600&fit=crop`;
@@ -215,12 +307,7 @@ export default function PropertyDetails() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 className="text-2xl font-bold mb-4">Neighborhood Insights</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: 'Schools', value: '8.4/10' },
-                  { label: 'Commute', value: '25 min' },
-                  { label: 'Safety', value: 'High' },
-                  { label: 'Lifestyle', value: 'Vibrant' },
-                ].map((item) => (
+                {neighborhoodInsights.map((item) => (
                   <div key={item.label} className="rounded-xl bg-green-50 border border-emerald-100 px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.2em] text-gray-500">{item.label}</p>
                     <p className="text-lg font-semibold text-gray-900 mt-2">{item.value}</p>
@@ -350,6 +437,13 @@ export default function PropertyDetails() {
                       </span>
                     </div>
                   </div>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-2 text-sm text-gray-600">
+                  <p className="rounded-md bg-green-50 border border-green-100 px-3 py-2">Trust score: 4.7/5</p>
+                  <p className="rounded-md bg-gray-50 border border-gray-100 px-3 py-2">
+                    Last updated: {property.updatedAt ? new Date(property.updatedAt).toLocaleDateString() : 'Recently'}
+                  </p>
+                  <p className="rounded-md bg-gray-50 border border-gray-100 px-3 py-2">Typical response time: under 2 hours</p>
                 </div>
               </div>
             )}

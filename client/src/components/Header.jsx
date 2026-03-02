@@ -4,14 +4,35 @@ import logo from '../assets/Untitled design.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter, FaMoon, FaSun } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { promptInstall, subscribeInstallState } from '../utils/installPrompt';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [canInstall, setCanInstall] = useState(false);
+  const [canPrompt, setCanPrompt] = useState(false);
   const [showIosHint, setShowIosHint] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('profind_user_name')));
+  const [userRole, setUserRole] = useState(() => localStorage.getItem('profind_user_role') || 'seeker');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const syncAuthState = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem('profind_user_name')));
+      setUserRole(localStorage.getItem('profind_user_role') || 'seeker');
+    };
+
+    syncAuthState();
+    window.addEventListener('profind-auth-changed', syncAuthState);
+    window.addEventListener('storage', syncAuthState);
+    window.addEventListener('focus', syncAuthState);
+
+    return () => {
+      window.removeEventListener('profind-auth-changed', syncAuthState);
+      window.removeEventListener('storage', syncAuthState);
+      window.removeEventListener('focus', syncAuthState);
+    };
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem('profind_theme');
@@ -22,29 +43,11 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    setShowIosHint(isIos && !isStandalone);
-
-    const handleBeforeInstallPrompt = (event) => {
-      event.preventDefault();
-      setDeferredPrompt(event);
-      setCanInstall(true);
-    };
-
-    const handleInstalled = () => {
-      setDeferredPrompt(null);
-      setCanInstall(false);
-      setShowIosHint(false);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleInstalled);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleInstalled);
-    };
+    return subscribeInstallState((state) => {
+      setCanPrompt(state.canPrompt);
+      setIsInstalled(state.isInstalled);
+      setShowIosHint(state.isIos && !state.isInstalled);
+    });
   }, []);
 
   const toggleTheme = () => {
@@ -65,16 +68,18 @@ export default function Header() {
   const closeMenu = () => setMenuOpen(false);
 
   const handleInstallApp = async () => {
-    if (showIosHint && !deferredPrompt) {
+    if (isInstalled) return;
+    if (showIosHint && !canPrompt) {
       toast('To install on iPhone: tap Share in Safari, then "Add to Home Screen".');
       return;
     }
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === 'accepted') {
-      setCanInstall(false);
-      setDeferredPrompt(null);
+    const result = await promptInstall();
+    if (result.status === 'unavailable') {
+      toast('Open browser menu and choose Install app / Add to Home screen.');
+      return;
+    }
+    if (result.status === 'dismissed') {
+      toast('Install prompt was closed. You can try again anytime.');
     }
   };
 
@@ -84,11 +89,8 @@ export default function Header() {
     { to: '/about', label: 'About' },
     { to: '/services', label: 'Services' },
     { to: '/contact', label: 'Contact' },
-    ...(localStorage.getItem('profind_user_name') ? [{ to: '/upgrade', label: 'Upgrade' }] : []),
+    ...(isLoggedIn && (userRole === 'agent' || userRole === 'owner') ? [{ to: '/upgrade', label: 'Upgrade' }] : []),
   ];
-
-  // Check if user is logged in (in real app, use auth context)
-  const isLoggedIn = localStorage.getItem('profind_user_name');
 
   return (
     <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
@@ -118,13 +120,12 @@ export default function Header() {
 
         {/* Desktop Contact & CTA */}
         <div className="hidden md:flex items-center gap-3 lg:gap-4 flex-wrap justify-end">
-          {(canInstall || showIosHint) && (
+          {!isInstalled && (canPrompt || showIosHint) && (
             <button
               type="button"
               onClick={handleInstallApp}
               className="h-10 px-3 rounded-full border border-green-600 text-green-700 bg-white hover:bg-green-50 transition-colors text-sm font-medium"
               title={showIosHint ? 'Use your browser Share menu and choose Add to Home Screen.' : 'Install app'}
-              disabled={!canInstall && !showIosHint}
             >
               Install App
             </button>
@@ -169,13 +170,13 @@ export default function Header() {
               Dashboard
             </Link>
           ) : (
-            <a
-              href="#"
+            <button
+              type="button"
               className="btn-primary text-sm px-4 lg:px-5 py-2 text-center"
               onClick={handleGetStarted}
             >
               Get Started
-            </a>
+            </button>
           )}
         </div>
 
@@ -196,12 +197,11 @@ export default function Header() {
           className="md:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
           aria-label="Mobile navigation"
         >
-          {(canInstall || showIosHint) && (
+          {!isInstalled && (canPrompt || showIosHint) && (
             <button
               type="button"
               onClick={handleInstallApp}
               className="mb-3 inline-flex items-center justify-center gap-2 px-4 py-2 border border-green-600 text-green-700 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-60"
-              disabled={!canInstall && !showIosHint}
               title={showIosHint ? 'Use your browser Share menu and choose Add to Home Screen.' : 'Install app'}
             >
               <span className="text-sm font-medium">Install App</span>
@@ -235,13 +235,13 @@ export default function Header() {
               Dashboard
             </Link>
           ) : (
-            <a
-              href="#"
+            <button
+              type="button"
               className="btn-primary text-sm w-full mt-4 text-center py-2"
               onClick={handleGetStarted}
             >
               Get Started
-            </a>
+            </button>
           )}
           <div className="flex items-center gap-3 mt-4">
             {[

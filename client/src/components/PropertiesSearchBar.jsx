@@ -2,6 +2,7 @@
 import React, { useContext } from 'react';
 import { SearchContext } from '../contexts/SearchContext';
 import { FaMapMarkerAlt, FaHome, FaMoneyBillWave, FaTag, FaSearch, FaTimes } from 'react-icons/fa';
+import { storage } from '../utils/localStorage';
 
 export default function PropertiesSearchBar({ onSearchApplied }) {
   const { setSearch } = useContext(SearchContext);
@@ -42,6 +43,7 @@ export default function PropertiesSearchBar({ onSearchApplied }) {
     const next = { ...fields, ...updates };
     setFields(next);
     setSearch(next);
+    void storage.trackEvent('search_submitted', { source: 'quick_filter', ...next });
     if (onSearchApplied) {
       onSearchApplied();
     }
@@ -70,6 +72,7 @@ export default function PropertiesSearchBar({ onSearchApplied }) {
         onSubmit={(e) => {
           e.preventDefault();
           setSearch(fields);
+          void storage.trackEvent('search_submitted', { source: 'search_form', ...fields });
           if (onSearchApplied) {
             onSearchApplied();
           }

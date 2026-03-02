@@ -10,6 +10,7 @@ import {
   FaTools,
   FaMapMarkedAlt
 } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -122,8 +123,8 @@ export default function ServicesPage() {
               <p className="text-gray-600 mt-2">Speak with an advisor to plan your next move.</p>
             </div>
             <div className="flex gap-3">
-              <a href="/contact" className="btn-primary px-6 py-3">Contact Us</a>
-              <a href="/properties" className="btn-secondary px-6 py-3">Browse Listings</a>
+              <Link to="/contact" className="btn-primary px-6 py-3">Contact Us</Link>
+              <Link to="/properties" className="btn-secondary px-6 py-3">Browse Listings</Link>
             </div>
           </div>
         </section>

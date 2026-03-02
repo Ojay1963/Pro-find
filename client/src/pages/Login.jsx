@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
@@ -8,21 +8,33 @@ import toast from 'react-hot-toast'
 
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!storage.getCurrentUser()) return
+    const target = location.state?.from?.pathname || '/dashboard'
+    navigate(target, { replace: true })
+  }, [location.state, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
     try {
       await storage.login(formData.email, formData.password)
-      toast.success('Login successful!')
-      navigate('/dashboard')
+      const target = location.state?.from?.pathname || '/dashboard'
+      navigate(target, { state: { justLoggedIn: true }, replace: true })
     } catch (error) {
       toast.error(error.message || 'Invalid email or password. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -120,9 +132,10 @@ const Login = () => {
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
                 >
-                  Sign In
+                  {isSubmitting ? 'Signing In...' : 'Sign In'}
                 </button>
 
                 <div className="text-center">
