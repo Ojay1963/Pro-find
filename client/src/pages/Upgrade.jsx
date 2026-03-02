@@ -26,6 +26,12 @@ const Upgrade = () => {
     return all.filter((listing) => listing.ownerId === userId)
   }, [userId])
 
+  const hasActiveAgentSubscription = useMemo(() => {
+    const active = subscriptions?.activeSubscription
+    if (!active) return false
+    return new Date(active.endsAt).getTime() > Date.now()
+  }, [subscriptions])
+
   const loadData = async () => {
     setLoading(true)
     try {
@@ -121,6 +127,7 @@ const Upgrade = () => {
               Plan: {subscriptions.activeSubscription.planCode} | Ends:{' '}
               {new Date(subscriptions.activeSubscription.endsAt).toLocaleDateString()}
             </p>
+            <p className="text-sm text-green-700 mt-1">Your agent verified badge is active.</p>
           </div>
         )}
 
@@ -128,7 +135,9 @@ const Upgrade = () => {
           <div className="bg-white rounded-xl p-6 border border-gray-200">Loading plans...</div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {plans.map((plan) => {
+            {plans
+              .filter((plan) => !(plan.type === 'agent_subscription' && hasActiveAgentSubscription))
+              .map((plan) => {
               const isAgentPlan = plan.type === 'agent_subscription'
               const blocked = isAgentPlan && userRole !== 'agent'
               return (

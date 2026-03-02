@@ -615,6 +615,10 @@ const grantEntitlementForOrder = async (order, paymentData = {}) => {
       amountKobo: order.amountKobo,
       currency: order.currency
     })
+    await User.updateOne(
+      { id: order.userId },
+      { $set: { verified: true, verifiedAt: new Date().toISOString() } }
+    )
     return { subscriptionEndsAt: endsAt.toISOString() }
   }
 
@@ -945,6 +949,18 @@ app.post('/api/payments/initialize', requireAuth, async (req, res) => {
 
   if (plan.type === 'agent_subscription' && req.user.role !== 'agent') {
     return res.status(403).json({ error: 'Only agents can buy this plan' })
+  }
+
+  if (plan.type === 'agent_subscription') {
+    const now = new Date()
+    const active = await Subscription.findOne({
+      userId: req.user.id,
+      status: 'active',
+      endsAt: { $gt: now }
+    })
+    if (active) {
+      return res.status(409).json({ error: 'You already have an active subscription' })
+    }
   }
 
   let listingId = null
