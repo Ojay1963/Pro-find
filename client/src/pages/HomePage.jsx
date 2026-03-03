@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   FaHome,
@@ -9,7 +9,8 @@ import {
   FaUsers,
   FaRegCalendarCheck,
   FaClipboardList,
-  FaMapMarkedAlt
+  FaMapMarkedAlt,
+  FaChevronDown
 } from 'react-icons/fa'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
@@ -24,11 +25,40 @@ import AiChatBot from '../components/AiChatBot'
 
 const HomePage = () => {
   const resultsRef = useRef(null)
+  const [openFaq, setOpenFaq] = useState(0)
+
   const handleSearchApplied = useCallback(() => {
     if (resultsRef.current) {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [])
+
+  const faqItems = [
+    {
+      question: 'How do I contact an agent about a property?',
+      answer: 'Open any listing and use the inquiry form or call button. Your request is sent instantly to the listing agent.'
+    },
+    {
+      question: 'Can I list my property as an owner?',
+      answer: 'Yes. Create an account, switch to owner mode on your dashboard, then use "Create Listing" to publish your property.'
+    },
+    {
+      question: 'Are listings verified before going live?',
+      answer: 'Yes. Listings pass moderation checks before approval to help reduce duplicate, fake, or incomplete property posts.'
+    },
+    {
+      question: 'Can I save searches and get updates later?',
+      answer: 'Yes. Save your search filters and receive updates when matching properties are added or updated.'
+    },
+    {
+      question: 'Can I schedule a physical inspection or virtual tour?',
+      answer: 'Yes. Use the listing inquiry form to request your preferred date and time for either an in-person inspection or virtual viewing.'
+    },
+    {
+      question: 'Do I need an account to browse properties?',
+      answer: 'No. You can browse publicly, but creating an account unlocks saved searches, favorites, alerts, and faster inquiries.'
+    }
+  ]
 
   return (
     <div className="min-h-screen">
@@ -163,6 +193,42 @@ const HomePage = () => {
               ))}
             </div>
           </div>
+          </div>
+        </section>
+
+        <section className="w-full py-16 bg-gray-50 animate-fade-in">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center mb-10 animate-fade-up">
+              <h2 className="text-3xl font-bold mb-3">Q&A Section</h2>
+              <p className="text-gray-600">
+                Quick answers to common questions from buyers, renters, owners, and agents.
+              </p>
+            </div>
+            <div className="max-w-4xl mx-auto space-y-3">
+              {faqItems.map((item, index) => {
+                const isOpen = openFaq === index
+                return (
+                  <div key={item.question} className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                      className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 hover:bg-gray-50"
+                    >
+                      <span className="font-semibold text-gray-900">{item.question}</span>
+                      <FaChevronDown
+                        className={`text-green-700 text-sm transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-5 text-gray-600">
+                        {item.answer}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </section>
 
