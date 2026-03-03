@@ -105,7 +105,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex lg:gap-8 md:gap-5 text-gray-700 font-medium text-sm lg:text-base">
+        <nav className="hidden lg:flex lg:gap-8 text-gray-700 font-medium text-sm xl:text-base">
           {navLinks.map(({ to, label }) => (
             <Link
               key={to}
@@ -119,7 +119,7 @@ export default function Header() {
         </nav>
 
         {/* Desktop Contact & CTA */}
-        <div className="hidden md:flex items-center gap-3 lg:gap-4 flex-wrap justify-end">
+        <div className="hidden lg:flex items-center gap-3 xl:gap-4 flex-wrap justify-end">
           {!isInstalled && (canPrompt || showIosHint) && (
             <button
               type="button"
@@ -139,7 +139,7 @@ export default function Header() {
           >
             {isDark ? <FaSun className="text-amber-400" /> : <FaMoon className="text-gray-600" />}
           </button>
-          <div className="hidden lg:flex items-center gap-2 text-gray-500">
+          <div className="hidden xl:flex items-center gap-2 text-gray-500">
             {[
               { label: 'Facebook', href: 'https://facebook.com', icon: FaFacebookF },
               { label: 'Twitter', href: 'https://twitter.com', icon: FaTwitter },
@@ -158,7 +158,7 @@ export default function Header() {
               </a>
             ))}
           </div>
-          <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600">
+          <div className="hidden xl:flex items-center gap-2 text-sm text-gray-600">
             <PhoneIcon />
             <span>+234 (708-220-6013)</span>
           </div>
@@ -182,7 +182,7 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="lg:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
@@ -194,7 +194,7 @@ export default function Header() {
       {/* Mobile Navigation */}
       {menuOpen && (
         <nav
-          className="md:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
+          className="lg:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
           aria-label="Mobile navigation"
         >
           {!isInstalled && (canPrompt || showIosHint) && (
