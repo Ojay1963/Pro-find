@@ -1,9 +1,12 @@
-// Hero section component
-
-import { Link } from 'react-router-dom';
-import { FaBolt, FaCheckCircle, FaChartLine, FaMapMarkedAlt, FaShieldAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom'
+import { FaBolt, FaCheckCircle, FaChartLine, FaMapMarkedAlt, FaShieldAlt } from 'react-icons/fa'
+import { useI18n } from '../contexts/I18nContext'
 
 export default function Hero() {
+  const { t } = useI18n()
+  const aiBullets = t('hero.aiBullets', [])
+  const bulletList = Array.isArray(aiBullets) ? aiBullets : []
+
   return (
     <section className="relative w-full overflow-hidden bg-slate-950 text-white">
       <div className="absolute inset-0">
@@ -19,32 +22,38 @@ export default function Hero() {
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-16 pt-28 lg:grid lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
         <div className="space-y-6 text-left animate-fade-left" style={{ animationDelay: '60ms' }}>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-green-100 animate-pop-in" style={{ animationDelay: '120ms' }}>
+          <div
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-green-100 animate-pop-in"
+            style={{ animationDelay: '120ms' }}
+          >
             <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" aria-hidden="true" />
-            Nigeria&apos;s verified property network
+            {t('hero.badge')}
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight animate-fade-left" style={{ animationDelay: '160ms' }}>
-            Find your next <span className="text-green-300">dream home</span> with confidence.
+          <h1
+            className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight animate-fade-left"
+            style={{ animationDelay: '160ms' }}
+          >
+            {t('hero.titleBefore')} <span className="text-green-300">{t('hero.titleHighlight')}</span>{' '}
+            {t('hero.titleAfter')}
           </h1>
           <p className="text-base sm:text-lg text-slate-200 max-w-xl animate-fade-left" style={{ animationDelay: '220ms' }}>
-            Browse trusted listings, compare neighborhoods, and connect with verified agents across
-            Nigeria — all from one intelligent marketplace.
+            {t('hero.description')}
           </p>
 
           <div className="flex flex-wrap gap-3 animate-pop-in" style={{ animationDelay: '280ms' }}>
             <Link to="/properties" className="btn-primary">
-              Explore Listings
+              {t('hero.explore')}
             </Link>
             <Link to="/contact" className="btn-secondary text-white border-white/40 hover:bg-white/10">
-              Talk to an Advisor
+              {t('hero.advisor')}
             </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-slate-100">
             {[
-              { label: 'Verified Listings', value: '1,200+' },
-              { label: 'Active Buyers', value: '9,000+' },
-              { label: 'Trusted Agents', value: '340+' }
+              { label: t('hero.stats.verifiedListings'), value: '1,200+' },
+              { label: t('hero.stats.activeBuyers'), value: '9,000+' },
+              { label: t('hero.stats.trustedAgents'), value: '340+' }
             ].map((stat, index) => (
               <div
                 key={stat.label}
@@ -58,37 +67,39 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="space-y-4 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-lg shadow-2xl animate-fade-right" style={{ animationDelay: '140ms' }}>
+        <div
+          className="space-y-4 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-lg shadow-2xl animate-fade-right"
+          style={{ animationDelay: '140ms' }}
+        >
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-400/20 text-green-200">
               <FaBolt />
             </div>
             <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-green-100">AI Match</p>
-              <p className="text-lg font-semibold">Personalized listings in seconds</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-green-100">{t('hero.aiMatch')}</p>
+              <p className="text-lg font-semibold">{t('hero.aiTitle')}</p>
             </div>
           </div>
           <div className="space-y-3 text-sm text-slate-200">
             {[
-              { icon: FaCheckCircle, text: 'Verified agents and transparent pricing data.' },
-              { icon: FaMapMarkedAlt, text: 'Neighborhood insights and commute scoring.' },
-              { icon: FaChartLine, text: 'Market pulse with real-time demand trends.' },
-              { icon: FaShieldAlt, text: 'Secure scheduling and vetted property tours.' }
-            ].map((item) => (
-              <div key={item.text} className="flex items-start gap-3">
-                <item.icon className="mt-0.5 text-green-300" />
-                <p>{item.text}</p>
-              </div>
-            ))}
+              { icon: FaCheckCircle, text: bulletList[0] || '' },
+              { icon: FaMapMarkedAlt, text: bulletList[1] || '' },
+              { icon: FaChartLine, text: bulletList[2] || '' },
+              { icon: FaShieldAlt, text: bulletList[3] || '' }
+            ]
+              .filter((item) => item.text)
+              .map((item) => (
+                <div key={item.text} className="flex items-start gap-3">
+                  <item.icon className="mt-0.5 text-green-300" />
+                  <p>{item.text}</p>
+                </div>
+              ))}
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Popular Searches</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-300">{t('hero.popularSearches')}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {['Lekki', 'Ikoyi', 'Wuse 2', 'Enugu GRA'].map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-white/20 px-3 py-1 text-xs text-slate-100"
-                >
+                <span key={tag} className="rounded-full border border-white/20 px-3 py-1 text-xs text-slate-100">
                   {tag}
                 </span>
               ))}
@@ -97,5 +108,5 @@ export default function Hero() {
         </div>
       </div>
     </section>
-  );
+  )
 }

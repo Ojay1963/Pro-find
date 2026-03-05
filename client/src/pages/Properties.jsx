@@ -8,8 +8,10 @@ import PropertySortFilter from '../components/PropertySortFilter';
 import AdvancedFilters from '../components/AdvancedFilters';
 import { SearchContext } from '../contexts/SearchContext.jsx';
 import { FaMap } from 'react-icons/fa';
+import { useI18n } from '../contexts/I18nContext';
 
 export default function Properties() {
+  const { t } = useI18n();
   const [advancedFilters, setAdvancedFilters] = useState({});
   const [sortBy, setSortBy] = useState('relevance');
   const [viewMode, setViewMode] = useState('grid');
@@ -29,13 +31,13 @@ export default function Properties() {
       <Header />
       <div className="container mx-auto px-4 mt-24 py-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold">Properties</h1>
+          <h1 className="text-3xl font-bold">{t('propertiesPage.title', 'Properties')}</h1>
           <Link
             to="/properties/map"
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             <FaMap />
-            <span>Map View</span>
+            <span>{t('propertiesPage.mapView', 'Map View')}</span>
           </Link>
         </div>
       </div>

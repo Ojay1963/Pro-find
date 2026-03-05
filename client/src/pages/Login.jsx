@@ -5,8 +5,10 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { storage } from '../utils/localStorage'
 import toast from 'react-hot-toast'
+import { useI18n } from '../contexts/I18nContext'
 
 const Login = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const [formData, setFormData] = useState({
@@ -32,7 +34,7 @@ const Login = () => {
       const target = location.state?.from?.pathname || '/dashboard'
       navigate(target, { state: { justLoggedIn: true }, replace: true })
     } catch (error) {
-      toast.error(error.message || 'Invalid email or password. Please try again.')
+      toast.error(error.message || t('loginPage.errors.invalidCredentials', 'Invalid email or password. Please try again.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -51,18 +53,18 @@ const Login = () => {
         <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center gap-12 px-6 py-16 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="text-white space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-green-100">
-              Secure access
+              {t('loginPage.badge', 'Secure access')}
             </span>
             <h1 className="text-4xl sm:text-5xl font-semibold leading-tight">
-              Sign in to manage your property journey with confidence.
+              {t('loginPage.heroTitle', 'Sign in to manage your property journey with confidence.')}
             </h1>
             <p className="text-base sm:text-lg text-slate-200 max-w-xl">
-              Track saved homes, schedule viewings, and connect with verified agents across Nigeria.
+              {t('loginPage.heroText', 'Track saved homes, schedule viewings, and connect with verified agents across Nigeria.')}
             </p>
             <div className="grid grid-cols-2 gap-4 max-w-md">
               {[
-                { label: 'Verified Listings', value: '1,200+' },
-                { label: 'Trusted Agents', value: '340+' }
+                { label: t('loginPage.stats.verifiedListings', 'Verified Listings'), value: '1,200+' },
+                { label: t('loginPage.stats.trustedAgents', 'Trusted Agents'), value: '340+' }
               ].map((stat) => (
                 <div key={stat.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                   <p className="text-2xl font-semibold">{stat.value}</p>
@@ -76,18 +78,18 @@ const Login = () => {
             <div className="rounded-3xl border border-white/10 bg-white/95 shadow-2xl backdrop-blur-lg p-6 sm:p-8">
               <div className="mb-6 text-center">
                 <h1 className="text-2xl font-bold text-green-700 tracking-wide">PROFIND</h1>
-                <h2 className="text-xl font-semibold mt-3">Sign In</h2>
-                <p className="text-gray-600 text-sm">Welcome back! Please sign in to your account</p>
+                <h2 className="text-xl font-semibold mt-3">{t('loginPage.title', 'Sign In')}</h2>
+                <p className="text-gray-600 text-sm">{t('loginPage.subtitle', 'Welcome back! Please sign in to your account')}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-gray-700 mb-2">Email Address</label>
+                  <label className="block text-gray-700 mb-2">{t('loginPage.form.email', 'Email Address')}</label>
                   <div className="relative">
                     <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
                     <input
                       type="email"
-                      placeholder="example@email.com"
+                      placeholder={t('loginPage.form.emailPlaceholder', 'example@email.com')}
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -97,12 +99,12 @@ const Login = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 mb-2">Password</label>
+                  <label className="block text-gray-700 mb-2">{t('loginPage.form.password', 'Password')}</label>
                   <div className="relative">
                     <FaLock className="absolute left-3 top-3 text-gray-400" />
                     <input
                       type={showPassword ? "text" : "password"}
-                      placeholder="********"
+                      placeholder={t('loginPage.form.passwordPlaceholder', '********')}
                       className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -113,7 +115,7 @@ const Login = () => {
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg"
                       onClick={() => setShowPassword((prev) => !prev)}
                       tabIndex={-1}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showPassword ? t('loginPage.form.hidePassword', 'Hide password') : t('loginPage.form.showPassword', 'Show password')}
                     >
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
@@ -123,10 +125,10 @@ const Login = () => {
                 <div className="flex items-center justify-between">
                   <label className="flex items-center">
                     <input type="checkbox" className="mr-2 accent-green-600" />
-                    <span className="text-sm text-gray-600">Remember me</span>
+                    <span className="text-sm text-gray-600">{t('loginPage.form.rememberMe', 'Remember me')}</span>
                   </label>
                   <Link to="/reset-password" className="text-sm text-green-600 hover:underline">
-                    Forgot password?
+                    {t('loginPage.form.forgotPassword', 'Forgot password?')}
                   </Link>
                 </div>
 
@@ -135,21 +137,21 @@ const Login = () => {
                   disabled={isSubmitting}
                   className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
                 >
-                  {isSubmitting ? 'Signing In...' : 'Sign In'}
+                  {isSubmitting ? t('loginPage.form.signingIn', 'Signing In...') : t('loginPage.form.signIn', 'Sign In')}
                 </button>
 
                 <div className="text-center">
                   <p className="text-gray-600">
-                    Don't have an account?{' '}
+                    {t('loginPage.form.noAccount', "Don't have an account?")}{' '}
                     <Link to="/register" className="text-green-600 hover:underline font-semibold">
-                      Create Account
+                      {t('loginPage.form.createAccount', 'Create Account')}
                     </Link>
                   </p>
                 </div>
 
                 <div className="pt-2">
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400 text-center mb-3">
-                    Follow us
+                    {t('loginPage.follow', 'Follow us')}
                   </p>
                   <div className="flex items-center justify-center gap-3">
                     {[

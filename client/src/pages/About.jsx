@@ -3,8 +3,10 @@ import { FaCheckCircle, FaGlobeAfrica, FaShieldAlt, FaUsers } from 'react-icons/
 import logo from '../assets/Untitled design.png';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useI18n } from '../contexts/I18nContext';
 
 export default function About() {
+  const { t } = useI18n();
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -14,18 +16,20 @@ export default function About() {
           <div className="absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-emerald-200/40 blur-3xl" />
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">About Profind</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('aboutPage.badge', 'About Profind')}</p>
               <h1 className="text-4xl sm:text-5xl font-semibold mb-4 text-gray-900 leading-tight">
-                Trusted real estate decisions, built for Nigeria.
+                {t('aboutPage.title', 'Trusted real estate decisions, built for Nigeria.')}
               </h1>
               <p className="text-lg text-gray-700 mb-6">
-                Since 2009, Profind has connected buyers, renters, and investors with verified listings and
-                transparent market insights. We combine local expertise with a modern, intuitive platform.
+                {t(
+                  'aboutPage.subtitle',
+                  'Since 2009, Profind has connected buyers, renters, and investors with verified listings and transparent market insights. We combine local expertise with a modern, intuitive platform.'
+                )}
               </p>
               <div className="flex flex-wrap gap-3">
-                <span className="px-4 py-2 rounded-full bg-white border border-emerald-100 text-sm text-green-700">Verified listings</span>
-                <span className="px-4 py-2 rounded-full bg-white border border-emerald-100 text-sm text-green-700">Trusted agents</span>
-                <span className="px-4 py-2 rounded-full bg-white border border-emerald-100 text-sm text-green-700">Market insights</span>
+                <span className="px-4 py-2 rounded-full bg-white border border-emerald-100 text-sm text-green-700">{t('aboutPage.pills.verifiedListings', 'Verified listings')}</span>
+                <span className="px-4 py-2 rounded-full bg-white border border-emerald-100 text-sm text-green-700">{t('aboutPage.pills.trustedAgents', 'Trusted agents')}</span>
+                <span className="px-4 py-2 rounded-full bg-white border border-emerald-100 text-sm text-green-700">{t('aboutPage.pills.marketInsights', 'Market insights')}</span>
               </div>
             </div>
             <div className="flex justify-center items-center">
@@ -36,9 +40,9 @@ export default function About() {
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-14">
           {[
-            { title: 'National coverage', text: 'Presence across major cities with localized insights.', icon: FaGlobeAfrica },
-            { title: 'Verified trust', text: 'Screened listings and compliance-driven checks.', icon: FaShieldAlt },
-            { title: 'People-first support', text: 'Dedicated advisors that stay with you to closing.', icon: FaUsers },
+            { title: t('aboutPage.cards.coverage.title', 'National coverage'), text: t('aboutPage.cards.coverage.text', 'Presence across major cities with localized insights.'), icon: FaGlobeAfrica },
+            { title: t('aboutPage.cards.trust.title', 'Verified trust'), text: t('aboutPage.cards.trust.text', 'Screened listings and compliance-driven checks.'), icon: FaShieldAlt },
+            { title: t('aboutPage.cards.support.title', 'People-first support'), text: t('aboutPage.cards.support.text', 'Dedicated advisors that stay with you to closing.'), icon: FaUsers },
           ].map((item) => (
             <div key={item.title} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="h-12 w-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-4">
@@ -52,21 +56,20 @@ export default function About() {
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-semibold mb-3 text-green-700">Our Mission</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-green-700">{t('aboutPage.mission.title', 'Our Mission')}</h2>
             <p className="text-gray-700">
-              To simplify the property search process and empower Nigerians with the information and tools
-              they need to make confident real estate decisions.
+              {t('aboutPage.mission.text', 'To simplify the property search process and empower Nigerians with the information and tools they need to make confident real estate decisions.')}
             </p>
           </div>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-semibold mb-3 text-green-700">Why Profind</h2>
+            <h2 className="text-2xl font-semibold mb-3 text-green-700">{t('aboutPage.why.title', 'Why Profind')}</h2>
             <ul className="space-y-2 text-gray-700">
               {[
-                'Extensive listings across Nigeria\'s key markets',
-                'Verified properties and vetted agents',
-                'Advanced search, filters, and comparison tools',
-                'Fast support from local real estate specialists',
-                'Mobile-first experience for on-the-go clients',
+                t('aboutPage.why.items.0', "Extensive listings across Nigeria's key markets"),
+                t('aboutPage.why.items.1', 'Verified properties and vetted agents'),
+                t('aboutPage.why.items.2', 'Advanced search, filters, and comparison tools'),
+                t('aboutPage.why.items.3', 'Fast support from local real estate specialists'),
+                t('aboutPage.why.items.4', 'Mobile-first experience for on-the-go clients'),
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <FaCheckCircle className="text-green-600 mt-1" />
@@ -79,17 +82,17 @@ export default function About() {
 
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           <div>
-            <h2 className="text-2xl font-semibold mb-2 text-green-700">Contact Us</h2>
-            <p className="text-gray-700 mb-2">Questions or feedback? Our advisors are here to help you every step.</p>
+            <h2 className="text-2xl font-semibold mb-2 text-green-700">{t('aboutPage.contact.title', 'Contact Us')}</h2>
+            <p className="text-gray-700 mb-2">{t('aboutPage.contact.text', 'Questions or feedback? Our advisors are here to help you every step.')}</p>
             <ul className="text-gray-700">
-              <li><span className="font-semibold">Email:</span> support@profind.ng</li>
-              <li><span className="font-semibold">Phone:</span> +234 800 000 0000</li>
-              <li><span className="font-semibold">Address:</span> 123 Profind Avenue, Lagos, Nigeria</li>
+              <li><span className="font-semibold">{t('aboutPage.contact.email', 'Email:')}</span> support@profind.ng</li>
+              <li><span className="font-semibold">{t('aboutPage.contact.phone', 'Phone:')}</span> +234 800 000 0000</li>
+              <li><span className="font-semibold">{t('aboutPage.contact.address', 'Address:')}</span> 123 Profind Avenue, Lagos, Nigeria</li>
             </ul>
           </div>
           <div className="flex flex-col gap-2 w-full max-w-xs">
-            <a href="mailto:support@profind.ng" className="bg-green-700 text-white rounded-lg px-6 py-3 font-semibold text-center hover:bg-green-800 transition">Email Us</a>
-            <a href="tel:+2348000000000" className="bg-gray-200 text-green-700 rounded-lg px-6 py-3 font-semibold text-center hover:bg-green-100 transition">Call Us</a>
+            <a href="mailto:support@profind.ng" className="bg-green-700 text-white rounded-lg px-6 py-3 font-semibold text-center hover:bg-green-800 transition">{t('aboutPage.contact.emailUs', 'Email Us')}</a>
+            <a href="tel:+2348000000000" className="bg-gray-200 text-green-700 rounded-lg px-6 py-3 font-semibold text-center hover:bg-green-100 transition">{t('aboutPage.contact.callUs', 'Call Us')}</a>
           </div>
         </section>
       </main>

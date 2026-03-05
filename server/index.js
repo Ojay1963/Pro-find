@@ -28,13 +28,25 @@ const __dirname = path.dirname(__filename)
 const distPath = path.resolve(__dirname, '..', 'client', 'dist')
 const hasDist = fs.existsSync(distPath)
 const isProd = process.env.NODE_ENV === 'production'
-const corsOrigin = process.env.CORS_ORIGIN
+const normalizeOrigin = (value) => String(value || '').trim().replace(/\/$/, '')
+const parseOrigins = (value) =>
+  String(value || '')
+    .split(',')
+    .map((item) => normalizeOrigin(item))
+    .filter(Boolean)
+const isLocalDevOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)
+const corsOrigins = [
+  ...parseOrigins(process.env.CORS_ORIGINS),
+  ...parseOrigins(process.env.CORS_ORIGIN)
+]
+const allowedCorsOrigins = new Set(corsOrigins)
+const primaryCorsOrigin = corsOrigins[0] || ''
 const jwtSecret = process.env.JWT_SECRET || ''
 const jwtPreviousSecret = process.env.JWT_PREVIOUS_SECRET || ''
 const tokenTtlMs = 7 * 24 * 60 * 60 * 1000
 const authCookieName = 'profind_token'
 const csrfCookieName = 'profind_csrf'
-const appOrigin = process.env.APP_ORIGIN || corsOrigin || 'http://localhost:3000'
+const appOrigin = normalizeOrigin(process.env.APP_ORIGIN) || primaryCorsOrigin || 'http://localhost:3000'
 const smtpHost = process.env.SMTP_HOST || ''
 const smtpPort = Number(process.env.SMTP_PORT || 0)
 const smtpUser = process.env.SMTP_USER || ''
@@ -134,13 +146,23 @@ app.use(
     }
   })
 )
-if (corsOrigin) {
+if (allowedCorsOrigins.size > 0) {
   app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', corsOrigin)
+    const requestOrigin = normalizeOrigin(req.headers.origin)
+    const isAllowedOrigin =
+      (requestOrigin && allowedCorsOrigins.has(requestOrigin)) ||
+      (!isProd && requestOrigin && isLocalDevOrigin(requestOrigin))
+    if (isAllowedOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', requestOrigin)
+      res.setHeader('Vary', 'Origin')
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token')
     res.setHeader('Access-Control-Allow-Credentials', 'true')
-    if (req.method === 'OPTIONS') return res.sendStatus(204)
+    if (req.method === 'OPTIONS') {
+      if (!isAllowedOrigin) return res.sendStatus(403)
+      return res.sendStatus(204)
+    }
     next()
   })
 }
@@ -990,11 +1012,11 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     role: normalizedRole,
     licenseNumber,
     companyName,
-    emailVerified: true
+    emailVerified: false
   })
   res.status(201).json({
     ok: true,
-    message: 'Account created successfully. Please sign in.',
+    message: 'Account created successfully. Verify your email with OTP.',
     user: toUserResponse(user)
   })
 })
@@ -1008,6 +1030,7 @@ app.post('/api/auth/login', authLimiter, loginLimiter, async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Invalid credentials' })
   const ok = await bcrypt.compare(password, user.passwordHash)
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' })
+  if (!user.emailVerified) return res.status(403).json({ error: 'Please verify your email with OTP before signing in.' })
   if (adminEmail && email === adminEmail && user.role !== 'admin') {
     user.role = 'admin'
     await user.save()

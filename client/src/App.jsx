@@ -14,10 +14,12 @@ import GlobalTips from './components/GlobalTips';
 import RequireAuth from './components/RequireAuth';
 import RequireAdmin from './components/RequireAdmin';
 import RequireUpgradeAccess from './components/RequireUpgradeAccess';
+import { useI18n } from './contexts/I18nContext';
 
 const HomePage = React.lazy(() => import('./pages/HomePage'))
 const Register = React.lazy(() => import('./pages/Register'))
 const Login = React.lazy(() => import('./pages/Login'))
+const VerifyOtp = React.lazy(() => import('./pages/VerifyOtp'))
 const RegistrationSuccess = React.lazy(() => import('./pages/RegistrationSuccess'))
 const Dashboard = React.lazy(() => import('./pages/Dashboard'))
 const CreateListing = React.lazy(() => import('./pages/CreateListing'))
@@ -103,6 +105,7 @@ function AppShell() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/registration-success" element={<RegistrationSuccess />} />
@@ -133,20 +136,22 @@ function AppShell() {
 }
 
 function RouteLoader() {
+  const { t } = useI18n()
   return (
     <div className="mx-auto max-w-5xl px-6 py-20 text-center text-gray-600">
-      Loading...
+      {t('app.loading')}
     </div>
   )
 }
 
 function NotFound() {
+  const { t } = useI18n()
   return (
     <div className="mx-auto max-w-5xl px-6 py-20 text-center">
-      <h1 className="text-3xl font-semibold text-gray-900">Page Not Found</h1>
-      <p className="mt-3 text-gray-600">The page you requested does not exist.</p>
+      <h1 className="text-3xl font-semibold text-gray-900">{t('app.notFoundTitle')}</h1>
+      <p className="mt-3 text-gray-600">{t('app.notFoundText')}</p>
       <Link to="/" className="mt-6 inline-block rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-        Go Home
+        {t('app.goHome')}
       </Link>
     </div>
   )

@@ -6,16 +6,18 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { storage } from '../utils/localStorage'
 import toast from 'react-hot-toast'
+import { useI18n } from '../contexts/I18nContext'
 
 const Register = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const registerSchema = z
     .object({
-      name: z.string().min(1, 'Full name is required'),
-      email: z.string().email('Enter a valid email address'),
-      password: z.string().min(6, 'Password must be at least 6 characters'),
-      confirmPassword: z.string().min(1, 'Please confirm your password'),
-      phone: z.string().min(1, 'Phone number is required'),
+      name: z.string().min(1, t('registerPage.errors.fullNameRequired', 'Full name is required')),
+      email: z.string().email(t('registerPage.errors.validEmail', 'Enter a valid email address')),
+      password: z.string().min(6, t('registerPage.errors.passwordMin', 'Password must be at least 6 characters')),
+      confirmPassword: z.string().min(1, t('registerPage.errors.confirmPasswordRequired', 'Please confirm your password')),
+      phone: z.string().min(1, t('registerPage.errors.phoneRequired', 'Phone number is required')),
       role: z.enum(['seeker', 'owner', 'agent']),
       licenseNumber: z.string().optional(),
       companyName: z.string().optional()
@@ -25,7 +27,7 @@ const Register = () => {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['confirmPassword'],
-          message: 'Passwords do not match'
+          message: t('registerPage.errors.passwordsNoMatch', 'Passwords do not match')
         })
       }
 
@@ -33,7 +35,7 @@ const Register = () => {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['licenseNumber'],
-          message: 'License number is required for agents'
+          message: t('registerPage.errors.licenseRequired', 'License number is required for agents')
         })
       }
     })
@@ -94,12 +96,17 @@ const Register = () => {
       
       try {
         await storage.addUser(userData)
-        toast.success('Account created successfully!')
+        try {
+          await storage.sendOtp(formData.email, 'email_verification')
+          toast.success(t('registerPage.toast.success', 'Account created. OTP sent to your email.'))
+        } catch (otpError) {
+          toast.error(otpError.message || 'Account created, but OTP could not be sent. Try resend on the next page.')
+        }
         setFormData(initialFormData)
         setErrors({})
-        navigate('/registration-success')
+        navigate('/verify-otp', { state: { email: formData.email } })
       } catch (error) {
-        toast.error(error.message || 'Registration failed. Please try again.')
+        toast.error(error.message || t('registerPage.toast.error', 'Registration failed. Please try again.'))
       } finally {
         setIsSubmitting(false)
       }
@@ -119,19 +126,18 @@ const Register = () => {
         <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center gap-12 px-6 py-16 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="text-white space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-green-100">
-              Get started
+              {t('registerPage.badge', 'Get started')}
             </span>
             <h1 className="text-4xl sm:text-5xl font-semibold leading-tight">
-              Join Profind to list, discover, and manage properties faster.
+              {t('registerPage.heroTitle', 'Join Profind to list, discover, and manage properties faster.')}
             </h1>
             <p className="text-base sm:text-lg text-slate-200 max-w-xl">
-              Whether you are a buyer, owner, or agent, Profind gives you verified listings, smarter search,
-              and trusted connections across Nigeria.
+              {t('registerPage.heroText', 'Whether you are a buyer, owner, or agent, Profind gives you verified listings, smarter search, and trusted connections across Nigeria.')}
             </p>
             <div className="grid grid-cols-2 gap-4 max-w-md">
               {[
-                { label: 'Cities Covered', value: '30+' },
-                { label: 'Monthly Viewings', value: '2,800+' }
+                { label: t('registerPage.stats.cities', 'Cities Covered'), value: '30+' },
+                { label: t('registerPage.stats.viewings', 'Monthly Viewings'), value: '2,800+' }
               ].map((stat) => (
                 <div key={stat.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                   <p className="text-2xl font-semibold">{stat.value}</p>
@@ -141,9 +147,9 @@ const Register = () => {
             </div>
             <div className="grid gap-3 text-sm text-slate-200">
               {[
-                'Get verified listings and agent support.',
-                'Track favorites and schedule viewings.',
-                'List faster with guided property tools.'
+                t('registerPage.bullets.verified', 'Get verified listings and agent support.'),
+                t('registerPage.bullets.track', 'Track favorites and schedule viewings.'),
+                t('registerPage.bullets.list', 'List faster with guided property tools.')
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <span className="h-2 w-2 rounded-full bg-green-400" />
@@ -157,8 +163,8 @@ const Register = () => {
             <div className="rounded-3xl border border-white/10 bg-white/95 shadow-2xl backdrop-blur-lg p-6 sm:p-8">
               <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-green-700 tracking-wide">PROFIND</h1>
-                <h2 className="text-xl font-semibold mt-3">Create Your Account</h2>
-                <p className="text-gray-600 text-sm">Join Nigeria's premier real estate platform</p>
+                <h2 className="text-xl font-semibold mt-3">{t('registerPage.title', 'Create Your Account')}</h2>
+                <p className="text-gray-600 text-sm">{t('registerPage.subtitle', "Join Nigeria's premier real estate platform")}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
@@ -173,7 +179,7 @@ const Register = () => {
                     }`}
                   >
                     <FaHome />
-                    <span>Property Seeker</span>
+                    <span>{t('registerPage.roles.seeker', 'Property Seeker')}</span>
                   </button>
                   <button
                     type="button"
@@ -188,7 +194,7 @@ const Register = () => {
                     }`}
                   >
                     <FaBuilding />
-                    <span>Property Owner</span>
+                    <span>{t('registerPage.roles.owner', 'Property Owner')}</span>
                   </button>
                   <button
                     type="button"
@@ -203,20 +209,20 @@ const Register = () => {
                     }`}
                   >
                     <FaUserTie />
-                    <span>Real Estate Agent</span>
+                    <span>{t('registerPage.roles.agent', 'Real Estate Agent')}</span>
                   </button>
                 </div>
                 {errors.role && <p className="text-red-500 text-sm -mt-3 mb-3">{errors.role}</p>}
 
                 <div>
-                  <label className="block text-gray-700 mb-2">Full Name</label>
+                  <label className="block text-gray-700 mb-2">{t('registerPage.form.fullName', 'Full Name')}</label>
                   <div className="relative">
                     <FaUser className="absolute left-3 top-3 text-gray-400" />
                     <input
                       type="text"
                       name="fullName"
                       autoComplete="off"
-                      placeholder="Enter your full name"
+                      placeholder={t('registerPage.form.fullNamePlaceholder', 'Enter your full name')}
                       className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                         errors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
@@ -232,14 +238,14 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 mb-2">Email Address</label>
+                  <label className="block text-gray-700 mb-2">{t('registerPage.form.email', 'Email Address')}</label>
                   <div className="relative">
                     <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
                     <input
                       type="email"
                       name="email"
                       autoComplete="off"
-                      placeholder="example@email.com"
+                      placeholder={t('registerPage.form.emailPlaceholder', 'example@email.com')}
                       className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                         errors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
@@ -255,14 +261,14 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 mb-2">Phone Number</label>
+                  <label className="block text-gray-700 mb-2">{t('registerPage.form.phone', 'Phone Number')}</label>
                   <div className="relative">
                     <FaPhone className="absolute left-3 top-3 text-gray-400" />
                     <input
                       type="tel"
                       name="phone"
                       autoComplete="off"
-                      placeholder="0803 123 4567"
+                      placeholder={t('registerPage.form.phonePlaceholder', '0803 123 4567')}
                       className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                         errors.phone ? 'border-red-500' : 'border-gray-300'
                       }`}
@@ -279,14 +285,14 @@ const Register = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-700 mb-2">Password</label>
+                    <label className="block text-gray-700 mb-2">{t('registerPage.form.password', 'Password')}</label>
                     <div className="relative">
                       <FaLock className="absolute left-3 top-3 text-gray-400" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         name="password"
                         autoComplete="new-password"
-                        placeholder="********"
+                        placeholder={t('registerPage.form.passwordPlaceholder', '********')}
                         className={`w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                           errors.password ? 'border-red-500' : 'border-gray-300'
                         }`}
@@ -303,7 +309,7 @@ const Register = () => {
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg"
                         onClick={() => setShowPassword((prev) => !prev)}
                         tabIndex={-1}
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showPassword ? t('registerPage.form.hidePassword', 'Hide password') : t('registerPage.form.showPassword', 'Show password')}
                       >
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
@@ -312,14 +318,14 @@ const Register = () => {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 mb-2">Confirm Password</label>
+                    <label className="block text-gray-700 mb-2">{t('registerPage.form.confirmPassword', 'Confirm Password')}</label>
                     <div className="relative">
                       <FaLock className="absolute left-3 top-3 text-gray-400" />
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         name="confirmPassword"
                         autoComplete="new-password"
-                        placeholder="********"
+                        placeholder={t('registerPage.form.confirmPasswordPlaceholder', '********')}
                         className={`w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                           errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                         }`}
@@ -335,7 +341,7 @@ const Register = () => {
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
                         tabIndex={-1}
-                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                        aria-label={showConfirmPassword ? t('registerPage.form.hidePassword', 'Hide password') : t('registerPage.form.showPassword', 'Show password')}
                       >
                         {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
@@ -347,10 +353,10 @@ const Register = () => {
                 {formData.role === 'agent' && (
                   <>
                     <div>
-                      <label className="block text-gray-700 mb-2">License Number</label>
+                      <label className="block text-gray-700 mb-2">{t('registerPage.form.licenseNumber', 'License Number')}</label>
                       <input
                         type="text"
-                        placeholder="Enter your real estate license number"
+                        placeholder={t('registerPage.form.licenseNumberPlaceholder', 'Enter your real estate license number')}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                           errors.licenseNumber ? 'border-red-500' : 'border-gray-300'
                         }`}
@@ -363,10 +369,10 @@ const Register = () => {
                       {errors.licenseNumber && <p className="text-red-500 text-sm mt-1">{errors.licenseNumber}</p>}
                     </div>
                     <div>
-                      <label className="block text-gray-700 mb-2">Company Name (Optional)</label>
+                      <label className="block text-gray-700 mb-2">{t('registerPage.form.companyName', 'Company Name (Optional)')}</label>
                       <input
                         type="text"
-                        placeholder="Your real estate company"
+                        placeholder={t('registerPage.form.companyNamePlaceholder', 'Your real estate company')}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
                           errors.companyName ? 'border-red-500' : 'border-gray-300'
                         }`}
@@ -386,21 +392,21 @@ const Register = () => {
                   disabled={isSubmitting}
                   className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
                 >
-                  {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                  {isSubmitting ? t('registerPage.form.creating', 'Creating Account...') : t('registerPage.form.create', 'Create Account')}
                 </button>
 
                 <div className="text-center">
                   <p className="text-gray-600">
-                    Already have an account?{' '}
+                    {t('registerPage.form.haveAccount', 'Already have an account?')}{' '}
                     <Link to="/login" className="text-green-600 hover:underline font-semibold">
-                      Sign In
+                      {t('registerPage.form.signIn', 'Sign In')}
                     </Link>
                   </p>
                 </div>
 
                 <div className="pt-2">
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400 text-center mb-3">
-                    Follow us
+                    {t('registerPage.follow', 'Follow us')}
                   </p>
                   <div className="flex items-center justify-center gap-3">
                     {[

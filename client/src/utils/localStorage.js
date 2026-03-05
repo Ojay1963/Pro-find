@@ -181,6 +181,18 @@ export const storage = {
     return data?.user
   },
 
+  sendOtp: async (email, purpose = 'email_verification') =>
+    apiRequest('/api/auth/otp/send', {
+      method: 'POST',
+      body: JSON.stringify({ email, purpose })
+    }),
+
+  verifyOtp: async (email, otp, purpose = 'email_verification') =>
+    apiRequest('/api/auth/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, purpose })
+    }),
+
   login: async (email, password) => {
     const data = await apiRequest('/api/auth/login', {
       method: 'POST',

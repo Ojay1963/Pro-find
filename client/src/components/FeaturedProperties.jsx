@@ -2,6 +2,7 @@ import { useState, useContext, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBath, FaBed, FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaRulerCombined } from 'react-icons/fa';
 import { SearchContext } from '../contexts/SearchContext.jsx';
+import { useI18n } from '../contexts/I18nContext';
 import properties from './propertiesData';
 import { storage } from '../utils/localStorage';
 import FavoriteButton from './FavoriteButton';
@@ -13,6 +14,7 @@ function FeaturedProperties({
   advancedFilters = {},
 }) {
   const { search } = useContext(SearchContext);
+  const { t } = useI18n();
 
   const [groupSize, setGroupSize] = useState(3);
   const [currentGroup, setCurrentGroup] = useState(0);
@@ -270,17 +272,23 @@ function FeaturedProperties({
 
   const getShowingText = () => {
     if (filtered.length === 0) {
-      return 'Try adjusting your filters to see more properties';
+      return t('featured.adjustFilters', 'Try adjusting your filters to see more properties');
     }
 
     if (showAll) {
-      return 'Explore properties matching your preferences';
+      return t('featured.matchingPreferences', 'Explore properties matching your preferences');
     }
 
     const startNum = start + 1;
     const endNum = Math.min(end, filtered.length);
 
-    return `Discover your perfect home - viewing ${startNum}-${endNum} of ${filtered.length} properties`;
+    return t(
+      'featured.showingRange',
+      `Discover your perfect home - viewing ${startNum}-${endNum} of ${filtered.length} properties`
+    )
+      .replace('{start}', String(startNum))
+      .replace('{end}', String(endNum))
+      .replace('{total}', String(filtered.length));
   };
 
   /* -------------------- RENDER -------------------- */
@@ -289,12 +297,12 @@ function FeaturedProperties({
     <section className="w-full py-16 bg-gray-50">
       <div className="container mx-auto px-4 relative">
         <div className="mx-auto mb-10 max-w-2xl text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">Featured</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('featured.badge', 'Featured')}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-            Discover standout listings
+            {t('featured.title', 'Discover standout listings')}
           </h2>
           <p className="mt-3 text-gray-500">
-            Curated homes and apartments with verified agents and transparent pricing.
+            {t('featured.subtitle', 'Curated homes and apartments with verified agents and transparent pricing.')}
           </p>
         </div>
 
@@ -304,8 +312,8 @@ function FeaturedProperties({
 
         {filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">No properties found matching your criteria</p>
-            <p className="text-gray-500 mt-2">Try adjusting your filters or search terms</p>
+            <p className="text-gray-400 text-lg">{t('featured.noneTitle', 'No properties found matching your criteria')}</p>
+            <p className="text-gray-500 mt-2">{t('featured.noneText', 'Try adjusting your filters or search terms')}</p>
           </div>
         ) : (
           <>
@@ -373,6 +381,7 @@ function FeaturedProperties({
 /* -------------------- CARD COMPONENT -------------------- */
 
 function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
+  const { t } = useI18n();
   return (
     <div
       className={`${showAll ? 'w-full max-w-sm' : 'w-80'} card p-0 overflow-hidden hover:shadow-xl transition-all duration-300 group animate-pop-in`}
@@ -421,16 +430,16 @@ function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
         <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 mb-5">
           <span className="inline-flex items-center gap-2">
             <FaBed className="text-green-600" />
-            {property.beds} Beds
+            {property.beds} {t('featured.card.beds', 'Beds')}
           </span>
           <span className="inline-flex items-center gap-2">
             <FaBath className="text-green-600" />
-            {property.baths} Baths
+            {property.baths} {t('featured.card.baths', 'Baths')}
           </span>
         </div>
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700">Agent verified</span>
-          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600">Response under 2h</span>
+          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700">{t('featured.card.agentVerified', 'Agent verified')}</span>
+          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600">{t('featured.card.responseTime', 'Response under 2h')}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -438,13 +447,13 @@ function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
             to={`/property/${property.id}`}
             className="block w-full py-2 px-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transition-colors"
           >
-            View Details
+            {t('featured.card.viewDetails', 'View Details')}
           </Link>
           <Link
             to={`/compare?ids=${property.id}`}
             className="block w-full py-2 px-4 border border-gray-200 text-gray-600 text-center rounded-md hover:border-green-500 hover:text-green-600 transition-colors"
           >
-            Compare
+            {t('featured.card.compare', 'Compare')}
           </Link>
         </div>
       </div>
