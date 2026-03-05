@@ -55,6 +55,9 @@ const smtpFrom = process.env.SMTP_FROM || ''
 const emailUser = process.env.EMAIL || ''
 const emailSecret = process.env.EMAILSECRET || ''
 const smtpAllowSelfSigned = String(process.env.SMTP_ALLOW_SELF_SIGNED || '').toLowerCase() === 'true'
+const brevoApiKey = String(process.env.BREVO_API_KEY || '').trim()
+const brevoSenderEmail = String(process.env.BREVO_SENDER_EMAIL || '').trim()
+const brevoSenderName = String(process.env.BREVO_SENDER_NAME || 'Profind').trim()
 const otpDebugMode = String(process.env.OTP_DEBUG || '').toLowerCase() === 'true' && !isProd
 const otpTtlMinutesRaw = Number(process.env.OTP_TTL_MINUTES || 10)
 const otpCooldownSecondsRaw = Number(process.env.OTP_COOLDOWN_SECONDS || 60)
@@ -113,6 +116,8 @@ if (otpTransportUser && otpTransportPass) {
     console.log('OTP email transporter initialization failed', error)
   }
 }
+const canSendOtpViaSmtp = () => Boolean(otpTransporter && otpFrom)
+const canSendOtpViaBrevoApi = () => Boolean(brevoApiKey && brevoSenderEmail)
 
 if (!jwtSecret) {
   throw new Error('Missing JWT_SECRET')
@@ -843,27 +848,68 @@ const sendPasswordResetEmail = async (email, token) => {
 const generateOtpCode = () => `${Math.floor(100000 + Math.random() * 900000)}`
 const hashOtp = (otp) => crypto.createHash('sha256').update(String(otp)).digest('hex')
 
+const sendOtpViaBrevoApi = async (email, otp) => {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'api-key': brevoApiKey
+    },
+    body: JSON.stringify({
+      sender: { name: brevoSenderName, email: brevoSenderEmail },
+      to: [{ email }],
+      subject: 'Your OTP Code',
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Your OTP Code</h2>
+          <div style="background-color: #e6f3ff; padding: 20px; text-align: center; border-radius: 8px;">
+            <h1 style="color: #007bff; font-size: 36px; margin: 0;">${otp}</h1>
+          </div>
+          <p style="margin-top: 12px; color: #444;">This code will expire in 10 minutes.</p>
+        </div>
+      `,
+      textContent: `Your OTP code is: ${otp}. This code will expire in 10 minutes.`
+    })
+  })
+
+  if (!response.ok) {
+    const brevoError = await response.text().catch(() => '')
+    throw new Error(`Brevo API send failed: ${response.status} ${brevoError}`)
+  }
+}
+
 const sendOtpEmailMessage = async (email, otp) => {
-  if (!otpTransporter || !otpFrom) {
+  if (!canSendOtpViaSmtp() && !canSendOtpViaBrevoApi()) {
     if (isProd) throw new Error('OTP email is not configured')
     return { debugOtp: otpDebugMode ? otp : undefined }
   }
 
-  await otpTransporter.sendMail({
-    from: otpFrom,
-    to: email,
-    subject: 'Your OTP Code',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Your OTP Code</h2>
-        <div style="background-color: #e6f3ff; padding: 20px; text-align: center; border-radius: 8px;">
-          <h1 style="color: #007bff; font-size: 36px; margin: 0;">${otp}</h1>
-        </div>
-        <p style="margin-top: 12px; color: #444;">This code will expire in 10 minutes.</p>
-      </div>
-    `,
-    text: `Your OTP code is: ${otp}. This code will expire in 10 minutes.`
-  })
+  if (canSendOtpViaSmtp()) {
+    try {
+      await otpTransporter.sendMail({
+        from: otpFrom,
+        to: email,
+        subject: 'Your OTP Code',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Your OTP Code</h2>
+            <div style="background-color: #e6f3ff; padding: 20px; text-align: center; border-radius: 8px;">
+              <h1 style="color: #007bff; font-size: 36px; margin: 0;">${otp}</h1>
+            </div>
+            <p style="margin-top: 12px; color: #444;">This code will expire in 10 minutes.</p>
+          </div>
+        `,
+        text: `Your OTP code is: ${otp}. This code will expire in 10 minutes.`
+      })
+      return {}
+    } catch (smtpError) {
+      console.log('OTP SMTP send failed, trying Brevo API fallback:', smtpError?.message || smtpError)
+      if (!canSendOtpViaBrevoApi()) throw smtpError
+    }
+  }
+
+  await sendOtpViaBrevoApi(email, otp)
 
   return {}
 }
@@ -1128,10 +1174,10 @@ app.post('/api/auth/otp/send', authLimiter, otpSendLimiter, async (req, res) => 
   const parse = otpSendSchema.safeParse(req.body)
   if (!parse.success) return res.status(400).json({ success: false, error: 'Email is required' })
 
-  if (!otpTransporter || !otpFrom) {
+  if (!canSendOtpViaSmtp() && !canSendOtpViaBrevoApi()) {
     return res.status(503).json({
       success: false,
-      error: 'OTP email service is not configured. Set EMAIL and EMAILSECRET (or SMTP_* vars).'
+      error: 'OTP email service is not configured. Set SMTP_* vars or BREVO_API_KEY + BREVO_SENDER_EMAIL.'
     })
   }
 
