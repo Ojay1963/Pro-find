@@ -46,7 +46,7 @@ const VerifyOtp = () => {
     setIsResending(true)
     try {
       await storage.sendOtp(email.trim(), 'email_verification')
-      toast.success('A new OTP has been sent to your email.')
+      toast.success('OTP has been resent to your email.')
     } catch (error) {
       toast.error(error.message || 'Could not resend OTP')
     } finally {

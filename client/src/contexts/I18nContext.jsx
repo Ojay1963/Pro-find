@@ -60,7 +60,11 @@ export function I18nProvider({ children }) {
     }
   }, [language])
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
+  return (
+    <I18nContext.Provider value={value}>
+      <React.Fragment key={language}>{children}</React.Fragment>
+    </I18nContext.Provider>
+  )
 }
 
 export const useI18n = () => useContext(I18nContext)
