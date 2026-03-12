@@ -6,6 +6,19 @@ import { FaUpload, FaTimes, FaHome, FaMapMarkerAlt, FaMoneyBillWave, FaBed, FaBa
 import toast from 'react-hot-toast';
 import { storage } from '../utils/localStorage';
 
+const normalizeImageItem = (image) => {
+  if (!image) return null;
+  if (typeof image === 'string') {
+    return { url: image, preview: image, status: 'uploaded' };
+  }
+  return {
+    ...image,
+    url: image.url || image.preview || '',
+    preview: image.preview || image.url || '',
+    status: image.status || (image.url ? 'uploaded' : 'pending')
+  };
+};
+
 export default function CreateListing() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -33,7 +46,7 @@ export default function CreateListing() {
     
     // Additional
     amenities: existingListing?.amenities || [],
-    images: existingListing?.images || [],
+    images: (existingListing?.images || []).map(normalizeImageItem).filter(Boolean),
     virtualTourUrl: existingListing?.virtualTourUrl || '',
     
     // Contact
@@ -54,28 +67,52 @@ export default function CreateListing() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageUpload = (e) => {
+  const readFileAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target?.result || '');
+      reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+      reader.readAsDataURL(file);
+    });
+
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 10) {
       toast.error('Maximum 10 images allowed');
       return;
     }
-    
+
+    const validFiles = [];
     files.forEach(file => {
       if (file.size > 5 * 1024 * 1024) {
         toast.error(`${file.name} is too large. Max size is 5MB`);
         return;
       }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData({
-          ...formData,
-          images: [...formData.images, { file, preview: e.target.result }]
-        });
-      };
-      reader.readAsDataURL(file);
+      validFiles.push(file);
     });
+
+    if (validFiles.length === 0) return;
+
+    try {
+      const nextImages = await Promise.all(
+        validFiles.map(async (file) => {
+          const dataUrl = await readFileAsDataUrl(file);
+          return {
+            fileName: file.name,
+            dataUrl,
+            preview: dataUrl,
+            status: 'pending'
+          };
+        })
+      );
+      setFormData((current) => ({
+        ...current,
+        images: [...current.images, ...nextImages]
+      }));
+      e.target.value = '';
+    } catch (error) {
+      toast.error(error.message || 'Failed to read image');
+    }
   };
 
   const removeImage = (index) => {
@@ -134,12 +171,26 @@ export default function CreateListing() {
     e.preventDefault();
     if (!validateStep(step)) return;
 
-    // In a real app, this would upload to backend
+    const localImages = formData.images.filter((image) => image?.dataUrl && !image?.url);
+    let uploadedImages = formData.images.filter((image) => image?.url).map((image) => image.url);
+
+    if (localImages.length > 0) {
+      try {
+        const uploaded = await storage.uploadListingImages(localImages.map((image) => image.dataUrl));
+        uploadedImages = [...uploadedImages, ...uploaded.map((image) => image.url).filter(Boolean)];
+      } catch (error) {
+        toast.error(error.message || 'Image upload failed');
+        return;
+      }
+    }
+
     const currentUser = storage.getCurrentUser();
     const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id') || '0');
     
     const listing = {
       ...formData,
+      images: uploadedImages,
+      image: uploadedImages[0] || existingListing?.image || '',
       ownerId: userId,
       badge: formData.listingType === 'Buy' ? 'For Sale' : formData.listingType,
       createdAt: new Date().toISOString(),
@@ -426,7 +477,7 @@ export default function CreateListing() {
                     {formData.images.map((img, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={img.preview}
+                          src={img.preview || img.url}
                           alt={`Upload ${index + 1}`}
                           className="w-full h-32 object-cover rounded-lg"
                         />

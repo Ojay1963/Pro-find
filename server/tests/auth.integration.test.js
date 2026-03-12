@@ -137,6 +137,37 @@ describe('auth and security', () => {
     expect(create.body.listing.title).toBe('House')
   })
 
+  it('requires auth for listing image uploads and reports missing Cloudinary config', async () => {
+    const unauth = await request(app)
+      .post('/api/uploads/listing-images')
+      .send({ images: ['data:image/png;base64,Zm9v'] })
+
+    expect(unauth.status).toBe(401)
+
+    await request(app).post('/api/auth/register').send({
+      name: 'Uploader User',
+      email: 'uploader@example.com',
+      password: 'secret123',
+      role: 'owner'
+    })
+    const login = await request(app).post('/api/auth/login').send({
+      email: 'uploader@example.com',
+      password: 'secret123'
+    })
+
+    const cookies = login.headers['set-cookie'] || []
+    const csrfToken = login.body?.csrfToken
+
+    const upload = await request(app)
+      .post('/api/uploads/listing-images')
+      .set('Cookie', cookies)
+      .set('x-csrf-token', csrfToken)
+      .send({ images: ['data:image/png;base64,Zm9v'] })
+
+    expect(upload.status).toBe(503)
+    expect(String(upload.body.error || '')).toContain('Cloudinary')
+  })
+
   it('exposes monetization plans and initializes paystack order flow', async () => {
     const plansRes = await request(app).get('/api/monetization/plans')
     expect(plansRes.status).toBe(200)

@@ -72,6 +72,10 @@ const adminEmail = String(process.env.ADMIN_EMAIL || '')
   .toLowerCase()
 const paystackSecretKey = (process.env.PAYSTACK_SECRET_KEY || '').trim()
 const paystackWebhookSecret = (process.env.PAYSTACK_WEBHOOK_SECRET || paystackSecretKey).trim()
+const cloudinaryCloudName = (process.env.CLOUDINARY_CLOUD_NAME || '').trim()
+const cloudinaryApiKey = (process.env.CLOUDINARY_API_KEY || '').trim()
+const cloudinaryApiSecret = (process.env.CLOUDINARY_API_SECRET || '').trim()
+const cloudinaryUploadPreset = (process.env.CLOUDINARY_UPLOAD_PRESET || '').trim()
 const processStartMs = Date.now()
 
 const runtimeStats = {
@@ -145,7 +149,7 @@ app.use(helmet())
 app.use(cookieParser())
 app.use(
   express.json({
-    limit: '1mb',
+    limit: '15mb',
     verify: (req, _res, buf) => {
       req.rawBody = buf.toString('utf8')
     }
@@ -978,6 +982,66 @@ const comparisonInputSchema = z.object({
   propertyIds: z.array(idSchema).min(1)
 })
 
+const listingImageUploadInputSchema = z.object({
+  images: z.array(z.string().min(32)).min(1).max(10)
+})
+
+const isCloudinaryConfigured = () =>
+  Boolean(cloudinaryCloudName && cloudinaryApiKey && cloudinaryApiSecret)
+
+const buildCloudinarySignature = (params) => {
+  const serialized = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&')
+  return crypto.createHash('sha1').update(`${serialized}${cloudinaryApiSecret}`).digest('hex')
+}
+
+const uploadImageToCloudinary = async (dataUrl, { folder, publicId } = {}) => {
+  const trimmed = String(dataUrl || '').trim()
+  if (!/^data:image\/(png|jpe?g|webp|gif|avif);base64,/i.test(trimmed)) {
+    throw new Error('Only PNG, JPG, WEBP, GIF, and AVIF images are supported')
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000)
+  const paramsToSign = {
+    folder: folder || undefined,
+    public_id: publicId || undefined,
+    timestamp,
+    ...(cloudinaryUploadPreset ? { upload_preset: cloudinaryUploadPreset } : {})
+  }
+
+  const signature = buildCloudinarySignature(paramsToSign)
+  const formData = new FormData()
+  formData.set('file', trimmed)
+  formData.set('api_key', cloudinaryApiKey)
+  formData.set('timestamp', String(timestamp))
+  formData.set('signature', signature)
+  if (folder) formData.set('folder', folder)
+  if (publicId) formData.set('public_id', publicId)
+  if (cloudinaryUploadPreset) formData.set('upload_preset', cloudinaryUploadPreset)
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`, {
+    method: 'POST',
+    body: formData
+  })
+
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const message = payload?.error?.message || 'Cloudinary upload failed'
+    throw new Error(message)
+  }
+
+  return {
+    url: payload.secure_url || payload.url,
+    publicId: payload.public_id,
+    width: payload.width,
+    height: payload.height,
+    format: payload.format
+  }
+}
+
 const newsletterSubscribeSchema = z.object({
   email: z.string().email()
 })
@@ -1773,6 +1837,31 @@ app.post('/api/listings', requireAuth, async (req, res) => {
     data: parse.data
   })
   res.json({ listing: { id: listing.id, ownerId: listing.ownerId, status: listing.status, ...listing.data } })
+})
+
+app.post('/api/uploads/listing-images', requireAuth, async (req, res) => {
+  if (!isCloudinaryConfigured()) {
+    return res.status(503).json({
+      error: 'Cloudinary is not configured on the server'
+    })
+  }
+
+  const parse = listingImageUploadInputSchema.safeParse(req.body)
+  if (!parse.success) {
+    return res.status(400).json({ error: 'Invalid image upload payload' })
+  }
+
+  const folder = `profind/listings/${req.user.id}`
+  const uploads = await Promise.all(
+    parse.data.images.map((image, index) =>
+      uploadImageToCloudinary(image, {
+        folder,
+        publicId: `listing_${Date.now()}_${index + 1}_${crypto.randomInt(1000, 9999)}`
+      })
+    )
+  )
+
+  res.json({ images: uploads })
 })
 
 app.put('/api/listings/:id', requireAuth, async (req, res) => {

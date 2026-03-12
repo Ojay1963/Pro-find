@@ -406,6 +406,14 @@ export const storage = {
     return newListing
   },
 
+  uploadListingImages: async (images) => {
+    const data = await apiRequest('/api/uploads/listing-images', {
+      method: 'POST',
+      body: JSON.stringify({ images })
+    })
+    return data?.images || []
+  },
+
   updateListing: (id, updates) => {
     const listings = storage.getListings()
     const updated = listings.map((listing) =>
