@@ -6,12 +6,20 @@ import { useI18n } from '../contexts/I18nContext';
 import properties from './propertiesData';
 import { storage } from '../utils/localStorage';
 import FavoriteButton from './FavoriteButton';
+import { attachDistanceToProperty } from '../utils/propertyLocation';
+import { getPropertyTrustMetrics, normalizeText, parseAreaNumber, parsePriceNumber } from '../utils/propertyInsights';
 
 function FeaturedProperties({
   showAll = false,
   sortBy = 'relevance',
   viewMode = 'grid',
   advancedFilters = {},
+  userLocation = null,
+  title = 'Discover standout listings',
+  subtitle = 'Curated homes and apartments with verified agents and transparent pricing.',
+  badge = 'Featured',
+  emptyTitle = 'No properties found matching your criteria',
+  emptyText = 'Try adjusting your filters or search terms'
 }) {
   const { search } = useContext(SearchContext);
   const { t } = useI18n();
@@ -25,9 +33,6 @@ function FeaturedProperties({
 
   /* -------------------- FILTER & SORT -------------------- */
 
-  const normalizeText = (value) => String(value || '').toLowerCase();
-  const parseNumber = (value) => Number(String(value || '').replace(/[^\d]/g, '')) || 0;
-  const parseArea = (value) => Number(String(value || '').replace(/[^\d]/g, '')) || 0;
   const parseParking = (value) => {
     const match = String(value || '').match(/\d+/);
     return match ? Number(match[0]) : 0;
@@ -62,7 +67,7 @@ function FeaturedProperties({
       }
     }
 
-    const price = parseNumber(property.price);
+    const price = parsePriceNumber(property.price);
 
     if (search.min && price < Number(search.min)) return false;
     if (search.max && price > Number(search.max)) return false;
@@ -97,7 +102,7 @@ function FeaturedProperties({
     }
 
     if (advancedFilters.minSize || advancedFilters.maxSize) {
-      const area = parseArea(property.area);
+      const area = parseAreaNumber(property.area);
       if (advancedFilters.minSize && area < Number(advancedFilters.minSize)) {
         return false;
       }
@@ -134,13 +139,15 @@ function FeaturedProperties({
     return true;
   });
 
+  filtered = filtered.map((property) => attachDistanceToProperty(property, userLocation));
+
   if (!showAll) {
     filtered = filtered.slice(0, 28);
   }
 
   filtered.sort((a, b) => {
-    const priceA = parseNumber(a.price);
-    const priceB = parseNumber(b.price);
+    const priceA = parsePriceNumber(a.price);
+    const priceB = parsePriceNumber(b.price);
 
     switch (sortBy) {
       case 'price-low':
@@ -151,6 +158,16 @@ function FeaturedProperties({
         return b.id - a.id;
       case 'date-old':
         return a.id - b.id;
+      case 'nearest': {
+        const distanceA = typeof a.distanceKm === 'number' ? a.distanceKm : Number.POSITIVE_INFINITY;
+        const distanceB = typeof b.distanceKm === 'number' ? b.distanceKm : Number.POSITIVE_INFINITY;
+        return distanceA - distanceB;
+      }
+      case 'popularity': {
+        const scoreA = getPropertyTrustMetrics(a).inquiryIndex + getPropertyTrustMetrics(a).viewIndex;
+        const scoreB = getPropertyTrustMetrics(b).inquiryIndex + getPropertyTrustMetrics(b).viewIndex;
+        return scoreB - scoreA;
+      }
       default:
         return 0;
     }
@@ -297,12 +314,12 @@ function FeaturedProperties({
     <section className="w-full py-16 bg-gray-50">
       <div className="container mx-auto px-4 relative">
         <div className="mx-auto mb-10 max-w-2xl text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('featured.badge', 'Featured')}</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('featured.badge', badge)}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
-            {t('featured.title', 'Discover standout listings')}
+            {t('featured.title', title)}
           </h2>
           <p className="mt-3 text-gray-500">
-            {t('featured.subtitle', 'Curated homes and apartments with verified agents and transparent pricing.')}
+            {t('featured.subtitle', subtitle)}
           </p>
         </div>
 
@@ -312,8 +329,13 @@ function FeaturedProperties({
 
         {filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">{t('featured.noneTitle', 'No properties found matching your criteria')}</p>
-            <p className="text-gray-500 mt-2">{t('featured.noneText', 'Try adjusting your filters or search terms')}</p>
+            <p className="text-gray-400 text-lg">{t('featured.noneTitle', emptyTitle)}</p>
+            <p className="text-gray-500 mt-2">{t('featured.noneText', emptyText)}</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2 text-sm">
+              <span className="rounded-full border border-gray-200 px-3 py-1 text-gray-600">Try clearing price limits</span>
+              <span className="rounded-full border border-gray-200 px-3 py-1 text-gray-600">Switch to another city</span>
+              <span className="rounded-full border border-gray-200 px-3 py-1 text-gray-600">Use “All Types” for broader results</span>
+            </div>
           </div>
         ) : (
           <>
@@ -322,12 +344,19 @@ function FeaturedProperties({
               onPointerEnter={handlePointerEnter}
               onPointerLeave={handlePointerLeave}
             >
-              <div className={`flex ${showAll ? 'flex-wrap justify-center gap-6' : 'justify-center gap-6'}`}>
+              <div
+                className={
+                  viewMode === 'list'
+                    ? 'flex flex-col gap-6'
+                    : `flex ${showAll ? 'flex-wrap justify-center gap-6' : 'justify-center gap-6'}`
+                }
+              >
                 {displayedProperties.map((property, index) => (
                   <PropertyCard 
                     key={property.id} 
                     property={property}
                     showAll={showAll}
+                    viewMode={viewMode}
                     animationDelay={`${index * 90}ms`}
                   />
                 ))}
@@ -380,11 +409,12 @@ function FeaturedProperties({
 
 /* -------------------- CARD COMPONENT -------------------- */
 
-function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
+function PropertyCard({ property, showAll = false, viewMode = 'grid', animationDelay = '0ms' }) {
   const { t } = useI18n();
+  const trust = getPropertyTrustMetrics(property);
   return (
     <div
-      className={`${showAll ? 'w-full max-w-sm' : 'w-80'} card p-0 overflow-hidden hover:shadow-xl transition-all duration-300 group animate-pop-in`}
+      className={`${viewMode === 'list' ? 'w-full' : showAll ? 'w-full max-w-sm' : 'w-80'} card p-0 overflow-hidden hover:shadow-xl transition-all duration-300 group animate-pop-in`}
       style={{ animationDelay }}
     >
       <Link to={`/property/${property.id}`} className="relative block aspect-square overflow-hidden">
@@ -438,8 +468,12 @@ function PropertyCard({ property, showAll = false, animationDelay = '0ms' }) {
           </span>
         </div>
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700">{t('featured.card.agentVerified', 'Agent verified')}</span>
-          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600">{t('featured.card.responseTime', 'Response under 2h')}</span>
+          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700">{trust.verificationLabel}</span>
+          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600">{trust.availability}</span>
+          <span className="rounded-full bg-amber-50 border border-amber-100 px-2 py-1 text-amber-700">{trust.formattedPricePerSqm}</span>
+          {property.distanceLabel ? (
+            <span className="rounded-full bg-blue-50 border border-blue-100 px-2 py-1 text-blue-700">{property.distanceLabel}</span>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-2">

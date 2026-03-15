@@ -12,8 +12,10 @@ import ScheduleViewingForm from '../components/ScheduleViewingForm';
 import ContactAgentForm from '../components/ContactAgentForm';
 import PropertyShare from '../components/PropertyShare';
 import PropertyCard from '../components/PropertyCard';
-import { FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaCalendarAlt, FaCar, FaStar, FaShieldAlt } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaCalendarAlt, FaCar, FaStar, FaShieldAlt, FaBolt, FaFlag, FaWhatsapp, FaChartLine } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
+import { getNearbyPlaces, getNeighborhoodHighlights, getPropertyTrustMetrics, parsePriceNumber } from '../utils/propertyInsights';
+import toast from 'react-hot-toast';
 
 const getNeighborhoodInsights = (location) => {
   const raw = String(location || '').toLowerCase()
@@ -48,6 +50,8 @@ export default function PropertyDetails() {
   const property = properties.find((p) => String(p.id) === String(id)) || storedListing;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
   const isRental = property?.badge?.toLowerCase() === 'for rent';
   const tours = storage.getPropertyMedia(property?.id);
 
@@ -141,9 +145,8 @@ export default function PropertyDetails() {
     );
   }
 
-  // Get similar properties (same type and location area)
   const similarProperties = properties
-    .filter(p => p.id !== property.id && p.propertyType === property.propertyType)
+    .filter((p) => p.id !== property.id && (p.propertyType === property.propertyType || p.location === property.location))
     .slice(0, 3);
 
   const nextImage = () => {
@@ -157,6 +160,25 @@ export default function PropertyDetails() {
   const resolveImage = (img) => (img?.preview || img?.url || img);
   const currentImage = resolveImage(property.images?.[currentImageIndex]) || property.image;
   const neighborhoodInsights = getNeighborhoodInsights(property.location)
+  const trust = getPropertyTrustMetrics(property)
+  const nearbyPlaces = getNearbyPlaces(property)
+  const localHighlights = getNeighborhoodHighlights(property)
+  const headlinePrice = parsePriceNumber(property.price)
+
+  const handleReportListing = () => {
+    if (!reportReason.trim()) {
+      toast.error('Add a short reason for the report.')
+      return
+    }
+    storage.reportListing({
+      propertyId: property.id,
+      propertyTitle: property.title,
+      reason: reportReason.trim()
+    })
+    setReportReason('')
+    setShowReportModal(false)
+    toast.success('Listing report received.')
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -280,6 +302,29 @@ export default function PropertyDetails() {
                 </div>
               )}
               <p className="text-gray-600">Property Price</p>
+              <div className="mt-4 flex flex-wrap gap-2 text-sm">
+                <span className="rounded-full border border-green-200 bg-white px-3 py-1 text-green-700">{trust.formattedPricePerSqm}</span>
+                <span className="rounded-full border border-green-200 bg-white px-3 py-1 text-green-700">{trust.priceBand}</span>
+                <span className="rounded-full border border-green-200 bg-white px-3 py-1 text-green-700">{trust.availability}</span>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.25em] text-gray-500">Buyer interest</p>
+                <p className="mt-3 text-3xl font-bold text-gray-900">{trust.inquiryIndex}%</p>
+                <p className="mt-2 text-sm text-gray-600">Lead quality and inquiry volume remain strong around this listing.</p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.25em] text-gray-500">View momentum</p>
+                <p className="mt-3 text-3xl font-bold text-gray-900">{trust.viewIndex}</p>
+                <p className="mt-2 text-sm text-gray-600">Recent shortlist and detail-page engagement estimate.</p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.25em] text-gray-500">Expected close band</p>
+                <p className="mt-3 text-3xl font-bold text-gray-900">{headlinePrice ? `${Math.round((headlinePrice * 0.92) / 1000000)}M+` : 'Ask agent'}</p>
+                <p className="mt-2 text-sm text-gray-600">Estimated negotiation zone based on nearby pricing patterns.</p>
+              </div>
             </div>
 
             {/* Description */}
@@ -314,6 +359,13 @@ export default function PropertyDetails() {
                   </div>
                 ))}
               </div>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {localHighlights.map((item) => (
+                  <span key={item} className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* Market Pulse */}
@@ -339,6 +391,18 @@ export default function PropertyDetails() {
                         style={{ width: `${bar.value}%` }}
                       />
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-2xl font-bold mb-4">Nearby Essentials</h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                {nearbyPlaces.map((item) => (
+                  <div key={item.label} className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.25em] text-gray-500">{item.label}</p>
+                    <p className="mt-2 text-base font-semibold text-gray-900">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -380,8 +444,15 @@ export default function PropertyDetails() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 lg:sticky lg:top-24">
               <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
+              <div className="mb-4 rounded-xl border border-green-100 bg-green-50 p-4">
+                <div className="flex items-center gap-2 text-green-700">
+                  <FaBolt />
+                  <span className="font-semibold">{trust.availability}</span>
+                </div>
+                <p className="mt-2 text-sm text-gray-600">{trust.marketSummary}</p>
+              </div>
               <div className="space-y-3">
                 <Link
                   to="/contact"
@@ -395,6 +466,23 @@ export default function PropertyDetails() {
                   type="button"
                 >
                   Request More Info
+                </button>
+                <a
+                  href={`https://wa.me/2347082206013?text=${encodeURIComponent(`Hi, I want details about ${property.title}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-3 font-semibold text-gray-700 transition-colors hover:border-green-500 hover:text-green-700"
+                >
+                  <FaWhatsapp />
+                  WhatsApp Agent Desk
+                </a>
+                <button
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 px-4 py-3 font-semibold text-red-600 transition-colors hover:bg-red-50"
+                  onClick={() => setShowReportModal(true)}
+                  type="button"
+                >
+                  <FaFlag />
+                  Report listing
                 </button>
                     {/* Contact Agent Modal for Request More Info */}
                     {showContactModal && (
@@ -413,6 +501,35 @@ export default function PropertyDetails() {
                             agentName={property.agentName}
                             agentId={property.agentId}
                           />
+                        </div>
+                      </div>
+                    )}
+                    {showReportModal && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+                        <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+                          <button
+                            className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl"
+                            onClick={() => setShowReportModal(false)}
+                            aria-label="Close report modal"
+                          >
+                            &times;
+                          </button>
+                          <h4 className="text-xl font-bold text-gray-900">Report this listing</h4>
+                          <p className="mt-2 text-sm text-gray-600">Flag inaccurate, unavailable, duplicate, or suspicious listings for review.</p>
+                          <textarea
+                            value={reportReason}
+                            onChange={(event) => setReportReason(event.target.value)}
+                            rows={4}
+                            className="mt-4 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-green-500"
+                            placeholder="Why are you reporting this listing?"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleReportListing}
+                            className="mt-4 w-full rounded-lg bg-red-600 px-4 py-3 font-semibold text-white hover:bg-red-700"
+                          >
+                            Submit report
+                          </button>
                         </div>
                       </div>
                     )}
@@ -444,6 +561,7 @@ export default function PropertyDetails() {
                     Last updated: {property.updatedAt ? new Date(property.updatedAt).toLocaleDateString() : 'Recently'}
                   </p>
                   <p className="rounded-md bg-gray-50 border border-gray-100 px-3 py-2">Typical response time: under 2 hours</p>
+                  <p className="rounded-md bg-gray-50 border border-gray-100 px-3 py-2 inline-flex items-center gap-2"><FaChartLine /> High-intent zone: {trust.inquiryIndex}%</p>
                 </div>
               </div>
             )}

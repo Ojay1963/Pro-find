@@ -4346,5 +4346,256 @@ properties.forEach((property) => {
   }
 });
 
-export default properties;
+const generatedStateTemplates = [
+  {
+    state: 'Ebonyi',
+    location: 'Abakaliki, Ebonyi',
+    title: 'Modern 4-Bedroom Family House',
+    propertyType: 'House',
+    badge: 'For Sale',
+    price: '₦95,000,000',
+    beds: 4,
+    baths: 3,
+    area: '420 sqm',
+    yearBuilt: 2021,
+    parking: '2-car garage',
+    features: ['Garden', 'Security System', 'Generator', 'Air Conditioning']
+  },
+  {
+    state: 'Ekiti',
+    location: 'Ado Ekiti, Ekiti',
+    title: 'Serviced 3-Bedroom Apartment',
+    propertyType: 'Apartment',
+    badge: 'For Rent',
+    price: '₦6,500,000',
+    beds: 3,
+    baths: 3,
+    area: '180 sqm',
+    yearBuilt: 2022,
+    parking: '1-car parking',
+    features: ['Elevator', 'Security System', 'Generator', 'Air Conditioning']
+  },
+  {
+    state: 'Jigawa',
+    location: 'Dutse, Jigawa',
+    title: 'Prime Residential Plot',
+    propertyType: 'Land',
+    badge: 'Land',
+    price: '₦18,000,000',
+    beds: 0,
+    baths: 0,
+    area: '650 sqm',
+    yearBuilt: 2024,
+    parking: 'Open parking',
+    features: ['Corner Piece', 'Survey Plan', 'Good Road Access']
+  },
+  {
+    state: 'Kebbi',
+    location: 'Birnin Kebbi, Kebbi',
+    title: 'Highway Frontage Commercial Complex',
+    propertyType: 'Commercial',
+    badge: 'For Sale',
+    price: '₦120,000,000',
+    beds: 0,
+    baths: 4,
+    area: '900 sqm',
+    yearBuilt: 2020,
+    parking: '6-car parking',
+    features: ['Office Space', 'Reception Area', 'Security System', 'Generator']
+  },
+  {
+    state: 'Nasarawa',
+    location: 'Lafia, Nasarawa',
+    title: '4-Bedroom Courtyard Bungalow',
+    propertyType: 'House',
+    badge: 'For Sale',
+    price: '₦72,000,000',
+    beds: 4,
+    baths: 3,
+    area: '360 sqm',
+    yearBuilt: 2020,
+    parking: '2-car garage',
+    features: ['Garden', 'Security System', 'Water Tank', 'Air Conditioning']
+  },
+  {
+    state: 'Osun',
+    location: 'Osogbo, Osun',
+    title: 'Newly Built 3-Bedroom Terrace',
+    propertyType: 'House',
+    badge: 'For Sale',
+    price: '₦68,000,000',
+    beds: 3,
+    baths: 3,
+    area: '250 sqm',
+    yearBuilt: 2023,
+    parking: '2-car garage',
+    features: ['Security System', 'Generator', 'Air Conditioning', 'POP Ceiling']
+  },
+  {
+    state: 'Zamfara',
+    location: 'Gusau, Zamfara',
+    title: 'Affordable 2-Bedroom Apartment',
+    propertyType: 'Apartment',
+    badge: 'For Rent',
+    price: '₦3,800,000',
+    beds: 2,
+    baths: 2,
+    area: '110 sqm',
+    yearBuilt: 2021,
+    parking: '1-car parking',
+    features: ['Security System', 'Generator', 'Balcony', 'Air Conditioning']
+  }
+];
+
+const imagePoolByType = {
+  House: houseImagePool,
+  Apartment: apartmentImagePool,
+  Land: landImagePool,
+  Commercial: commercialImagePool
+};
+
+const buildGeneratedStateProperties = (items) => {
+  const maxExistingId = items.reduce((maxId, property) => Math.max(maxId, property.id || 0), 0);
+
+  return generatedStateTemplates.map((template, index) => {
+    const imagePool = imagePoolByType[template.propertyType] || houseImagePool;
+    const imageStart = index % imagePool.length;
+    const images = Array.from({ length: Math.min(5, imagePool.length) }, (_, imageOffset) =>
+      toCoverImage(imagePool[(imageStart + imageOffset) % imagePool.length])
+    );
+
+    return {
+      id: maxExistingId + index + 1,
+      title: template.title,
+      location: template.location,
+      price: template.price,
+      beds: template.beds,
+      baths: template.baths,
+      area: template.area,
+      image: images[0],
+      badge: template.badge,
+      propertyType: template.propertyType,
+      description: `${template.title} in ${template.location} with reliable access, practical amenities, and verified listing details for buyers or renters looking in ${template.state}.`,
+      features: template.features,
+      yearBuilt: template.yearBuilt,
+      parking: template.parking,
+      agentId: 200 + index + 1,
+      agentName: `${template.state} Property Desk`,
+      images
+    };
+  });
+};
+
+const getStateKey = (location) => {
+  const parts = String(location || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const rawState = parts[parts.length - 1] || 'Unknown';
+
+  if (rawState === 'FCT' || rawState === 'Abuja') {
+    return 'FCT';
+  }
+
+  if (rawState === 'Port Harcourt') {
+    return 'Rivers';
+  }
+
+  return rawState;
+};
+
+const buildCuratedPropertySet = (items) => {
+  const requiredStates = [
+    'Abia',
+    'Adamawa',
+    'Akwa Ibom',
+    'Anambra',
+    'Bauchi',
+    'Bayelsa',
+    'Benue',
+    'Borno',
+    'Cross River',
+    'Delta',
+    'Ebonyi',
+    'Edo',
+    'Ekiti',
+    'Enugu',
+    'FCT',
+    'Gombe',
+    'Imo',
+    'Jigawa',
+    'Kaduna',
+    'Kano',
+    'Katsina',
+    'Kebbi',
+    'Kogi',
+    'Kwara',
+    'Lagos',
+    'Nasarawa',
+    'Niger',
+    'Ogun',
+    'Ondo',
+    'Osun',
+    'Oyo',
+    'Plateau',
+    'Rivers',
+    'Sokoto',
+    'Taraba',
+    'Yobe',
+    'Zamfara'
+  ];
+
+  const groupedByState = items.reduce((accumulator, property) => {
+    const stateKey = getStateKey(property.location);
+    if (!accumulator[stateKey]) {
+      accumulator[stateKey] = [];
+    }
+    accumulator[stateKey].push(property);
+    return accumulator;
+  }, {});
+
+  const selected = [];
+  const selectedIds = new Set();
+
+  requiredStates.forEach((stateKey) => {
+    const firstProperty = groupedByState[stateKey]?.[0];
+    if (!firstProperty) {
+      return;
+    }
+    selected.push(firstProperty);
+    selectedIds.add(firstProperty.id);
+  });
+
+  const addPreferredExtras = (stateKey, limit) => {
+    const extras = (groupedByState[stateKey] || []).slice(1, limit + 1);
+    extras.forEach((property) => {
+      if (!selectedIds.has(property.id) && selected.length < 50) {
+        selected.push(property);
+        selectedIds.add(property.id);
+      }
+    });
+  };
+
+  addPreferredExtras('Lagos', 7);
+  addPreferredExtras('FCT', 6);
+
+  Object.keys(groupedByState)
+    .sort((left, right) => left.localeCompare(right))
+    .forEach((stateKey) => {
+      (groupedByState[stateKey] || []).forEach((property) => {
+        if (!selectedIds.has(property.id) && selected.length < 50) {
+          selected.push(property);
+          selectedIds.add(property.id);
+        }
+      });
+    });
+
+  return selected.slice(0, 50);
+};
+
+const generatedStateProperties = buildGeneratedStateProperties(properties);
+const curatedProperties = buildCuratedPropertySet([...properties, ...generatedStateProperties]);
+
+export default curatedProperties;
 

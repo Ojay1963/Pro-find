@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaBath, FaBed, FaMapMarkerAlt, FaRulerCombined } from 'react-icons/fa';
+import { FaBath, FaBed, FaMapMarkerAlt, FaRulerCombined, FaShieldAlt, FaBolt } from 'react-icons/fa';
+import { getPropertyTrustMetrics } from '../utils/propertyInsights';
 
 const PropertyCard = ({ property }) => {
+  const trust = getPropertyTrustMetrics(property);
   return (
     <div className="card p-0 overflow-hidden relative group transition-shadow hover:shadow-lg">
       <Link to={`/property/${property.id}`} className="relative block aspect-square overflow-hidden">
@@ -48,8 +50,9 @@ const PropertyCard = ({ property }) => {
           </span>
         </div>
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700">Verified</span>
-          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600">Updated recently</span>
+          <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700 inline-flex items-center gap-1"><FaShieldAlt /> {trust.verificationLabel}</span>
+          <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600 inline-flex items-center gap-1"><FaBolt /> {trust.availability}</span>
+          <span className="rounded-full bg-blue-50 border border-blue-100 px-2 py-1 text-blue-700">{trust.formattedPricePerSqm}</span>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Link

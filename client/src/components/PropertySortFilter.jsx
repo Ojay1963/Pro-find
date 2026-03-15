@@ -1,8 +1,21 @@
-import React, { useState } from 'react';
-import { FaSort, FaFilter, FaList, FaMap } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaSort, FaFilter, FaList, FaMap, FaCrosshairs } from 'react-icons/fa';
 
-export default function PropertySortFilter({ onSortChange, onViewChange, currentView, onAdvancedFiltersOpen }) {
+export default function PropertySortFilter({
+  onSortChange,
+  onViewChange,
+  currentView,
+  currentSortBy = 'relevance',
+  onAdvancedFiltersOpen,
+  onUseCurrentLocation,
+  canSortByDistance = false,
+  isLocating = false
+}) {
   const [sortBy, setSortBy] = useState('relevance');
+
+  useEffect(() => {
+    setSortBy(currentSortBy);
+  }, [currentSortBy]);
 
   const handleSortChange = (e) => {
     const value = e.target.value;
@@ -25,9 +38,20 @@ export default function PropertySortFilter({ onSortChange, onViewChange, current
             <option value="price-high">Price: High to Low</option>
             <option value="date-new">Date: Newest First</option>
             <option value="date-old">Date: Oldest First</option>
+            {canSortByDistance ? <option value="nearest">Distance: Nearest First</option> : null}
             <option value="popularity">Most Popular</option>
           </select>
         </div>
+
+        <button
+          type="button"
+          onClick={onUseCurrentLocation}
+          disabled={!onUseCurrentLocation || isLocating}
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          <FaCrosshairs />
+          <span>{isLocating ? 'Locating...' : 'Near Me'}</span>
+        </button>
 
         <button
           onClick={onAdvancedFiltersOpen}

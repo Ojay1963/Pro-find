@@ -290,6 +290,28 @@ export const storage = {
   // Saved Searches
   getSavedSearches: () => readJson('profind_saved_searches', []),
 
+  getRecentSearches: () => readJson('profind_recent_searches', []),
+
+  addRecentSearch: (searchCriteria) => {
+    const normalized = {
+      location: searchCriteria?.location || '',
+      type: searchCriteria?.type || 'All Types',
+      status: searchCriteria?.status || 'Any',
+      min: searchCriteria?.min || '',
+      max: searchCriteria?.max || ''
+    }
+    const recent = storage.getRecentSearches()
+    const next = [
+      normalized,
+      ...recent.filter(
+        (item) =>
+          JSON.stringify(item) !== JSON.stringify(normalized)
+      )
+    ].slice(0, 6)
+    writeJson('profind_recent_searches', next)
+    return normalized
+  },
+
   saveSearch: (searchCriteria) => {
     const searches = storage.getSavedSearches()
     const tempId = Date.now()
@@ -309,6 +331,22 @@ export const storage = {
     const updated = searches.filter((s) => s.id !== searchId)
     writeJson('profind_saved_searches', updated)
     void safeRequest(`/api/saved-searches/${searchId}`, { method: 'DELETE' })
+  },
+
+  getReportedListings: () => readJson('profind_reported_listings', []),
+
+  reportListing: (report) => {
+    const reports = storage.getReportedListings()
+    const newReport = {
+      id: Date.now(),
+      ...report,
+      createdAt: new Date().toISOString(),
+      status: 'received'
+    }
+    reports.push(newReport)
+    writeJson('profind_reported_listings', reports)
+    void safeRequest('/api/listing-reports', { method: 'POST', body: JSON.stringify(report) })
+    return newReport
   },
 
   notifySavedSearch: async (searchId) => {

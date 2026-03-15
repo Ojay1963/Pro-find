@@ -16,6 +16,7 @@ import Header from '../components/Header'
 import Hero from '../components/Hero'
 import FeaturedProperties from '../components/FeaturedProperties'
 import PropertiesSearchBar from '../components/PropertiesSearchBar'
+import PropertyCard from '../components/PropertyCard'
 import Services from '../components/Services'
 import WhyChoose from '../components/WhyChoose'
 import Testimonials from '../components/Testimonials'
@@ -23,6 +24,8 @@ import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 import AiChatBot from '../components/AiChatBot'
 import { useI18n } from '../contexts/I18nContext'
+import properties from '../components/propertiesData'
+import { getLocationSummary, getPropertyTrustMetrics } from '../utils/propertyInsights'
 
 const HomePage = () => {
   const { t } = useI18n()
@@ -77,6 +80,16 @@ const HomePage = () => {
     { title: t('home.pro.cards.closings'), value: t('home.pro.values.closings') }
   ]
 
+  const lagosSpotlight = properties.filter((property) => getLocationSummary(property.location).state === 'Lagos').slice(0, 4)
+  const abujaSpotlight = properties.filter((property) => getLocationSummary(property.location).state === 'FCT').slice(0, 4)
+  const highIntentMarkets = [...properties]
+    .sort((left, right) => {
+      const trustLeft = getPropertyTrustMetrics(left)
+      const trustRight = getPropertyTrustMetrics(right)
+      return trustRight.inquiryIndex + trustRight.viewIndex - (trustLeft.inquiryIndex + trustLeft.viewIndex)
+    })
+    .slice(0, 3)
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -90,6 +103,92 @@ const HomePage = () => {
       </div>
 
       <div className="home-content space-y-16">
+        <section className="w-full py-16 bg-emerald-950 text-white">
+          <div className="container mx-auto px-4">
+            <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl">
+                <p className="text-xs uppercase tracking-[0.35em] text-emerald-200">Market radar</p>
+                <h2 className="mt-4 text-3xl font-bold">Where serious buyers are focusing this week</h2>
+                <p className="mt-3 max-w-2xl text-emerald-50/80">
+                  Lagos and Abuja still lead conversion, but regional demand is spreading into value markets with faster response times and stronger price-per-sqm opportunities.
+                </p>
+                <div className="mt-8 grid gap-4 md:grid-cols-3">
+                  {highIntentMarkets.map((property) => {
+                    const trust = getPropertyTrustMetrics(property)
+                    return (
+                      <div key={property.id} className="rounded-2xl border border-white/10 bg-black/10 p-4">
+                        <p className="text-sm font-semibold text-white">{property.title}</p>
+                        <p className="mt-2 text-sm text-emerald-100/75">{property.location}</p>
+                        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                          <span className="rounded-full bg-white/10 px-3 py-1">{trust.priceBand}</span>
+                          <span className="rounded-full bg-white/10 px-3 py-1">{trust.formattedPricePerSqm}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                {[
+                  { title: 'Lagos demand', text: 'Best for fast-moving premium and mid-market inventory.', value: '8 focus areas' },
+                  { title: 'Abuja inventory', text: 'Strong executive, diplomatic, and family housing interest.', value: '7 focus areas' },
+                  { title: 'State coverage', text: 'Balanced national catalog with every state represented.', value: '37 regions' }
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <p className="text-sm uppercase tracking-[0.25em] text-emerald-200">{item.value}</p>
+                    <h3 className="mt-2 text-xl font-semibold">{item.title}</h3>
+                    <p className="mt-2 text-sm text-emerald-50/75">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="w-full py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-green-600">City Spotlight</p>
+                <h2 className="mt-3 text-3xl font-bold text-gray-900">Move faster in Lagos and Abuja</h2>
+                <p className="mt-2 max-w-2xl text-gray-600">These are the two markets where demand, agent response speed, and premium inventory are strongest right now.</p>
+              </div>
+              <Link to="/properties" className="text-sm font-semibold text-green-700 hover:text-green-800">
+                View full catalog
+              </Link>
+            </div>
+
+            <div className="grid gap-10 lg:grid-cols-2">
+              <div>
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-semibold text-gray-900">Lagos picks</h3>
+                    <p className="text-sm text-gray-500">High-intent neighborhoods with strong close rates.</p>
+                  </div>
+                  <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">Top market</span>
+                </div>
+                <div className="grid gap-6 md:grid-cols-2">
+                  {lagosSpotlight.map((property) => <PropertyCard key={property.id} property={property} />)}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-5 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-semibold text-gray-900">Abuja picks</h3>
+                    <p className="text-sm text-gray-500">Executive homes and steady value markets across the capital.</p>
+                  </div>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">High trust</span>
+                </div>
+                <div className="grid gap-6 md:grid-cols-2">
+                  {abujaSpotlight.map((property) => <PropertyCard key={property.id} property={property} />)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="w-full py-16 bg-white animate-fade-in">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-10 animate-fade-up">
