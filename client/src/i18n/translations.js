@@ -3,7 +3,9 @@ export const supportedLanguages = [
   { code: 'fr', label: 'French' },
   { code: 'es', label: 'Spanish' },
   { code: 'zh', label: 'Chinese' },
-  { code: 'it', label: 'Italian' }
+  { code: 'it', label: 'Italian' },
+  { code: 'yo', label: 'Yoruba' },
+  { code: 'ha', label: 'Hausa' }
 ]
 
 export const defaultLanguage = 'en'
@@ -23,6 +25,17 @@ export const translations = {
     },
     language: {
       label: 'Language'
+    },
+    header: {
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu',
+      mobileNavigation: 'Mobile navigation',
+      installAppTitle: 'Install app',
+      iosInstallTitle: 'Use your browser Share menu and choose Add to Home Screen.',
+      switchToLight: 'Switch to light mode',
+      switchToDark: 'Switch to dark mode',
+      lightMode: 'Light mode',
+      darkMode: 'Dark mode'
     },
     hero: {
       badge: "Nigeria's verified property network",
@@ -128,7 +141,358 @@ export const translations = {
               'No. You can browse publicly, but creating an account unlocks saved searches, favorites, alerts, and faster inquiries.'
           }
         ]
+      },
+      radar: {
+        badge: 'Market radar',
+        title: 'Where serious buyers are focusing this week',
+        subtitle:
+          'Lagos and Abuja still lead conversion, but regional demand is spreading into value markets with faster response times and stronger price-per-sqm opportunities.',
+        cards: {
+          lagosTitle: 'Lagos demand',
+          lagosText: 'Best for fast-moving premium and mid-market inventory.',
+          lagosValue: '8 focus areas',
+          abujaTitle: 'Abuja inventory',
+          abujaText: 'Strong executive, diplomatic, and family housing interest.',
+          abujaValue: '7 focus areas',
+          coverageTitle: 'State coverage',
+          coverageText: 'Balanced national catalog with every state represented.',
+          coverageValue: '37 regions'
+        }
+      },
+      spotlight: {
+        badge: 'City Spotlight',
+        title: 'Move faster in Lagos and Abuja',
+        subtitle:
+          'These are the two markets where demand, agent response speed, and premium inventory are strongest right now.',
+        viewCatalog: 'View full catalog',
+        lagosTitle: 'Lagos picks',
+        lagosText: 'High-intent neighborhoods with strong close rates.',
+        lagosBadge: 'Top market',
+        abujaTitle: 'Abuja picks',
+        abujaText: 'Executive homes and steady value markets across the capital.',
+        abujaBadge: 'High trust'
       }
+    },
+    servicesPage: {
+      badge: 'Our Services',
+      title: 'End-to-end real estate support for modern clients.',
+      subtitle:
+        'Profind delivers a full real estate stack for buyers, sellers, investors, and property owners. Every service is backed by verified data, trusted agents, and local expertise.',
+      pills: {
+        verifiedAgents: 'Verified agents',
+        pricingInsights: 'Pricing insights',
+        secureTransactions: 'Secure transactions'
+      },
+      grid: {
+        buyTitle: 'Buy Property',
+        buyText: 'Search verified listings with neighborhood insights and pricing guidance.',
+        sellTitle: 'Sell Property',
+        sellText: 'Premium listing exposure, professional media, and closing support.',
+        rentTitle: 'Rent Property',
+        rentText: 'Match with rentals that fit your lifestyle, budget, and timeline.',
+        managementTitle: 'Property Management',
+        managementText: 'Tenant screening, maintenance, and rent collection handled end-to-end.',
+        advisoryTitle: 'Investment Advisory',
+        advisoryText: 'Market trend analysis, ROI modeling, and portfolio strategy.',
+        legalTitle: 'Legal & Compliance',
+        legalText: 'Document verification, title checks, and transaction compliance.',
+        relocationTitle: 'Relocation Support',
+        relocationText: 'Move-in coordination, inspections, and area onboarding.',
+        matchingTitle: 'Client Matching',
+        matchingText: 'Qualified buyer and tenant matching for faster conversions.',
+        secureTitle: 'Secure Transactions',
+        secureText: 'Verified agents, secure escrow options, and fraud safeguards.'
+      },
+      highlights: {
+        title: 'Why Our Services Stand Out',
+        items: [
+          'Verified listings with consistent quality checks',
+          'Local market intelligence across major Nigerian cities',
+          'Transparent pricing benchmarks and valuation guidance',
+          'Dedicated support throughout negotiation and closing',
+          'Digital scheduling, virtual tours, and comparison tools',
+          'Trusted partner network for legal and mortgage support'
+        ]
+      },
+      cta: {
+        title: 'Ready to work with Profind?',
+        text: 'Speak with an advisor to plan your next move.',
+        contact: 'Contact Us',
+        browse: 'Browse Listings'
+      }
+    },
+    contactPage: {
+      badge: 'Contact Profind',
+      title: "Let's talk about your next move.",
+      subtitle:
+        'Reach out for property advice, listing support, or partnership inquiries. Our team is ready to help.'
+    },
+    registrationSuccessPage: {
+      title: 'Registration Successful!',
+      subtitle: 'Your account has been created successfully. Welcome to PROFIND!',
+      signIn: 'Sign In Now',
+      home: 'Go to Homepage',
+      note: 'You can now browse properties, save favorites, and contact agents.'
+    },
+    propertiesMapPage: {
+      yourLocation: 'Your location',
+      yourLocationText: 'Nearby properties are ranked from here.',
+      clusterTitle: '{count} properties in this area',
+      clusterText: 'Zoom in to view individual listings.',
+      viewDetails: 'View Details',
+      panelTitle: 'Properties on Map',
+      panelCount: '{visible} of {total} listings',
+      findingLocation: 'Finding your location...',
+      showClosest: 'Show closest to me',
+      sortedByDistance: 'Listings are sorted by distance from your current location.',
+      locationHelp:
+        'Allow location access to rank properties by distance. If permission is denied, you can still filter by city, price, and type.',
+      allCities: 'All Cities',
+      allTypes: 'All Types',
+      allStatus: 'All Status',
+      clear: 'Clear',
+      minPrice: 'Min price',
+      maxPrice: 'Max price',
+      searchWithinBounds: 'Search within map bounds'
+    },
+    propertiesPage: {
+      title: 'Properties',
+      mapView: 'Map View',
+      useMyLocation: 'Use my location',
+      findingNearby: 'Finding nearby properties...',
+      showingClosest: 'Showing the closest properties first.',
+      nearMe: 'Near Me',
+      locating: 'Locating...',
+      advancedFilters: 'Advanced Filters',
+      listView: 'List View',
+      gridView: 'Grid View',
+      sort: {
+        relevance: 'Sort by: Relevance',
+        priceLow: 'Price: Low to High',
+        priceHigh: 'Price: High to Low',
+        dateNew: 'Date: Newest First',
+        dateOld: 'Date: Oldest First',
+        nearest: 'Distance: Nearest First',
+        popularity: 'Most Popular'
+      },
+      errors: {
+        geoUnsupported: 'Geolocation is not supported in this browser.',
+        geoUnavailable: 'Unable to access your location.'
+      },
+      cards: {
+        savedSearchesTitle: 'Saved searches',
+        savedSearchesText: 'Use the search bar to save high-intent filters and revisit them later.',
+        mapListTitle: 'Map + list',
+        mapListText: 'Switch between list and map views without losing your search context.',
+        nearMeTitle: 'Near me',
+        nearMeText: 'Allow browser location to sort by distance and highlight nearby opportunities.'
+      },
+      search: {
+        rangeError: 'Min price cannot be higher than max price.',
+        savedMessage: 'Search saved for later.',
+        locationPlaceholder: 'City or area (e.g. Lekki)',
+        allTypes: 'All Types',
+        house: 'House',
+        apartment: 'Apartment',
+        land: 'Land',
+        commercial: 'Commercial',
+        any: 'Any',
+        forSale: 'For Sale',
+        forRent: 'For Rent',
+        search: 'Search',
+        clear: 'Clear',
+        quickFilters: 'Quick filters:',
+        saveThisSearch: 'Save this search',
+        activeFilters: 'Active filters:',
+        recentSearches: 'Recent searches',
+        savedSearches: 'Saved searches'
+      }
+    },
+    propertyDetailsPage: {
+      notFoundTitle: 'Property Not Found',
+      backToProperties: 'Back to Properties',
+      description: 'Description',
+      features: 'Features & Amenities',
+      neighborhoodInsights: 'Neighborhood Insights',
+      marketPulse: 'Market Pulse',
+      marketPulseText: 'Demand, price momentum, and listing velocity for this area.',
+      nearbyEssentials: 'Nearby Essentials',
+      quickActions: 'Quick Actions',
+      requestMoreInfo: 'Request More Info',
+      whatsappDesk: 'WhatsApp Agent Desk',
+      listedBy: 'Listed by',
+      licensedAgent: 'Licensed Agent',
+      verified: 'Verified',
+      trustScore: 'Trust score',
+      lastUpdated: 'Last updated',
+      recently: 'Recently',
+      responseTime: 'Typical response time',
+      responseTimeValue: 'under 2 hours',
+      highIntentZone: 'High-intent zone',
+      similarProperties: 'Similar Properties',
+      labels: {
+        beds: 'Beds',
+        baths: 'Baths',
+        built: 'Built',
+        propertyPrice: 'Property Price'
+      },
+      cards: {
+        buyerInterest: 'Buyer interest',
+        buyerInterestText: 'Lead quality and inquiry volume remain strong around this listing.',
+        viewMomentum: 'View momentum',
+        viewMomentumText: 'Recent shortlist and detail-page engagement estimate.',
+        expectedCloseBand: 'Expected close band',
+        expectedCloseBandText: 'Estimated negotiation zone based on nearby pricing patterns.',
+        askAgent: 'Ask agent'
+      },
+      nextStep: {
+        title: 'Plan Your Next Step',
+        subtitle: 'Open only what you need instead of scrolling through every form.',
+        mortgage: 'Mortgage',
+        schedule: 'Schedule Viewing',
+        reviews: 'Agent Reviews'
+      },
+      mortgage: {
+        title: 'Mortgage Calculator',
+        propertyPrice: 'Property Price',
+        downPayment: 'Down Payment (%)',
+        downPaymentAmount: 'Down Payment',
+        loanAmount: 'Loan Amount (NGN)',
+        interestRate: 'Interest Rate (%)',
+        loanTerm: 'Loan Term (Years)',
+        years: 'Years',
+        monthlyPayment: 'Monthly Payment',
+        totalPayment: 'Total Payment',
+        totalInterest: 'Total Interest'
+      },
+      schedule: {
+        title: 'Schedule a Viewing',
+        subtitle: 'Book a time to visit this property in person.',
+        preferredDate: 'Preferred Date',
+        preferredTime: 'Preferred Time',
+        selectTime: 'Select time',
+        notes: 'Additional Notes',
+        notesPlaceholder: 'Any special requests or questions...',
+        submit: 'Schedule Viewing',
+        toastSuccess: 'Viewing scheduled! The agent will confirm the appointment.',
+        toastError: 'Failed to schedule viewing. Please try again.'
+      },
+      form: {
+        fullName: 'Full Name',
+        fullNamePlaceholder: 'Your name',
+        email: 'Email Address',
+        emailPlaceholder: 'your@email.com',
+        phone: 'Phone Number',
+        phonePlaceholder: '0803 123 4567'
+      },
+      contact: {
+        title: 'Contact Agent',
+        subtitle: 'Interested in this property? Contact the agent for more information.',
+        message: 'Message',
+        messagePlaceholder: "I'm interested in this property. Please contact me...",
+        preferredMethod: 'Preferred Contact Method',
+        methodEmail: 'Email',
+        methodPhone: 'Phone',
+        methodWhatsapp: 'WhatsApp',
+        submit: 'Send Inquiry',
+        startChat: 'Start a chat conversation',
+        toastError: 'Failed to send inquiry. Please try again.',
+        toastMessageSent: 'Message sent! Opening conversation...',
+        toastInquirySent: 'Your inquiry has been sent! The agent will contact you soon.',
+        successMessage: 'Your message was sent successfully.',
+        successInquiry: 'Your inquiry was sent successfully.',
+        loginRequired: 'Please log in to start a chat',
+        agentUnavailable: 'Agent information not available'
+      },
+      reviews: {
+        title: 'Agent Reviews',
+        count: 'reviews',
+        write: 'Write Review',
+        rating: 'Rating',
+        comment: 'Comment',
+        commentPlaceholder: 'Share your experience with this agent...',
+        submit: 'Submit Review',
+        cancel: 'Cancel',
+        empty: 'No reviews yet. Be the first to review!',
+        loginRequired: 'Please log in to submit a review',
+        alreadyReviewed: 'You have already reviewed this agent',
+        toastSuccess: 'Review submitted successfully!'
+      },
+      report: {
+        button: 'Report listing',
+        title: 'Report this listing',
+        subtitle: 'Flag inaccurate, unavailable, duplicate, or suspicious listings for review.',
+        placeholder: 'Why are you reporting this listing?',
+        submit: 'Submit report',
+        reasonRequired: 'Add a short reason for the report.',
+        success: 'Listing report received.'
+      }
+    },
+    messagesPage: {
+      title: 'Messages',
+      subtitle: 'Chat with agents and property owners',
+      loginRequired: 'Please log in to view messages',
+      goToLogin: 'Go to Login',
+      searchPlaceholder: 'Search conversations...',
+      noConversations: 'No conversations yet',
+      startFromProperty: 'Start a conversation from a property page',
+      youPrefix: 'You: ',
+      noMessages: 'No messages yet. Start the conversation!',
+      typeMessage: 'Type a message...',
+      send: 'Send',
+      selectConversation: 'Select a conversation to start messaging',
+      toastSent: 'Message sent!'
+    },
+    comparePage: {
+      title: 'Compare Properties',
+      subtitle: 'Select up to 4 properties to compare side by side',
+      addTitle: 'Add Properties to Compare',
+      comparison: 'Comparison',
+      saveComparison: 'Save Comparison',
+      feature: 'Feature',
+      empty: 'No properties selected for comparison. Add properties above to start comparing.',
+      maxFour: 'Maximum 4 properties can be compared at once',
+      saved: 'Comparison saved!',
+      fields: {
+        price: 'Price',
+        location: 'Location',
+        bedrooms: 'Bedrooms',
+        bathrooms: 'Bathrooms',
+        area: 'Area'
+      }
+    },
+    upgradePage: {
+      title: 'Upgrade and Promote',
+      subtitle: 'Buy your monthly subscription or boost your listings with Paystack.',
+      backToDashboard: 'Back to dashboard',
+      activeSubscription: 'Active subscription',
+      plan: 'Plan',
+      ends: 'Ends',
+      agentBadgeActive: 'Your agent verified badge is active.',
+      ownerSubscriptionActive: 'Your owner subscription is active.',
+      loadingPlans: 'Loading plans...',
+      agentSubscription: 'Agent Subscription',
+      ownerSubscription: 'Owner Subscription',
+      featuredBoost: 'Featured Boost',
+      dayAccess: 'day access',
+      selectListingToBoost: 'Select listing to boost',
+      chooseListing: 'Choose a listing',
+      needListing: 'You need at least one listing before using a featured boost.',
+      agentsOnly: 'Agents only',
+      ownersOnly: 'Owners only',
+      ownersAgentsOnly: 'Owners/agents only',
+      createListingFirst: 'Create a listing first',
+      redirecting: 'Redirecting...',
+      payWithPaystack: 'Pay with Paystack',
+      noPlans: 'No plans available right now.',
+      noPlansText: 'Please check back shortly or contact support.',
+      loadError: 'Failed to load pricing',
+      paymentVerified: 'Payment verified successfully.',
+      verifyError: 'Could not verify payment yet.',
+      roleError: 'Only agents and property owners can purchase plans.',
+      selectListing: 'Select a listing before continuing.',
+      checkoutError: 'Could not start checkout',
+      paymentInitFailed: 'Payment initialization failed'
     },
     featured: {
       badge: 'Featured',
@@ -401,6 +765,164 @@ export const translations = {
           }
         ]
       }
+    },
+    propertiesPage: {
+      title: 'Proprietes',
+      mapView: 'Vue carte',
+      useMyLocation: 'Utiliser ma position',
+      findingNearby: 'Recherche des biens proches...',
+      showingClosest: 'Les biens les plus proches sont affiches en premier.',
+      nearMe: 'Pres de moi',
+      locating: 'Localisation...',
+      advancedFilters: 'Filtres avances',
+      listView: 'Vue liste',
+      gridView: 'Vue grille'
+    },
+    propertyDetailsPage: {
+      notFoundTitle: 'Bien introuvable',
+      backToProperties: 'Retour aux proprietes',
+      description: 'Description',
+      features: 'Caracteristiques et commodites',
+      neighborhoodInsights: 'Apercu du quartier',
+      marketPulse: 'Tendance du marche',
+      nearbyEssentials: 'Services a proximite',
+      quickActions: 'Actions rapides',
+      requestMoreInfo: 'Demander plus d informations',
+      whatsappDesk: 'WhatsApp agent',
+      listedBy: 'Publie par',
+      licensedAgent: 'Agent agree',
+      verified: 'Verifie',
+      similarProperties: 'Biens similaires',
+      labels: {
+        beds: 'Chambres',
+        baths: 'Salles de bain',
+        built: 'Construit',
+        propertyPrice: 'Prix du bien'
+      },
+      nextStep: {
+        title: 'Planifiez la suite',
+        subtitle: 'Ouvrez seulement ce dont vous avez besoin.',
+        mortgage: 'Pret',
+        schedule: 'Planifier une visite',
+        reviews: 'Avis agent'
+      },
+      mortgage: {
+        title: 'Calculateur de pret',
+        propertyPrice: 'Prix du bien',
+        downPayment: 'Acompte (%)',
+        downPaymentAmount: 'Acompte',
+        loanAmount: 'Montant du pret (NGN)',
+        interestRate: 'Taux d interet (%)',
+        loanTerm: 'Duree du pret (annees)',
+        years: 'ans',
+        monthlyPayment: 'Paiement mensuel',
+        totalPayment: 'Paiement total',
+        totalInterest: 'Interet total'
+      },
+      schedule: {
+        title: 'Planifier une visite',
+        subtitle: 'Choisissez un moment pour visiter ce bien.',
+        preferredDate: 'Date preferee',
+        preferredTime: 'Heure preferee',
+        selectTime: 'Choisir une heure',
+        notes: 'Notes complementaires',
+        notesPlaceholder: 'Demandes ou questions...',
+        submit: 'Planifier la visite'
+      },
+      form: {
+        fullName: 'Nom complet',
+        fullNamePlaceholder: 'Votre nom',
+        email: 'Adresse e-mail',
+        emailPlaceholder: 'votre@email.com',
+        phone: 'Numero de telephone',
+        phonePlaceholder: '0803 123 4567'
+      },
+      contact: {
+        title: 'Contacter l agent',
+        subtitle: 'Interesse par ce bien ? Contactez l agent pour plus d informations.',
+        message: 'Message',
+        messagePlaceholder: 'Je suis interesse par ce bien. Merci de me contacter...',
+        preferredMethod: 'Methode de contact preferee',
+        methodEmail: 'E-mail',
+        methodPhone: 'Telephone',
+        methodWhatsapp: 'WhatsApp',
+        submit: 'Envoyer la demande',
+        startChat: 'Demarrer une discussion'
+      },
+      reviews: {
+        title: 'Avis agent',
+        count: 'avis',
+        write: 'Ecrire un avis',
+        rating: 'Note',
+        comment: 'Commentaire',
+        commentPlaceholder: 'Partagez votre experience avec cet agent...',
+        submit: 'Envoyer l avis',
+        cancel: 'Annuler',
+        empty: 'Aucun avis pour le moment.'
+      },
+      report: {
+        button: 'Signaler l annonce',
+        title: 'Signaler cette annonce',
+        subtitle: 'Signalez une annonce inexacte, indisponible, dupliquee ou suspecte.',
+        placeholder: 'Pourquoi signalez-vous cette annonce ?',
+        submit: 'Envoyer le signalement'
+      }
+    },
+    messagesPage: {
+      title: 'Messages',
+      subtitle: 'Discutez avec les agents et les proprietaires',
+      loginRequired: 'Veuillez vous connecter pour voir les messages',
+      goToLogin: 'Aller a la connexion',
+      searchPlaceholder: 'Rechercher des conversations...',
+      noConversations: 'Aucune conversation pour le moment',
+      startFromProperty: 'Commencez une conversation depuis une page de bien',
+      youPrefix: 'Vous : ',
+      noMessages: 'Aucun message pour le moment. Lancez la conversation !',
+      typeMessage: 'Tapez un message...',
+      send: 'Envoyer',
+      selectConversation: 'Selectionnez une conversation pour commencer',
+      toastSent: 'Message envoye !'
+    },
+    comparePage: {
+      title: 'Comparer les proprietes',
+      subtitle: 'Selectionnez jusqu a 4 biens pour les comparer',
+      addTitle: 'Ajouter des biens a comparer',
+      comparison: 'Comparaison',
+      saveComparison: 'Enregistrer la comparaison',
+      feature: 'Caracteristique',
+      empty: 'Aucune propriete selectionnee pour la comparaison.',
+      maxFour: 'Maximum 4 proprietes a la fois',
+      saved: 'Comparaison enregistree !',
+      fields: {
+        price: 'Prix',
+        location: 'Emplacement',
+        bedrooms: 'Chambres',
+        bathrooms: 'Salles de bain',
+        area: 'Surface'
+      }
+    },
+    upgradePage: {
+      title: 'Mettre a niveau et promouvoir',
+      subtitle: 'Achetez votre abonnement mensuel ou boostez vos annonces avec Paystack.',
+      backToDashboard: 'Retour au tableau de bord',
+      activeSubscription: 'Abonnement actif',
+      plan: 'Plan',
+      ends: 'Fin',
+      loadingPlans: 'Chargement des offres...',
+      agentSubscription: 'Abonnement agent',
+      ownerSubscription: 'Abonnement proprietaire',
+      featuredBoost: 'Boost en vedette',
+      dayAccess: 'jours d acces',
+      selectListingToBoost: 'Selectionnez une annonce a booster',
+      chooseListing: 'Choisir une annonce',
+      agentsOnly: 'Agents uniquement',
+      ownersOnly: 'Proprietaires uniquement',
+      ownersAgentsOnly: 'Proprietaires/agents uniquement',
+      createListingFirst: 'Creez d abord une annonce',
+      redirecting: 'Redirection...',
+      payWithPaystack: 'Payer avec Paystack',
+      noPlans: 'Aucune offre disponible pour le moment.',
+      noPlansText: 'Veuillez reessayer plus tard ou contacter le support.'
     },
     app: {
       loading: 'Chargement...',
@@ -806,6 +1328,164 @@ export const translations = {
         ]
       }
     },
+    propertiesPage: {
+      title: 'Propiedades',
+      mapView: 'Vista de mapa',
+      useMyLocation: 'Usar mi ubicacion',
+      findingNearby: 'Buscando propiedades cercanas...',
+      showingClosest: 'Mostrando primero las propiedades mas cercanas.',
+      nearMe: 'Cerca de mi',
+      locating: 'Ubicando...',
+      advancedFilters: 'Filtros avanzados',
+      listView: 'Vista de lista',
+      gridView: 'Vista de cuadrilla'
+    },
+    propertyDetailsPage: {
+      notFoundTitle: 'Propiedad no encontrada',
+      backToProperties: 'Volver a propiedades',
+      description: 'Descripcion',
+      features: 'Caracteristicas y comodidades',
+      neighborhoodInsights: 'Informacion del vecindario',
+      marketPulse: 'Pulso del mercado',
+      nearbyEssentials: 'Servicios cercanos',
+      quickActions: 'Acciones rapidas',
+      requestMoreInfo: 'Solicitar mas informacion',
+      whatsappDesk: 'WhatsApp del agente',
+      listedBy: 'Publicado por',
+      licensedAgent: 'Agente autorizado',
+      verified: 'Verificado',
+      similarProperties: 'Propiedades similares',
+      labels: {
+        beds: 'Habitaciones',
+        baths: 'Banos',
+        built: 'Construido',
+        propertyPrice: 'Precio de la propiedad'
+      },
+      nextStep: {
+        title: 'Planifica tu siguiente paso',
+        subtitle: 'Abre solo lo que necesitas.',
+        mortgage: 'Hipoteca',
+        schedule: 'Programar visita',
+        reviews: 'Resenas del agente'
+      },
+      mortgage: {
+        title: 'Calculadora hipotecaria',
+        propertyPrice: 'Precio de la propiedad',
+        downPayment: 'Pago inicial (%)',
+        downPaymentAmount: 'Pago inicial',
+        loanAmount: 'Monto del prestamo (NGN)',
+        interestRate: 'Tasa de interes (%)',
+        loanTerm: 'Plazo del prestamo (anos)',
+        years: 'anos',
+        monthlyPayment: 'Pago mensual',
+        totalPayment: 'Pago total',
+        totalInterest: 'Interes total'
+      },
+      schedule: {
+        title: 'Programar una visita',
+        subtitle: 'Reserva un momento para visitar esta propiedad.',
+        preferredDate: 'Fecha preferida',
+        preferredTime: 'Hora preferida',
+        selectTime: 'Seleccionar hora',
+        notes: 'Notas adicionales',
+        notesPlaceholder: 'Solicitudes o preguntas...',
+        submit: 'Programar visita'
+      },
+      form: {
+        fullName: 'Nombre completo',
+        fullNamePlaceholder: 'Tu nombre',
+        email: 'Correo electronico',
+        emailPlaceholder: 'tu@email.com',
+        phone: 'Numero de telefono',
+        phonePlaceholder: '0803 123 4567'
+      },
+      contact: {
+        title: 'Contactar agente',
+        subtitle: 'Interesado en esta propiedad? Contacta al agente para mas informacion.',
+        message: 'Mensaje',
+        messagePlaceholder: 'Estoy interesado en esta propiedad. Por favor contactame...',
+        preferredMethod: 'Metodo de contacto preferido',
+        methodEmail: 'Correo',
+        methodPhone: 'Telefono',
+        methodWhatsapp: 'WhatsApp',
+        submit: 'Enviar consulta',
+        startChat: 'Iniciar chat'
+      },
+      reviews: {
+        title: 'Resenas del agente',
+        count: 'resenas',
+        write: 'Escribir resena',
+        rating: 'Calificacion',
+        comment: 'Comentario',
+        commentPlaceholder: 'Comparte tu experiencia con este agente...',
+        submit: 'Enviar resena',
+        cancel: 'Cancelar',
+        empty: 'Aun no hay resenas.'
+      },
+      report: {
+        button: 'Reportar anuncio',
+        title: 'Reportar este anuncio',
+        subtitle: 'Marca anuncios inexactos, no disponibles, duplicados o sospechosos.',
+        placeholder: 'Por que estas reportando este anuncio?',
+        submit: 'Enviar reporte'
+      }
+    },
+    messagesPage: {
+      title: 'Mensajes',
+      subtitle: 'Chatea con agentes y propietarios',
+      loginRequired: 'Inicia sesion para ver mensajes',
+      goToLogin: 'Ir a iniciar sesion',
+      searchPlaceholder: 'Buscar conversaciones...',
+      noConversations: 'Aun no hay conversaciones',
+      startFromProperty: 'Inicia una conversacion desde una propiedad',
+      youPrefix: 'Tu: ',
+      noMessages: 'Aun no hay mensajes. Empieza la conversacion.',
+      typeMessage: 'Escribe un mensaje...',
+      send: 'Enviar',
+      selectConversation: 'Selecciona una conversacion para comenzar',
+      toastSent: 'Mensaje enviado'
+    },
+    comparePage: {
+      title: 'Comparar propiedades',
+      subtitle: 'Selecciona hasta 4 propiedades para compararlas',
+      addTitle: 'Agregar propiedades para comparar',
+      comparison: 'Comparacion',
+      saveComparison: 'Guardar comparacion',
+      feature: 'Caracteristica',
+      empty: 'No hay propiedades seleccionadas para comparar.',
+      maxFour: 'Solo puedes comparar 4 propiedades a la vez',
+      saved: 'Comparacion guardada',
+      fields: {
+        price: 'Precio',
+        location: 'Ubicacion',
+        bedrooms: 'Habitaciones',
+        bathrooms: 'Banos',
+        area: 'Area'
+      }
+    },
+    upgradePage: {
+      title: 'Mejorar y promocionar',
+      subtitle: 'Compra tu suscripcion mensual o impulsa tus anuncios con Paystack.',
+      backToDashboard: 'Volver al panel',
+      activeSubscription: 'Suscripcion activa',
+      plan: 'Plan',
+      ends: 'Finaliza',
+      loadingPlans: 'Cargando planes...',
+      agentSubscription: 'Suscripcion de agente',
+      ownerSubscription: 'Suscripcion de propietario',
+      featuredBoost: 'Impulso destacado',
+      dayAccess: 'dias de acceso',
+      selectListingToBoost: 'Selecciona un anuncio para impulsar',
+      chooseListing: 'Elige un anuncio',
+      agentsOnly: 'Solo agentes',
+      ownersOnly: 'Solo propietarios',
+      ownersAgentsOnly: 'Solo propietarios/agentes',
+      createListingFirst: 'Crea un anuncio primero',
+      redirecting: 'Redirigiendo...',
+      payWithPaystack: 'Pagar con Paystack',
+      noPlans: 'No hay planes disponibles ahora.',
+      noPlansText: 'Vuelve pronto o contacta soporte.'
+    },
     app: {
       loading: '加载中...',
       notFoundTitle: '页面未找到',
@@ -938,6 +1618,164 @@ export const translations = {
           }
         ]
       }
+    },
+    propertiesPage: {
+      title: 'Immobili',
+      mapView: 'Vista mappa',
+      useMyLocation: 'Usa la mia posizione',
+      findingNearby: 'Ricerca immobili vicini...',
+      showingClosest: 'Mostra prima gli immobili piu vicini.',
+      nearMe: 'Vicino a me',
+      locating: 'Localizzazione...',
+      advancedFilters: 'Filtri avanzati',
+      listView: 'Vista elenco',
+      gridView: 'Vista griglia'
+    },
+    propertyDetailsPage: {
+      notFoundTitle: 'Immobile non trovato',
+      backToProperties: 'Torna agli immobili',
+      description: 'Descrizione',
+      features: 'Caratteristiche e servizi',
+      neighborhoodInsights: 'Informazioni sul quartiere',
+      marketPulse: 'Andamento del mercato',
+      nearbyEssentials: 'Servizi vicini',
+      quickActions: 'Azioni rapide',
+      requestMoreInfo: 'Richiedi piu informazioni',
+      whatsappDesk: 'WhatsApp agente',
+      listedBy: 'Pubblicato da',
+      licensedAgent: 'Agente autorizzato',
+      verified: 'Verificato',
+      similarProperties: 'Immobili simili',
+      labels: {
+        beds: 'Camere',
+        baths: 'Bagni',
+        built: 'Costruito',
+        propertyPrice: 'Prezzo immobile'
+      },
+      nextStep: {
+        title: 'Pianifica il prossimo passo',
+        subtitle: 'Apri solo cio che ti serve.',
+        mortgage: 'Mutuo',
+        schedule: 'Prenota visita',
+        reviews: 'Recensioni agente'
+      },
+      mortgage: {
+        title: 'Calcolatore mutuo',
+        propertyPrice: 'Prezzo immobile',
+        downPayment: 'Anticipo (%)',
+        downPaymentAmount: 'Anticipo',
+        loanAmount: 'Importo del prestito (NGN)',
+        interestRate: 'Tasso di interesse (%)',
+        loanTerm: 'Durata del prestito (anni)',
+        years: 'anni',
+        monthlyPayment: 'Pagamento mensile',
+        totalPayment: 'Pagamento totale',
+        totalInterest: 'Interesse totale'
+      },
+      schedule: {
+        title: 'Prenota una visita',
+        subtitle: 'Prenota un momento per visitare questo immobile.',
+        preferredDate: 'Data preferita',
+        preferredTime: 'Ora preferita',
+        selectTime: 'Seleziona ora',
+        notes: 'Note aggiuntive',
+        notesPlaceholder: 'Richieste o domande...',
+        submit: 'Prenota visita'
+      },
+      form: {
+        fullName: 'Nome completo',
+        fullNamePlaceholder: 'Il tuo nome',
+        email: 'Email',
+        emailPlaceholder: 'tuo@email.com',
+        phone: 'Numero di telefono',
+        phonePlaceholder: '0803 123 4567'
+      },
+      contact: {
+        title: 'Contatta agente',
+        subtitle: 'Interessato a questo immobile? Contatta l agente per maggiori informazioni.',
+        message: 'Messaggio',
+        messagePlaceholder: 'Sono interessato a questo immobile. Per favore contattami...',
+        preferredMethod: 'Metodo di contatto preferito',
+        methodEmail: 'Email',
+        methodPhone: 'Telefono',
+        methodWhatsapp: 'WhatsApp',
+        submit: 'Invia richiesta',
+        startChat: 'Avvia chat'
+      },
+      reviews: {
+        title: 'Recensioni agente',
+        count: 'recensioni',
+        write: 'Scrivi recensione',
+        rating: 'Valutazione',
+        comment: 'Commento',
+        commentPlaceholder: 'Condividi la tua esperienza con questo agente...',
+        submit: 'Invia recensione',
+        cancel: 'Annulla',
+        empty: 'Nessuna recensione al momento.'
+      },
+      report: {
+        button: 'Segnala annuncio',
+        title: 'Segnala questo annuncio',
+        subtitle: 'Segnala annunci inesatti, non disponibili, duplicati o sospetti.',
+        placeholder: 'Perche stai segnalando questo annuncio?',
+        submit: 'Invia segnalazione'
+      }
+    },
+    messagesPage: {
+      title: 'Messaggi',
+      subtitle: 'Chatta con agenti e proprietari',
+      loginRequired: 'Accedi per vedere i messaggi',
+      goToLogin: 'Vai al login',
+      searchPlaceholder: 'Cerca conversazioni...',
+      noConversations: 'Nessuna conversazione',
+      startFromProperty: 'Avvia una conversazione dalla pagina immobile',
+      youPrefix: 'Tu: ',
+      noMessages: 'Nessun messaggio. Inizia la conversazione.',
+      typeMessage: 'Scrivi un messaggio...',
+      send: 'Invia',
+      selectConversation: 'Seleziona una conversazione per iniziare',
+      toastSent: 'Messaggio inviato'
+    },
+    comparePage: {
+      title: 'Confronta immobili',
+      subtitle: 'Seleziona fino a 4 immobili da confrontare',
+      addTitle: 'Aggiungi immobili da confrontare',
+      comparison: 'Confronto',
+      saveComparison: 'Salva confronto',
+      feature: 'Caratteristica',
+      empty: 'Nessun immobile selezionato per il confronto.',
+      maxFour: 'Massimo 4 immobili alla volta',
+      saved: 'Confronto salvato',
+      fields: {
+        price: 'Prezzo',
+        location: 'Posizione',
+        bedrooms: 'Camere',
+        bathrooms: 'Bagni',
+        area: 'Area'
+      }
+    },
+    upgradePage: {
+      title: 'Aggiorna e promuovi',
+      subtitle: 'Acquista l abbonamento mensile o promuovi i tuoi annunci con Paystack.',
+      backToDashboard: 'Torna alla dashboard',
+      activeSubscription: 'Abbonamento attivo',
+      plan: 'Piano',
+      ends: 'Scade',
+      loadingPlans: 'Caricamento piani...',
+      agentSubscription: 'Abbonamento agente',
+      ownerSubscription: 'Abbonamento proprietario',
+      featuredBoost: 'Promozione in evidenza',
+      dayAccess: 'giorni di accesso',
+      selectListingToBoost: 'Seleziona annuncio da promuovere',
+      chooseListing: 'Scegli un annuncio',
+      agentsOnly: 'Solo agenti',
+      ownersOnly: 'Solo proprietari',
+      ownersAgentsOnly: 'Solo proprietari/agenti',
+      createListingFirst: 'Crea prima un annuncio',
+      redirecting: 'Reindirizzamento...',
+      payWithPaystack: 'Paga con Paystack',
+      noPlans: 'Nessun piano disponibile al momento.',
+      noPlansText: 'Riprova piu tardi o contatta il supporto.'
     },
     app: {
       loading: 'Caricamento...',

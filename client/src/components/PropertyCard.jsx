@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaBath, FaBed, FaMapMarkerAlt, FaRulerCombined, FaShieldAlt, FaBolt } from 'react-icons/fa';
 import { getPropertyTrustMetrics } from '../utils/propertyInsights';
+import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
 
 const PropertyCard = ({ property }) => {
   const trust = getPropertyTrustMetrics(property);
@@ -9,15 +10,14 @@ const PropertyCard = ({ property }) => {
     <div className="card p-0 overflow-hidden relative group transition-shadow hover:shadow-lg">
       <Link to={`/property/${property.id}`} className="relative block aspect-square overflow-hidden">
         <img
-          src={property.image}
+          src={getPropertyImage(property)}
           alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
           decoding="async"
           sizes="(max-width: 768px) 100vw, 320px"
           onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = `https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=600&fit=crop`;
+            applyFallbackImage(e, property);
           }}
         />
         <span className="absolute top-3 left-3 bg-green-600/90 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
@@ -52,7 +52,6 @@ const PropertyCard = ({ property }) => {
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
           <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700 inline-flex items-center gap-1"><FaShieldAlt /> {trust.verificationLabel}</span>
           <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600 inline-flex items-center gap-1"><FaBolt /> {trust.availability}</span>
-          <span className="rounded-full bg-blue-50 border border-blue-100 px-2 py-1 text-blue-700">{trust.formattedPricePerSqm}</span>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Link

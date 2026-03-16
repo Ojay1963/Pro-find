@@ -16,6 +16,7 @@ import Header from '../components/Header'
 import Hero from '../components/Hero'
 import FeaturedProperties from '../components/FeaturedProperties'
 import PropertiesSearchBar from '../components/PropertiesSearchBar'
+import PropertySortFilter from '../components/PropertySortFilter'
 import PropertyCard from '../components/PropertyCard'
 import Services from '../components/Services'
 import WhyChoose from '../components/WhyChoose'
@@ -23,6 +24,7 @@ import Testimonials from '../components/Testimonials'
 import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 import AiChatBot from '../components/AiChatBot'
+import AdvancedFilters from '../components/AdvancedFilters'
 import { useI18n } from '../contexts/I18nContext'
 import properties from '../components/propertiesData'
 import { getLocationSummary, getPropertyTrustMetrics } from '../utils/propertyInsights'
@@ -31,11 +33,41 @@ const HomePage = () => {
   const { t } = useI18n()
   const resultsRef = useRef(null)
   const [openFaq, setOpenFaq] = useState(0)
+  const [advancedFilters, setAdvancedFilters] = useState({})
+  const [sortBy, setSortBy] = useState('relevance')
+  const [viewMode, setViewMode] = useState('grid')
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const [userLocation, setUserLocation] = useState(null)
+  const [isLocating, setIsLocating] = useState(false)
+  const hasActiveLocation = Array.isArray(userLocation) && userLocation.length === 2
 
   const handleSearchApplied = useCallback(() => {
     if (resultsRef.current) {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
+  }, [])
+
+  const handleUseCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) return
+
+    setIsLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setUserLocation([coords.latitude, coords.longitude])
+        setSortBy('nearest')
+        setIsLocating(false)
+      },
+      () => {
+        setUserLocation(null)
+        setSortBy('relevance')
+        setIsLocating(false)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    )
   }, [])
 
   const faqItems = t('home.faq.items', [])
@@ -79,6 +111,23 @@ const HomePage = () => {
     { title: t('home.pro.cards.pricing'), value: t('home.pro.values.pricing') },
     { title: t('home.pro.cards.closings'), value: t('home.pro.values.closings') }
   ]
+  const radarCards = [
+    {
+      title: t('home.radar.cards.lagosTitle', 'Lagos demand'),
+      text: t('home.radar.cards.lagosText', 'Best for fast-moving premium and mid-market inventory.'),
+      value: t('home.radar.cards.lagosValue', '8 focus areas')
+    },
+    {
+      title: t('home.radar.cards.abujaTitle', 'Abuja inventory'),
+      text: t('home.radar.cards.abujaText', 'Strong executive, diplomatic, and family housing interest.'),
+      value: t('home.radar.cards.abujaValue', '7 focus areas')
+    },
+    {
+      title: t('home.radar.cards.coverageTitle', 'State coverage'),
+      text: t('home.radar.cards.coverageText', 'Balanced national catalog with every state represented.'),
+      value: t('home.radar.cards.coverageValue', '37 regions')
+    }
+  ]
 
   const lagosSpotlight = properties.filter((property) => getLocationSummary(property.location).state === 'Lagos').slice(0, 4)
   const abujaSpotlight = properties.filter((property) => getLocationSummary(property.location).state === 'FCT').slice(0, 4)
@@ -96,10 +145,27 @@ const HomePage = () => {
       <Hero />
       <div className="container mx-auto px-4 mt-24 py-8 animate-pop-in" style={{ animationDelay: '120ms' }}>
         <PropertiesSearchBar onSearchApplied={handleSearchApplied} />
+        <div className="mt-4">
+          <PropertySortFilter
+            onSortChange={setSortBy}
+            onViewChange={setViewMode}
+            currentView={viewMode}
+            currentSortBy={sortBy}
+            onAdvancedFiltersOpen={() => setShowAdvancedFilters(true)}
+            onUseCurrentLocation={handleUseCurrentLocation}
+            canSortByDistance={hasActiveLocation}
+            isLocating={isLocating}
+          />
+        </div>
       </div>
 
       <div ref={resultsRef} className="scroll-mt-24">
-        <FeaturedProperties />
+        <FeaturedProperties
+          sortBy={sortBy}
+          viewMode={viewMode}
+          advancedFilters={advancedFilters}
+          userLocation={hasActiveLocation ? userLocation : null}
+        />
       </div>
 
       <div className="home-content space-y-16">
@@ -107,10 +173,13 @@ const HomePage = () => {
           <div className="container mx-auto px-4">
             <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
               <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl">
-                <p className="text-xs uppercase tracking-[0.35em] text-emerald-200">Market radar</p>
-                <h2 className="mt-4 text-3xl font-bold">Where serious buyers are focusing this week</h2>
+                <p className="text-xs uppercase tracking-[0.35em] text-emerald-200">{t('home.radar.badge', 'Market radar')}</p>
+                <h2 className="mt-4 text-3xl font-bold">{t('home.radar.title', 'Where serious buyers are focusing this week')}</h2>
                 <p className="mt-3 max-w-2xl text-emerald-50/80">
-                  Lagos and Abuja still lead conversion, but regional demand is spreading into value markets with faster response times and stronger price-per-sqm opportunities.
+                  {t(
+                    'home.radar.subtitle',
+                    'Lagos and Abuja still lead conversion, but regional demand is spreading into value markets with faster response times and stronger price-per-sqm opportunities.'
+                  )}
                 </p>
                 <div className="mt-8 grid gap-4 md:grid-cols-3">
                   {highIntentMarkets.map((property) => {
@@ -121,7 +190,6 @@ const HomePage = () => {
                         <p className="mt-2 text-sm text-emerald-100/75">{property.location}</p>
                         <div className="mt-4 flex flex-wrap gap-2 text-xs">
                           <span className="rounded-full bg-white/10 px-3 py-1">{trust.priceBand}</span>
-                          <span className="rounded-full bg-white/10 px-3 py-1">{trust.formattedPricePerSqm}</span>
                         </div>
                       </div>
                     )
@@ -130,11 +198,7 @@ const HomePage = () => {
               </div>
 
               <div className="grid gap-4">
-                {[
-                  { title: 'Lagos demand', text: 'Best for fast-moving premium and mid-market inventory.', value: '8 focus areas' },
-                  { title: 'Abuja inventory', text: 'Strong executive, diplomatic, and family housing interest.', value: '7 focus areas' },
-                  { title: 'State coverage', text: 'Balanced national catalog with every state represented.', value: '37 regions' }
-                ].map((item) => (
+                {radarCards.map((item) => (
                   <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
                     <p className="text-sm uppercase tracking-[0.25em] text-emerald-200">{item.value}</p>
                     <h3 className="mt-2 text-xl font-semibold">{item.title}</h3>
@@ -150,12 +214,17 @@ const HomePage = () => {
           <div className="container mx-auto px-4">
             <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-green-600">City Spotlight</p>
-                <h2 className="mt-3 text-3xl font-bold text-gray-900">Move faster in Lagos and Abuja</h2>
-                <p className="mt-2 max-w-2xl text-gray-600">These are the two markets where demand, agent response speed, and premium inventory are strongest right now.</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-green-600">{t('home.spotlight.badge', 'City Spotlight')}</p>
+                <h2 className="mt-3 text-3xl font-bold text-gray-900">{t('home.spotlight.title', 'Move faster in Lagos and Abuja')}</h2>
+                <p className="mt-2 max-w-2xl text-gray-600">
+                  {t(
+                    'home.spotlight.subtitle',
+                    'These are the two markets where demand, agent response speed, and premium inventory are strongest right now.'
+                  )}
+                </p>
               </div>
               <Link to="/properties" className="text-sm font-semibold text-green-700 hover:text-green-800">
-                View full catalog
+                {t('home.spotlight.viewCatalog', 'View full catalog')}
               </Link>
             </div>
 
@@ -163,10 +232,10 @@ const HomePage = () => {
               <div>
                 <div className="mb-5 flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-semibold text-gray-900">Lagos picks</h3>
-                    <p className="text-sm text-gray-500">High-intent neighborhoods with strong close rates.</p>
+                    <h3 className="text-2xl font-semibold text-gray-900">{t('home.spotlight.lagosTitle', 'Lagos picks')}</h3>
+                    <p className="text-sm text-gray-500">{t('home.spotlight.lagosText', 'High-intent neighborhoods with strong close rates.')}</p>
                   </div>
-                  <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">Top market</span>
+                  <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">{t('home.spotlight.lagosBadge', 'Top market')}</span>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                   {lagosSpotlight.map((property) => <PropertyCard key={property.id} property={property} />)}
@@ -176,10 +245,10 @@ const HomePage = () => {
               <div>
                 <div className="mb-5 flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-semibold text-gray-900">Abuja picks</h3>
-                    <p className="text-sm text-gray-500">Executive homes and steady value markets across the capital.</p>
+                    <h3 className="text-2xl font-semibold text-gray-900">{t('home.spotlight.abujaTitle', 'Abuja picks')}</h3>
+                    <p className="text-sm text-gray-500">{t('home.spotlight.abujaText', 'Executive homes and steady value markets across the capital.')}</p>
                   </div>
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">High trust</span>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">{t('home.spotlight.abujaBadge', 'High trust')}</span>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
                   {abujaSpotlight.map((property) => <PropertyCard key={property.id} property={property} />)}
@@ -311,6 +380,11 @@ const HomePage = () => {
       </div>
       <AiChatBot />
       <Footer />
+      <AdvancedFilters
+        isOpen={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        onFilterChange={setAdvancedFilters}
+      />
     </div>
   )
 }

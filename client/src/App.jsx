@@ -10,7 +10,6 @@ import { storage } from './utils/localStorage';
 
 import ScrollProgress from './components/ScrollProgress';
 import BackToTop from './components/BackToTop';
-import GlobalTips from './components/GlobalTips';
 import RequireAuth from './components/RequireAuth';
 import RequireAdmin from './components/RequireAdmin';
 import RequireUpgradeAccess from './components/RequireUpgradeAccess';
@@ -128,7 +127,6 @@ function AppShell() {
           </Routes>
         </Suspense>
       </main>
-      <GlobalTips />
       {!hideBackToTop && <BackToTop />}
       <Toaster position="top-right" />
     </div>

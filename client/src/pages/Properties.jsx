@@ -32,7 +32,7 @@ export default function Properties() {
     if (!navigator.geolocation) {
       setUserLocation(null);
       setSortBy('relevance');
-      setLocationError('Geolocation is not supported in this browser.');
+      setLocationError(t('propertiesPage.errors.geoUnsupported', 'Geolocation is not supported in this browser.'));
       return;
     }
 
@@ -52,7 +52,7 @@ export default function Properties() {
         if (sortBy === 'nearest') {
           setSortBy('relevance');
         }
-        setLocationError(error.message || 'Unable to access your location.');
+        setLocationError(error.message || t('propertiesPage.errors.geoUnavailable', 'Unable to access your location.'));
         setIsLocating(false);
       },
       {
@@ -77,7 +77,7 @@ export default function Properties() {
               className="flex items-center gap-2 px-4 py-2 border border-green-200 text-green-700 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-60"
             >
               <FaCrosshairs />
-              <span>{isLocating ? 'Finding nearby properties...' : 'Use my location'}</span>
+              <span>{isLocating ? t('propertiesPage.findingNearby', 'Finding nearby properties...') : t('propertiesPage.useMyLocation', 'Use my location')}</span>
             </button>
             <Link
               to="/properties/map"
@@ -89,20 +89,20 @@ export default function Properties() {
           </div>
         </div>
         {locationError ? <p className="text-sm text-red-600">{locationError}</p> : null}
-        {hasActiveLocation ? <p className="text-sm text-green-700">Showing the closest properties first.</p> : null}
+        {hasActiveLocation ? <p className="text-sm text-green-700">{t('propertiesPage.showingClosest', 'Showing the closest properties first.')}</p> : null}
         {!hasActiveLocation ? (
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">Saved searches</p>
-              <p className="mt-2 text-sm text-gray-700">Use the search bar to save high-intent filters and revisit them later.</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">{t('propertiesPage.cards.savedSearchesTitle', 'Saved searches')}</p>
+              <p className="mt-2 text-sm text-gray-700">{t('propertiesPage.cards.savedSearchesText', 'Use the search bar to save high-intent filters and revisit them later.')}</p>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">Map + list</p>
-              <p className="mt-2 text-sm text-gray-700">Switch between list and map views without losing your search context.</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">{t('propertiesPage.cards.mapListTitle', 'Map + list')}</p>
+              <p className="mt-2 text-sm text-gray-700">{t('propertiesPage.cards.mapListText', 'Switch between list and map views without losing your search context.')}</p>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">Near me</p>
-              <p className="mt-2 text-sm text-gray-700">Allow browser location to sort by distance and highlight nearby opportunities.</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-500">{t('propertiesPage.cards.nearMeTitle', 'Near me')}</p>
+              <p className="mt-2 text-sm text-gray-700">{t('propertiesPage.cards.nearMeText', 'Allow browser location to sort by distance and highlight nearby opportunities.')}</p>
             </div>
           </div>
         ) : null}

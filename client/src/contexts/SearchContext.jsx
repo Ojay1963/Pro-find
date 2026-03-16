@@ -6,7 +6,8 @@ export const SearchProvider = ({ children }) => {
   const [search, setSearch] = useState({
     location: '',
     type: 'All Types',
-    status: 'Any',
+    status: 'Buy',
+    beds: '',
     min: '',
     max: ''
   });

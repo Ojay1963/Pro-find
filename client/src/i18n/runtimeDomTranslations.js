@@ -1,3 +1,5 @@
+import { defaultLanguage, translations } from './translations'
+
 const PHRASE_MAP_ES = {
   'Sign In': 'Iniciar sesion',
   'Remember me': 'Recordarme',
@@ -191,8 +193,42 @@ const IGNORED_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'PRE', 'CODE', 'TEX
 
 const nodeOriginalText = new WeakMap()
 const attrOriginalText = new WeakMap()
+const exactPhraseMapCache = new Map()
 
 const normalizeSpaces = (text) => text.replace(/\s+/g, ' ').trim()
+
+const flattenStringValues = (input, accumulator = []) => {
+  if (typeof input === 'string') {
+    accumulator.push(input)
+    return accumulator
+  }
+  if (Array.isArray(input)) {
+    input.forEach((item) => flattenStringValues(item, accumulator))
+    return accumulator
+  }
+  if (input && typeof input === 'object') {
+    Object.values(input).forEach((value) => flattenStringValues(value, accumulator))
+  }
+  return accumulator
+}
+
+const buildExactPhraseMap = (language) => {
+  if (exactPhraseMapCache.has(language)) return exactPhraseMapCache.get(language)
+  if (language === defaultLanguage) return {}
+  const englishValues = flattenStringValues(translations[defaultLanguage] || {})
+  const translatedValues = flattenStringValues(translations[language] || {})
+  const map = {}
+  const length = Math.min(englishValues.length, translatedValues.length)
+  for (let index = 0; index < length; index += 1) {
+    const source = normalizeSpaces(englishValues[index] || '')
+    const target = translatedValues[index]
+    if (source && typeof target === 'string' && target && source !== normalizeSpaces(target)) {
+      map[source] = target
+    }
+  }
+  exactPhraseMapCache.set(language, map)
+  return map
+}
 
 const applyCase = (source, translated) => {
   if (!source) return translated
@@ -222,6 +258,14 @@ const translateTextEs = (text) => {
 }
 
 const translateText = (language, text) => {
+  const normalized = normalizeSpaces(text)
+  const genericExactMap = buildExactPhraseMap(language)
+  const genericMatch = genericExactMap[normalized]
+  if (genericMatch) {
+    const leading = text.match(/^\s*/)?.[0] || ''
+    const trailing = text.match(/\s*$/)?.[0] || ''
+    return `${leading}${genericMatch}${trailing}`
+  }
   if (language === 'es') return translateTextEs(text)
   return text
 }

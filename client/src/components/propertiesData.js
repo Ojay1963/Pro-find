@@ -1,4 +1,10 @@
 ﻿// Export the properties array for use in multiple places
+import landImage1 from '../images/land/ChatGPT Image Mar 16, 2026, 01_02_49 AM.png';
+import landImage2 from '../images/land/ChatGPT Image Mar 16, 2026, 01_03_08 AM.png';
+import landImage3 from '../images/land/ChatGPT Image Mar 16, 2026, 01_05_48 AM.png';
+import landImage4 from '../images/land/ChatGPT Image Mar 16, 2026, 01_07_06 AM.png';
+import landImage5 from '../images/land/ChatGPT Image Mar 16, 2026, 01_32_24 AM.png';
+
 const houseImagePool = [
   'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop',
   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
@@ -42,19 +48,12 @@ const apartmentImagePool = [
 ].map((url) => url.replace('w=800&h=600', 'w=600&h=600'));
 
 const landImagePool = [
-  'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1465101178521-c1a9136a3c5a?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1454982523318-4b6396f39d3a?w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&h=600&fit=crop'
-].map((url) => url.replace('w=800&h=600', 'w=600&h=600'));
+  landImage1,
+  landImage2,
+  landImage3,
+  landImage4,
+  landImage5
+];
 
 const commercialImagePool = [
   'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',

@@ -5,8 +5,11 @@ import Footer from '../components/Footer';
 import { FaTimes, FaBed, FaBath, FaRulerCombined, FaCar } from 'react-icons/fa';
 import properties from '../components/propertiesData';
 import { storage } from '../utils/localStorage';
+import { useI18n } from '../contexts/I18nContext';
+import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
 
 export default function CompareProperties() {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [selectedIds, setSelectedIds] = useState([]);
   const [comparisonProperties, setComparisonProperties] = useState([]);
@@ -37,7 +40,7 @@ export default function CompareProperties() {
 
   const addProperty = (id) => {
     if (selectedIds.length >= 4) {
-      alert('Maximum 4 properties can be compared at once');
+      alert(t('comparePage.maxFour', 'Maximum 4 properties can be compared at once'));
       return;
     }
     if (!selectedIds.includes(id)) {
@@ -52,16 +55,16 @@ export default function CompareProperties() {
   const saveComparison = () => {
     if (selectedIds.length > 0) {
       storage.addComparison(selectedIds);
-      alert('Comparison saved!');
+      alert(t('comparePage.saved', 'Comparison saved!'));
     }
   };
 
   const comparisonFields = [
-    { key: 'price', label: 'Price', icon: null },
-    { key: 'location', label: 'Location', icon: null },
-    { key: 'beds', label: 'Bedrooms', icon: FaBed },
-    { key: 'baths', label: 'Bathrooms', icon: FaBath },
-    { key: 'area', label: 'Area', icon: FaRulerCombined },
+    { key: 'price', label: t('comparePage.fields.price', 'Price'), icon: null },
+    { key: 'location', label: t('comparePage.fields.location', 'Location'), icon: null },
+    { key: 'beds', label: t('comparePage.fields.bedrooms', 'Bedrooms'), icon: FaBed },
+    { key: 'baths', label: t('comparePage.fields.bathrooms', 'Bathrooms'), icon: FaBath },
+    { key: 'area', label: t('comparePage.fields.area', 'Area'), icon: FaRulerCombined },
   ];
 
   return (
@@ -69,14 +72,14 @@ export default function CompareProperties() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 mt-24">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Compare Properties</h1>
-          <p className="text-gray-600">Select up to 4 properties to compare side by side</p>
+          <h1 className="text-3xl font-bold mb-2">{t('comparePage.title', 'Compare Properties')}</h1>
+          <p className="text-gray-600">{t('comparePage.subtitle', 'Select up to 4 properties to compare side by side')}</p>
         </div>
 
         {/* Property Selection */}
         {comparisonProperties.length < 4 && (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
-            <h2 className="text-xl font-bold mb-4">Add Properties to Compare</h2>
+            <h2 className="text-xl font-bold mb-4">{t('comparePage.addTitle', 'Add Properties to Compare')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {allProperties.slice(0, 8).map(property => (
                 <button
@@ -89,7 +92,12 @@ export default function CompareProperties() {
                       : 'border-gray-200'
                   }`}
                 >
-                  <img src={property.image} alt={property.title} className="w-full aspect-square object-cover rounded mb-2" />
+                  <img
+                    src={getPropertyImage(property)}
+                    alt={property.title}
+                    className="w-full aspect-square object-cover rounded mb-2"
+                    onError={(e) => applyFallbackImage(e, property)}
+                  />
                   <h3 className="font-semibold text-sm mb-1">{property.title}</h3>
                   <p className="text-green-600 font-bold text-sm">{property.price}</p>
                 </button>
@@ -102,20 +110,20 @@ export default function CompareProperties() {
         {comparisonProperties.length > 0 ? (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 overflow-x-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Comparison</h2>
+              <h2 className="text-xl font-bold">{t('comparePage.comparison', 'Comparison')}</h2>
               {comparisonProperties.length > 0 && (
                 <button
                   onClick={saveComparison}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                 >
-                  Save Comparison
+                  {t('comparePage.saveComparison', 'Save Comparison')}
                 </button>
               )}
             </div>
             <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-3">Feature</th>
+                  <th className="text-left p-3">{t('comparePage.feature', 'Feature')}</th>
                   {comparisonProperties.map(property => (
                     <th key={property.id} className="text-center p-3 relative">
                       <button
@@ -125,7 +133,12 @@ export default function CompareProperties() {
                         <FaTimes />
                       </button>
                       <Link to={`/property/${property.id}`}>
-                        <img src={property.image} alt={property.title} className="w-full aspect-square object-cover rounded mb-2" />
+                        <img
+                          src={getPropertyImage(property)}
+                          alt={property.title}
+                          className="w-full aspect-square object-cover rounded mb-2"
+                          onError={(e) => applyFallbackImage(e, property)}
+                        />
                         <h3 className="font-semibold text-sm">{property.title}</h3>
                       </Link>
                     </th>
@@ -151,7 +164,7 @@ export default function CompareProperties() {
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 text-center">
-            <p className="text-gray-500">No properties selected for comparison. Add properties above to start comparing.</p>
+            <p className="text-gray-500">{t('comparePage.empty', 'No properties selected for comparison. Add properties above to start comparing.')}</p>
           </div>
         )}
       </main>

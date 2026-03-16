@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FaStar, FaUser, FaCalendar } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
 import toast from 'react-hot-toast';
+import { useI18n } from '../contexts/I18nContext';
 
 export default function AgentReviews({ agentId }) {
+  const { t } = useI18n();
   const currentUser = storage.getCurrentUser();
   const userId = currentUser?.id || localStorage.getItem('profind_user_id');
   const [reviews, setReviews] = useState(storage.getAgentReviews(agentId));
@@ -41,12 +43,12 @@ export default function AgentReviews({ agentId }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!userId) {
-      toast.error('Please log in to submit a review');
+      toast.error(t('propertyDetailsPage.reviews.loginRequired', 'Please log in to submit a review'));
       return;
     }
 
     if (hasUserReviewed) {
-      toast.error('You have already reviewed this agent');
+      toast.error(t('propertyDetailsPage.reviews.alreadyReviewed', 'You have already reviewed this agent'));
       return;
     }
 
@@ -60,7 +62,7 @@ export default function AgentReviews({ agentId }) {
     };
 
     storage.addAgentReview(review);
-    toast.success('Review submitted successfully!');
+    toast.success(t('propertyDetailsPage.reviews.toastSuccess', 'Review submitted successfully!'));
     setShowForm(false);
     setFormData({ rating: 5, comment: '', propertyId: null });
     window.location.reload();
@@ -70,7 +72,7 @@ export default function AgentReviews({ agentId }) {
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-xl font-bold mb-1">Agent Reviews</h3>
+          <h3 className="text-xl font-bold mb-1">{t('propertyDetailsPage.reviews.title', 'Agent Reviews')}</h3>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map(star => (
@@ -81,7 +83,7 @@ export default function AgentReviews({ agentId }) {
               ))}
             </div>
             <span className="font-semibold">{averageRating.toFixed(1)}</span>
-            <span className="text-gray-600">({reviews.length} reviews)</span>
+            <span className="text-gray-600">({reviews.length} {t('propertyDetailsPage.reviews.count', 'reviews')})</span>
           </div>
         </div>
         {userId && !hasUserReviewed && userId !== agentId && (
@@ -89,7 +91,7 @@ export default function AgentReviews({ agentId }) {
             onClick={() => setShowForm(!showForm)}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
-            Write Review
+            {t('propertyDetailsPage.reviews.write', 'Write Review')}
           </button>
         )}
       </div>
@@ -97,9 +99,9 @@ export default function AgentReviews({ agentId }) {
       {/* Review Form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="font-semibold mb-3">Write a Review</h4>
+          <h4 className="font-semibold mb-3">{t('propertyDetailsPage.reviews.write', 'Write a Review')}</h4>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Rating</label>
+            <label className="block text-gray-700 mb-2">{t('propertyDetailsPage.reviews.rating', 'Rating')}</label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map(star => (
                 <button
@@ -116,13 +118,13 @@ export default function AgentReviews({ agentId }) {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Comment</label>
+            <label className="block text-gray-700 mb-2">{t('propertyDetailsPage.reviews.comment', 'Comment')}</label>
             <textarea
               value={formData.comment}
               onChange={(e) => setFormData({...formData, comment: e.target.value})}
               rows="4"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              placeholder="Share your experience with this agent..."
+              placeholder={t('propertyDetailsPage.reviews.commentPlaceholder', 'Share your experience with this agent...')}
               required
             />
           </div>
@@ -131,7 +133,7 @@ export default function AgentReviews({ agentId }) {
               type="submit"
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
-              Submit Review
+              {t('propertyDetailsPage.reviews.submit', 'Submit Review')}
             </button>
             <button
               type="button"
@@ -141,7 +143,7 @@ export default function AgentReviews({ agentId }) {
               }}
               className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
             >
-              Cancel
+              {t('propertyDetailsPage.reviews.cancel', 'Cancel')}
             </button>
           </div>
         </form>
@@ -150,7 +152,7 @@ export default function AgentReviews({ agentId }) {
       {/* Reviews List */}
       <div className="space-y-4">
         {reviews.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
+          <p className="text-gray-500 text-center py-8">{t('propertyDetailsPage.reviews.empty', 'No reviews yet. Be the first to review!')}</p>
         ) : (
           reviews
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

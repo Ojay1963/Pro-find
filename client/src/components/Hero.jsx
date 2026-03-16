@@ -6,16 +6,17 @@ export default function Hero() {
   const { t } = useI18n()
   const aiBullets = t('hero.aiBullets', [])
   const bulletList = Array.isArray(aiBullets) ? aiBullets : []
+  const heroImage = 'https://images.unsplash.com/photo-1594538756542-8c88bda491c5?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 
   return (
     <section className="relative w-full overflow-hidden bg-slate-950 text-white">
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80"
+          src={heroImage}
           alt=""
-          className="h-full w-full object-cover opacity-40"
+          className="h-full w-full object-cover object-center opacity-85"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-slate-950/20 to-slate-950/55" />
       </div>
       <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-green-500/30 blur-3xl animate-float-slow" />
       <div className="absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-emerald-400/25 blur-3xl animate-float-slower" />

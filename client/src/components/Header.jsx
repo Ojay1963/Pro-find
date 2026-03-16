@@ -154,7 +154,7 @@ export default function Header() {
               type="button"
               onClick={handleInstallApp}
               className="h-10 px-3 rounded-full border border-green-600 text-green-700 bg-white hover:bg-green-50 transition-colors text-sm font-medium"
-              title={showIosHint ? 'Use your browser Share menu and choose Add to Home Screen.' : 'Install app'}
+              title={showIosHint ? t('header.iosInstallTitle', 'Use your browser Share menu and choose Add to Home Screen.') : t('header.installAppTitle', 'Install app')}
             >
               {t('nav.installApp')}
             </button>
@@ -163,8 +163,8 @@ export default function Header() {
             type="button"
             onClick={toggleTheme}
             className="h-10 w-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:border-green-400 transition-colors"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={isDark ? 'Light mode' : 'Dark mode'}
+            aria-label={isDark ? t('header.switchToLight', 'Switch to light mode') : t('header.switchToDark', 'Switch to dark mode')}
+            title={isDark ? t('header.lightMode', 'Light mode') : t('header.darkMode', 'Dark mode')}
           >
             {isDark ? <FaSun className="text-amber-400" /> : <FaMoon className="text-gray-600" />}
           </button>
@@ -213,7 +213,7 @@ export default function Header() {
         <button
           className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? t('header.closeMenu', 'Close menu') : t('header.openMenu', 'Open menu')}
           aria-expanded={menuOpen}
         >
           <MenuIcon />
@@ -224,14 +224,14 @@ export default function Header() {
       {menuOpen && (
         <nav
           className="md:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
-          aria-label="Mobile navigation"
+          aria-label={t('header.mobileNavigation', 'Mobile navigation')}
         >
           {!isInstalled && (canPrompt || showIosHint) && (
             <button
               type="button"
               onClick={handleInstallApp}
               className="mb-3 inline-flex items-center justify-center gap-2 px-4 py-2 border border-green-600 text-green-700 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-60"
-              title={showIosHint ? 'Use your browser Share menu and choose Add to Home Screen.' : 'Install app'}
+              title={showIosHint ? t('header.iosInstallTitle', 'Use your browser Share menu and choose Add to Home Screen.') : t('header.installAppTitle', 'Install app')}
             >
               <span className="text-sm font-medium">{t('nav.installApp')}</span>
             </button>
@@ -268,10 +268,10 @@ export default function Header() {
             type="button"
             onClick={toggleTheme}
             className="mb-3 inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={isDark ? t('header.switchToLight', 'Switch to light mode') : t('header.switchToDark', 'Switch to dark mode')}
           >
             {isDark ? <FaSun className="text-amber-400" /> : <FaMoon className="text-gray-600" />}
-            <span className="text-sm font-medium">{isDark ? 'Light mode' : 'Dark mode'}</span>
+            <span className="text-sm font-medium">{isDark ? t('header.lightMode', 'Light mode') : t('header.darkMode', 'Dark mode')}</span>
           </button>
           {navLinks.map(({ to, label }) => (
             <Link

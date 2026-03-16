@@ -9,6 +9,7 @@ import properties from '../components/propertiesData';
 import { storage } from '../utils/localStorage';
 import { attachDistanceToProperty, getCoordinates } from '../utils/propertyLocation';
 import { getPropertyTrustMetrics } from '../utils/propertyInsights';
+import { useI18n } from '../contexts/I18nContext';
 
 // Fix for default marker icons
 delete Icon.Default.prototype._getIconUrl;
@@ -93,7 +94,7 @@ function ViewportTracker({ onBoundsChange }) {
   return null;
 }
 
-function MapView({ properties, selectedProperty, onPropertySelect, userLocation }) {
+function MapView({ properties, selectedProperty, onPropertySelect, userLocation, t }) {
   const map = useMap();
   const [zoom, setZoom] = useState(map.getZoom());
 
@@ -123,8 +124,8 @@ function MapView({ properties, selectedProperty, onPropertySelect, userLocation 
         <Marker position={userLocation}>
           <Popup>
             <div className="p-2">
-              <p className="text-sm font-semibold">Your location</p>
-              <p className="text-xs text-gray-600 mt-1">Nearby properties are ranked from here.</p>
+              <p className="text-sm font-semibold">{t('propertiesMapPage.yourLocation', 'Your location')}</p>
+              <p className="text-xs text-gray-600 mt-1">{t('propertiesMapPage.yourLocationText', 'Nearby properties are ranked from here.')}</p>
             </div>
           </Popup>
         </Marker>
@@ -142,8 +143,10 @@ function MapView({ properties, selectedProperty, onPropertySelect, userLocation 
             >
               <Popup>
                 <div className="p-2">
-                  <p className="text-sm font-semibold">{group.items.length} properties in this area</p>
-                  <p className="text-xs text-gray-600 mt-1">Zoom in to view individual listings.</p>
+                  <p className="text-sm font-semibold">
+                    {t('propertiesMapPage.clusterTitle', '{count} properties in this area').replace('{count}', String(group.items.length))}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">{t('propertiesMapPage.clusterText', 'Zoom in to view individual listings.')}</p>
                 </div>
               </Popup>
             </Marker>
@@ -163,7 +166,7 @@ function MapView({ properties, selectedProperty, onPropertySelect, userLocation 
                 <p className="text-xs text-gray-600 mb-2">{property.location}</p>
                 <p className="text-green-600 font-bold text-sm mb-2">{property.price}</p>
                 <Link to={`/property/${property.id}`} className="text-blue-600 text-xs hover:underline">
-                  View Details
+                  {t('propertiesMapPage.viewDetails', 'View Details')}
                 </Link>
               </div>
             </Popup>
@@ -175,6 +178,7 @@ function MapView({ properties, selectedProperty, onPropertySelect, userLocation 
 }
 
 export default function PropertiesMap() {
+  const { t } = useI18n();
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [cityFilter, setCityFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
@@ -288,13 +292,16 @@ export default function PropertiesMap() {
               selectedProperty={selectedProperty}
               onPropertySelect={setSelectedProperty}
               userLocation={hasActiveLocation ? userLocation : null}
+              t={t}
             />
           </MapContainer>
 
           <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-sm max-h-[80vh] overflow-y-auto z-[1000]">
-            <h2 className="font-bold mb-1">Properties on Map</h2>
+            <h2 className="font-bold mb-1">{t('propertiesMapPage.panelTitle', 'Properties on Map')}</h2>
             <p className="text-xs text-gray-500 mb-3">
-              {filteredProperties.length} of {propertiesWithDistance.length} listings
+              {t('propertiesMapPage.panelCount', '{visible} of {total} listings')
+                .replace('{visible}', String(filteredProperties.length))
+                .replace('{total}', String(propertiesWithDistance.length))}
             </p>
             <button
               type="button"
@@ -302,12 +309,19 @@ export default function PropertiesMap() {
               disabled={isLocating}
               className="mb-3 w-full rounded border border-green-200 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-60"
             >
-              {isLocating ? 'Finding your location...' : 'Show closest to me'}
+              {isLocating
+                ? t('propertiesMapPage.findingLocation', 'Finding your location...')
+                : t('propertiesMapPage.showClosest', 'Show closest to me')}
             </button>
             {locationError ? <p className="mb-3 text-xs text-red-600">{locationError}</p> : null}
-            {hasActiveLocation ? <p className="mb-3 text-xs text-green-700">Listings are sorted by distance from your current location.</p> : null}
+            {hasActiveLocation ? <p className="mb-3 text-xs text-green-700">{t('propertiesMapPage.sortedByDistance', 'Listings are sorted by distance from your current location.')}</p> : null}
             {!hasActiveLocation ? (
-              <p className="mb-3 text-xs text-gray-500">Allow location access to rank properties by distance. If permission is denied, you can still filter by city, price, and type.</p>
+              <p className="mb-3 text-xs text-gray-500">
+                {t(
+                  'propertiesMapPage.locationHelp',
+                  'Allow location access to rank properties by distance. If permission is denied, you can still filter by city, price, and type.'
+                )}
+              </p>
             ) : null}
 
             <div className="grid grid-cols-2 gap-2 mb-3">
@@ -316,7 +330,7 @@ export default function PropertiesMap() {
                 onChange={(event) => setCityFilter(event.target.value)}
                 className="border border-gray-300 rounded px-2 py-1 text-xs"
               >
-                <option value="All">All Cities</option>
+                <option value="All">{t('propertiesMapPage.allCities', 'All Cities')}</option>
                 {cities.map((city) => (
                   <option key={city} value={city}>
                     {city}
@@ -329,11 +343,11 @@ export default function PropertiesMap() {
                 onChange={(event) => setTypeFilter(event.target.value)}
                 className="border border-gray-300 rounded px-2 py-1 text-xs"
               >
-                <option value="All">All Types</option>
-                <option value="House">House</option>
-                <option value="Apartment">Apartment</option>
-                <option value="Land">Land</option>
-                <option value="Commercial">Commercial</option>
+                <option value="All">{t('propertiesMapPage.allTypes', 'All Types')}</option>
+                <option value="House">{t('propertiesPage.search.house', 'House')}</option>
+                <option value="Apartment">{t('propertiesPage.search.apartment', 'Apartment')}</option>
+                <option value="Land">{t('propertiesPage.search.land', 'Land')}</option>
+                <option value="Commercial">{t('propertiesPage.search.commercial', 'Commercial')}</option>
               </select>
 
               <select
@@ -341,10 +355,10 @@ export default function PropertiesMap() {
                 onChange={(event) => setStatusFilter(event.target.value)}
                 className="border border-gray-300 rounded px-2 py-1 text-xs"
               >
-                <option value="All">All Status</option>
-                <option value="For Sale">For Sale</option>
-                <option value="For Rent">For Rent</option>
-                <option value="Land">Land</option>
+                <option value="All">{t('propertiesMapPage.allStatus', 'All Status')}</option>
+                <option value="For Sale">{t('propertiesPage.search.forSale', 'For Sale')}</option>
+                <option value="For Rent">{t('propertiesPage.search.forRent', 'For Rent')}</option>
+                <option value="Land">{t('propertiesPage.search.land', 'Land')}</option>
               </select>
 
               <button
@@ -359,14 +373,14 @@ export default function PropertiesMap() {
                 }}
                 className="border border-gray-300 rounded px-2 py-1 text-xs hover:bg-gray-50"
               >
-                Clear
+                {t('propertiesMapPage.clear', 'Clear')}
               </button>
 
               <input
                 type="number"
                 value={minPrice}
                 onChange={(event) => setMinPrice(event.target.value)}
-                placeholder="Min price"
+                placeholder={t('propertiesMapPage.minPrice', 'Min price')}
                 className="border border-gray-300 rounded px-2 py-1 text-xs"
               />
 
@@ -374,7 +388,7 @@ export default function PropertiesMap() {
                 type="number"
                 value={maxPrice}
                 onChange={(event) => setMaxPrice(event.target.value)}
-                placeholder="Max price"
+                placeholder={t('propertiesMapPage.maxPrice', 'Max price')}
                 className="border border-gray-300 rounded px-2 py-1 text-xs"
               />
 
@@ -384,7 +398,7 @@ export default function PropertiesMap() {
                   checked={searchWithinBounds}
                   onChange={(event) => setSearchWithinBounds(event.target.checked)}
                 />
-                Search within map bounds
+                {t('propertiesMapPage.searchWithinBounds', 'Search within map bounds')}
               </label>
             </div>
 
@@ -407,7 +421,6 @@ export default function PropertiesMap() {
                   {property.distanceLabel ? <p className="text-xs text-blue-600 mt-1">{property.distanceLabel}</p> : null}
                   <div className="mt-2 flex flex-wrap gap-1 text-[11px]">
                     <span className="rounded-full bg-green-50 px-2 py-1 text-green-700">{trust.availability}</span>
-                    <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-700">{trust.formattedPricePerSqm}</span>
                   </div>
                   <p className="text-green-600 font-bold text-sm mt-1">{property.price}</p>
                 </div>

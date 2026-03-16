@@ -6,6 +6,7 @@ import { FaHome, FaHeart, FaEye, FaSearch, FaPlus, FaEdit, FaChartLine, FaEnvelo
 import { storage } from '../utils/localStorage';
 import properties from '../components/propertiesData';
 import toast from 'react-hot-toast';
+import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -393,7 +394,14 @@ export default function Dashboard() {
                     {favoriteProperties.map(property => (
                       <Link key={property.id} to={`/property/${property.id}`} className="group border border-gray-100 rounded-2xl overflow-hidden bg-white/90 shadow-sm hover:shadow-lg transition-all">
                         <div className="relative aspect-square overflow-hidden">
-                          <img src={property.image} alt={property.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <img
+                            src={getPropertyImage(property)}
+                            alt={property.title}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            onError={(e) => applyFallbackImage(e, property)}
+                          />
                           <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
                             <h3 className="font-semibold text-white">{property.title}</h3>
                             <p className="text-xs text-white/80">{property.location}</p>
@@ -420,7 +428,14 @@ export default function Dashboard() {
                     {viewedProperties.map(property => (
                       <Link key={property.id} to={`/property/${property.id}`} className="group border border-gray-100 rounded-2xl overflow-hidden bg-white/90 shadow-sm hover:shadow-lg transition-all">
                         <div className="relative aspect-square overflow-hidden">
-                          <img src={property.image} alt={property.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <img
+                            src={getPropertyImage(property)}
+                            alt={property.title}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            onError={(e) => applyFallbackImage(e, property)}
+                          />
                           <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
                             <h3 className="font-semibold text-white">{property.title}</h3>
                             <p className="text-xs text-white/80">{property.location}</p>
@@ -728,7 +743,16 @@ export default function Dashboard() {
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <h3 className="font-semibold">{inquiry.propertyTitle}</h3>
-                            <p className="text-sm text-gray-600">{inquiry.type === 'viewing' ? 'Viewing Request' : 'Contact Inquiry'}</p>
+                            <p className="text-sm text-gray-600">
+                              {{
+                                viewing: 'Viewing Request',
+                                site_visit: 'Site Visit Request',
+                                inspection: 'Inspection Request',
+                                documents: 'Document Request',
+                                negotiation: 'Price Negotiation',
+                                contact: 'Contact Inquiry'
+                              }[inquiry.type] || 'Inquiry'}
+                            </p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded ${
                             inquiry.status === 'new' ? 'bg-blue-100 text-blue-800' :

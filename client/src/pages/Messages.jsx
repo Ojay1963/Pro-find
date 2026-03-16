@@ -7,8 +7,10 @@ import { storage } from '../utils/localStorage';
 import { resolveApiBase } from '../utils/apiBase';
 import toast from 'react-hot-toast';
 import properties from '../components/propertiesData';
+import { useI18n } from '../contexts/I18nContext';
 
 export default function Messages() {
+  const { t } = useI18n();
   const { conversationId } = useParams();
   const currentUser = storage.getCurrentUser();
   const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
@@ -79,7 +81,7 @@ export default function Messages() {
 
     storage.addMessage(selectedConversation.id, message);
     setMessageText('');
-    toast.success('Message sent!');
+    toast.success(t('messagesPage.toastSent', 'Message sent!'));
     
     // Refresh conversation
     const updated = storage.getConversations(userId);
@@ -109,8 +111,8 @@ export default function Messages() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 container mx-auto px-4 py-20 mt-24 text-center">
-          <h1 className="text-2xl font-bold mb-4">Please log in to view messages</h1>
-          <Link to="/login" className="text-green-600 underline">Go to Login</Link>
+          <h1 className="text-2xl font-bold mb-4">{t('messagesPage.loginRequired', 'Please log in to view messages')}</h1>
+          <Link to="/login" className="text-green-600 underline">{t('messagesPage.goToLogin', 'Go to Login')}</Link>
         </main>
         <Footer />
       </div>
@@ -122,8 +124,8 @@ export default function Messages() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 mt-24">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Messages</h1>
-          <p className="text-gray-600">Chat with agents and property owners</p>
+          <h1 className="text-3xl font-bold mb-2">{t('messagesPage.title', 'Messages')}</h1>
+          <p className="text-gray-600">{t('messagesPage.subtitle', 'Chat with agents and property owners')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
@@ -134,7 +136,7 @@ export default function Messages() {
                 <FaSearch className="absolute left-3 top-3 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search conversations..."
+                  placeholder={t('messagesPage.searchPlaceholder', 'Search conversations...')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
@@ -145,8 +147,8 @@ export default function Messages() {
               {sortedConversations.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">
                   <FaEnvelope className="text-4xl mx-auto mb-2 text-gray-300" />
-                  <p>No conversations yet</p>
-                  <p className="text-sm mt-1">Start a conversation from a property page</p>
+                  <p>{t('messagesPage.noConversations', 'No conversations yet')}</p>
+                  <p className="text-sm mt-1">{t('messagesPage.startFromProperty', 'Start a conversation from a property page')}</p>
                 </div>
               ) : (
                 sortedConversations.map(conv => {
@@ -184,7 +186,7 @@ export default function Messages() {
                           )}
                           {lastMessage && (
                             <p className="text-sm text-gray-600 truncate">
-                              {lastMessage.senderId === userId ? 'You: ' : ''}
+                              {lastMessage.senderId === userId ? t('messagesPage.youPrefix', 'You: ') : ''}
                               {lastMessage.text}
                             </p>
                           )}
@@ -228,7 +230,7 @@ export default function Messages() {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {(selectedConversation.messages || []).length === 0 ? (
                     <div className="text-center text-gray-500 mt-8">
-                      <p>No messages yet. Start the conversation!</p>
+                      <p>{t('messagesPage.noMessages', 'No messages yet. Start the conversation!')}</p>
                     </div>
                   ) : (
                     (selectedConversation.messages || []).map(message => {
@@ -263,7 +265,7 @@ export default function Messages() {
                     type="text"
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
-                    placeholder="Type a message..."
+                    placeholder={t('messagesPage.typeMessage', 'Type a message...')}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                   />
                   <button
@@ -271,7 +273,7 @@ export default function Messages() {
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
                   >
                     <FaPaperPlane />
-                    Send
+                    {t('messagesPage.send', 'Send')}
                   </button>
                 </form>
               </>
@@ -279,7 +281,7 @@ export default function Messages() {
               <div className="flex-1 flex items-center justify-center text-gray-500">
                 <div className="text-center">
                   <FaEnvelope className="text-6xl mx-auto mb-4 text-gray-300" />
-                  <p>Select a conversation to start messaging</p>
+                  <p>{t('messagesPage.selectConversation', 'Select a conversation to start messaging')}</p>
                 </div>
               </div>
             )}
