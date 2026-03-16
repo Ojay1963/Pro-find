@@ -1,9 +1,9 @@
 ﻿// Export the properties array for use in multiple places
-import landImage1 from '../images/land/ChatGPT Image Mar 16, 2026, 01_02_49 AM.png';
-import landImage2 from '../images/land/ChatGPT Image Mar 16, 2026, 01_03_08 AM.png';
-import landImage3 from '../images/land/ChatGPT Image Mar 16, 2026, 01_05_48 AM.png';
-import landImage4 from '../images/land/ChatGPT Image Mar 16, 2026, 01_07_06 AM.png';
-import landImage5 from '../images/land/ChatGPT Image Mar 16, 2026, 01_32_24 AM.png';
+import landImage1 from '../images/Land/ChatGPT Image Mar 16, 2026, 01_02_49 AM.png';
+import landImage2 from '../images/Land/ChatGPT Image Mar 16, 2026, 01_03_08 AM.png';
+import landImage3 from '../images/Land/ChatGPT Image Mar 16, 2026, 01_05_48 AM.png';
+import landImage4 from '../images/Land/ChatGPT Image Mar 16, 2026, 01_07_06 AM.png';
+import landImage5 from '../images/Land/ChatGPT Image Mar 16, 2026, 01_32_24 AM.png';
 
 const houseImagePool = [
   'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop',
