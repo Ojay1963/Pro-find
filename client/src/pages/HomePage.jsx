@@ -23,7 +23,6 @@ import WhyChoose from '../components/WhyChoose'
 import Testimonials from '../components/Testimonials'
 import Contact from '../components/Contact'
 import Footer from '../components/Footer'
-import AiChatBot from '../components/AiChatBot'
 import AdvancedFilters from '../components/AdvancedFilters'
 import { useI18n } from '../contexts/I18nContext'
 import properties from '../components/propertiesData'
@@ -378,7 +377,6 @@ const HomePage = () => {
         <Testimonials />
         <Contact />
       </div>
-      <AiChatBot />
       <Footer />
       <AdvancedFilters
         isOpen={showAdvancedFilters}

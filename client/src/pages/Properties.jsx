@@ -66,22 +66,22 @@ export default function Properties() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="container mx-auto px-4 mt-24 py-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+      <div className="container mx-auto mt-24 px-4 py-8">
+        <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h1 className="text-3xl font-bold">{t('propertiesPage.title', 'Properties')}</h1>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center md:w-auto">
             <button
               type="button"
               onClick={handleUseCurrentLocation}
               disabled={isLocating}
-              className="flex items-center gap-2 px-4 py-2 border border-green-200 text-green-700 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-green-200 px-4 py-2 text-green-700 transition-colors hover:bg-green-50 disabled:opacity-60 sm:w-auto"
             >
               <FaCrosshairs />
               <span>{isLocating ? t('propertiesPage.findingNearby', 'Finding nearby properties...') : t('propertiesPage.useMyLocation', 'Use my location')}</span>
             </button>
             <Link
               to="/properties/map"
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 sm:w-auto"
             >
               <FaMap />
               <span>{t('propertiesPage.mapView', 'Map View')}</span>

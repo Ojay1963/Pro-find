@@ -26,14 +26,14 @@ export default function PropertySortFilter({
   };
 
   return (
-    <div className="mx-auto mb-6 flex max-w-3xl flex-col items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+    <div className="mx-auto mb-6 flex max-w-3xl flex-col gap-4 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex w-full flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center">
+        <div className="flex w-full items-center gap-2 lg:w-auto">
           <FaSort className="text-gray-400" />
           <select
             value={sortBy}
             onChange={handleSortChange}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-green-500 sm:text-base lg:w-auto lg:min-w-[220px] lg:flex-none"
           >
             <option value="relevance">{t('propertiesPage.sort.relevance', 'Sort by: Relevance')}</option>
             <option value="price-low">{t('propertiesPage.sort.priceLow', 'Price: Low to High')}</option>
@@ -49,7 +49,7 @@ export default function PropertySortFilter({
           type="button"
           onClick={onUseCurrentLocation}
           disabled={!onUseCurrentLocation || isLocating}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm transition-colors hover:bg-gray-50 disabled:opacity-60 sm:text-base lg:w-auto"
         >
           <FaCrosshairs />
           <span>{isLocating ? t('propertiesPage.locating', 'Locating...') : t('propertiesPage.nearMe', 'Near Me')}</span>
@@ -57,17 +57,17 @@ export default function PropertySortFilter({
 
         <button
           onClick={onAdvancedFiltersOpen}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm transition-colors hover:bg-gray-50 sm:text-base lg:w-auto"
         >
           <FaFilter />
           <span>{t('propertiesPage.advancedFilters', 'Advanced Filters')}</span>
         </button>
       </div>
 
-      <div className="flex items-center gap-2 border border-gray-300 rounded-lg overflow-hidden">
+      <div className="flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-gray-300 lg:w-auto lg:justify-end">
         <button
           onClick={() => onViewChange('grid')}
-          className={`p-2 ${currentView === 'grid' ? 'bg-green-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          className={`w-full px-4 py-2 lg:w-auto ${currentView === 'grid' ? 'bg-green-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           title={t('propertiesPage.gridView', 'Grid View')}
         >
           <FaMap />

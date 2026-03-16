@@ -51,7 +51,7 @@ export const translations = {
         activeBuyers: 'Active Buyers',
         trustedAgents: 'Trusted Agents'
       },
-      aiMatch: 'AI Match',
+      aiMatch: 'Smart Match',
       aiTitle: 'Personalized listings in seconds',
       aiBullets: [
         'Verified agents and transparent pricing data.',
@@ -674,7 +674,7 @@ export const translations = {
         activeBuyers: 'Acheteurs actifs',
         trustedAgents: 'Agents de confiance'
       },
-      aiMatch: 'IA Match',
+      aiMatch: 'Selection rapide',
       aiTitle: 'Annonces personnalisees en quelques secondes',
       aiBullets: [
         'Agents verifies et donnees de prix transparentes.',
@@ -965,7 +965,7 @@ export const translations = {
         activeBuyers: 'Compradores activos',
         trustedAgents: 'Agentes confiables'
       },
-      aiMatch: 'IA Match',
+      aiMatch: 'Seleccion rapida',
       aiTitle: 'Anuncios personalizados en segundos',
       aiBullets: [
         'Agentes verificados y datos de precios transparentes.',
@@ -1237,7 +1237,7 @@ export const translations = {
         activeBuyers: '活跃买家',
         trustedAgents: '可信经纪人'
       },
-      aiMatch: 'AI 匹配',
+      aiMatch: '精选推荐',
       aiTitle: '几秒内获得个性化房源',
       aiBullets: [
         '认证经纪人和透明价格数据。',
@@ -1527,7 +1527,7 @@ export const translations = {
         activeBuyers: 'Acquirenti attivi',
         trustedAgents: 'Agenti affidabili'
       },
-      aiMatch: 'AI Match',
+      aiMatch: 'Scelta rapida',
       aiTitle: 'Annunci personalizzati in pochi secondi',
       aiBullets: [
         'Agenti verificati e dati di prezzo trasparenti.',
@@ -1818,7 +1818,7 @@ export const translations = {
         activeBuyers: 'Awon Onra To N Sise',
         trustedAgents: 'Awon Asoju To Gbagbọle'
       },
-      aiMatch: 'AI Match',
+      aiMatch: 'Yiyan yara',
       aiTitle: 'Akole ti ara re ni kete',
       aiBullets: [
         'Awon aṣoju to fidi mule ati alaye owo to ye.',
@@ -1945,7 +1945,7 @@ export const translations = {
         activeBuyers: 'Masu Siya Masu Aiki',
         trustedAgents: 'Wakilai Amintattu'
       },
-      aiMatch: 'AI Match',
+      aiMatch: 'Zabi cikin sauri',
       aiTitle: 'Jerin da ya dace da kai cikin sauri',
       aiBullets: [
         'Wakilai da aka tabbatar da bayyanannen bayanin farashi.',
