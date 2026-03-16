@@ -8,7 +8,6 @@ import Footer from '../components/Footer';
 import AgentReviews from '../components/AgentReviews';
 import MortgageCalculator from '../components/MortgageCalculator';
 import ScheduleViewingForm from '../components/ScheduleViewingForm';
-import ContactAgentForm from '../components/ContactAgentForm';
 import PropertyShare from '../components/PropertyShare';
 import PropertyCard from '../components/PropertyCard';
 import { FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined, FaCalendarAlt, FaCar, FaStar, FaShieldAlt, FaBolt, FaFlag, FaWhatsapp, FaChartLine, FaClipboardCheck, FaFileAlt, FaHandshake } from 'react-icons/fa';
@@ -79,7 +78,6 @@ export default function PropertyDetails() {
   const storedListing = storage.getListingById(parseInt(id));
   const property = properties.find((p) => String(p.id) === String(id)) || storedListing;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [activeInquiryAction, setActiveInquiryAction] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [activePanel, setActivePanel] = useState(property?.badge?.toLowerCase() === 'for rent' ? 'schedule' : 'mortgage');
@@ -194,13 +192,21 @@ export default function PropertyDetails() {
   const nearbyPlaces = getNearbyPlaces(property)
   const localHighlights = getNeighborhoodHighlights(property)
   const headlinePrice = parsePriceNumber(property.price)
-  const activeInquiryConfig = inquiryActions.find((item) => item.key === activeInquiryAction) || null
 
   const openInquiryAction = (actionKey) => {
     if (actionKey === 'siteVisit') {
       setActivePanel('schedule')
+      return
     }
-    setActiveInquiryAction(actionKey)
+    const actionConfig = inquiryActions.find((item) => item.key === actionKey)
+    navigate(`/property/${property.id}/contact`, {
+      state: {
+        inquiryType: actionKey,
+        title: actionConfig?.label,
+        subtitle: actionConfig?.description,
+        submitLabel: actionConfig?.label
+      }
+    })
   }
 
   const handleReportListing = () => {
@@ -218,8 +224,8 @@ export default function PropertyDetails() {
     toast.success(t('propertyDetailsPage.report.success', 'Listing report received.'))
   }
 
-  const handlePrimaryContact = async () => {
-    setActiveInquiryAction('contact');
+  const handlePrimaryContact = () => {
+    navigate(`/property/${property.id}/contact`)
   }
 
   return (
@@ -571,43 +577,6 @@ export default function PropertyDetails() {
                   <FaFlag />
                   {t('propertyDetailsPage.report.button', 'Report listing')}
                 </button>
-                    {activeInquiryConfig && (
-                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
-                        <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 relative">
-                          <button
-                            className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl"
-                            onClick={() => setActiveInquiryAction(null)}
-                            aria-label="Close"
-                          >
-                            &times;
-                          </button>
-                          {activeInquiryAction === 'siteVisit' ? (
-                            <ScheduleViewingForm
-                              propertyId={property.id}
-                              propertyTitle={property.title}
-                              agentId={property.agentId}
-                              agentName={property.agentName}
-                              inquiryType="site_visit"
-                              title="Book Site Visit"
-                              subtitle={`Choose a preferred date and time to visit ${property.title}.`}
-                              submitLabel="Book Site Visit"
-                              initialMessage={`I want to visit ${property.title} in person and would like the agent to confirm access details.`}
-                            />
-                          ) : (
-                            <ContactAgentForm
-                              propertyId={property.id}
-                              propertyTitle={property.title}
-                              agentName={property.agentName}
-                              agentId={property.agentId}
-                              inquiryType={activeInquiryAction}
-                              title={activeInquiryConfig.label}
-                              subtitle={activeInquiryConfig.description}
-                              submitLabel={activeInquiryConfig.label}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    )}
                     {showReportModal && (
                       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
                         <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg">

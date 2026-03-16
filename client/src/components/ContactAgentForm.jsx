@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEnvelope, FaPhone, FaUser, FaComment, FaComments } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaUser, FaComment, FaComments, FaPaperPlane } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { storage } from '../utils/localStorage';
@@ -36,7 +36,7 @@ export default function ContactAgentForm({
     email: '',
     phone: '',
     message: initialMessage || getIntentMessage(inquiryType, propertyTitle),
-    preferredContact: 'email'
+    preferredContact: 'phone'
   });
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -50,8 +50,7 @@ export default function ContactAgentForm({
     setSuccessMessage('');
     const currentUser = storage.getCurrentUser();
     const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
-    
-    // Save inquiry
+
     const inquiry = {
       propertyId,
       propertyTitle,
@@ -60,6 +59,7 @@ export default function ContactAgentForm({
       ...formData,
       type: inquiryType
     };
+
     try {
       await storage.addInquiry(inquiry);
       storage.trackListingInquiry(propertyId);
@@ -74,8 +74,7 @@ export default function ContactAgentForm({
       toast.error(error.message || t('propertyDetailsPage.contact.toastError', 'Failed to send inquiry. Please try again.'));
       return;
     }
-    
-    // Create conversation if user is logged in
+
     if (userId && agentId && hasAgentMessagingAccount) {
       try {
         const conversation = await storage.getOrCreateConversation(userId, agentId, propertyId);
@@ -100,20 +99,20 @@ export default function ContactAgentForm({
       toast.success(t('propertyDetailsPage.contact.toastInquirySent', 'Your inquiry has been sent! The agent will contact you soon.'));
       setSuccessMessage(t('propertyDetailsPage.contact.successInquiry', 'Your inquiry was sent successfully.'));
     }
-    
-    setFormData({ name: '', email: '', phone: '', message: '', preferredContact: 'email' });
+
+    setFormData({ name: '', email: '', phone: '', message: '', preferredContact: 'phone' });
   };
 
   const handleStartChat = async () => {
     const currentUser = storage.getCurrentUser();
     const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
-    
+
     if (!userId) {
       toast.error(t('propertyDetailsPage.contact.loginRequired', 'Please log in to start a chat'));
       navigate('/login');
       return;
     }
-    
+
     if (!agentId || !hasAgentMessagingAccount) {
       toast.error(t('propertyDetailsPage.contact.agentUnavailable', 'Agent information not available'));
       return;
@@ -128,104 +127,102 @@ export default function ContactAgentForm({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-      <h3 className="text-xl font-bold mb-4">{heading}</h3>
-      <p className="text-gray-600 mb-4">{helperText}</p>
+    <div className="rounded-[28px] border border-white/10 bg-[#121b33] p-4 text-white shadow-[0_18px_45px_rgba(3,8,23,0.24)] sm:p-5">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-white">{heading}</h2>
+          <p className="mt-1 max-w-lg text-sm text-slate-300">{helperText}</p>
+        </div>
+        <div className="inline-flex w-fit rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
+          Quick form
+        </div>
+      </div>
+
       {successMessage && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+        <div className="mb-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {successMessage}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700 mb-2 flex items-center gap-2">
-            <FaUser className="text-gray-400" />
-            {t('propertyDetailsPage.form.fullName', 'Full Name')}
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            placeholder={t('propertyDetailsPage.form.fullNamePlaceholder', 'Your name')}
-          />
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-100">
+              <FaUser className="text-emerald-300" />
+              {t('propertyDetailsPage.form.fullName', 'Full Name')}
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full rounded-2xl border border-white/10 bg-[#0c1427] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60 focus:ring-4 focus:ring-emerald-500/10"
+              placeholder={t('propertyDetailsPage.form.fullNamePlaceholder', 'Your name')}
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-100">
+              <FaPhone className="text-emerald-300" />
+              {t('propertyDetailsPage.form.phone', 'Phone Number')}
+            </label>
+            <input
+              type="tel"
+              required
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full rounded-2xl border border-white/10 bg-[#0c1427] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60 focus:ring-4 focus:ring-emerald-500/10"
+              placeholder={t('propertyDetailsPage.form.phonePlaceholder', '0803 123 4567')}
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-2 flex items-center gap-2">
-            <FaEnvelope className="text-gray-400" />
+          <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-100">
+            <FaEnvelope className="text-emerald-300" />
             {t('propertyDetailsPage.form.email', 'Email Address')}
           </label>
           <input
             type="email"
             required
             value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full rounded-2xl border border-white/10 bg-[#0c1427] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60 focus:ring-4 focus:ring-emerald-500/10"
             placeholder={t('propertyDetailsPage.form.emailPlaceholder', 'your@email.com')}
           />
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-2 flex items-center gap-2">
-            <FaPhone className="text-gray-400" />
-            {t('propertyDetailsPage.form.phone', 'Phone Number')}
-          </label>
-          <input
-            type="tel"
-            required
-            value={formData.phone}
-            onChange={(e) => setFormData({...formData, phone: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            placeholder={t('propertyDetailsPage.form.phonePlaceholder', '0803 123 4567')}
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700 mb-2 flex items-center gap-2">
-            <FaComment className="text-gray-400" />
+          <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-100">
+            <FaComment className="text-emerald-300" />
             {t('propertyDetailsPage.contact.message', 'Message')}
           </label>
           <textarea
             required
             value={formData.message}
-            onChange={(e) => setFormData({...formData, message: e.target.value})}
-            rows="4"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            rows="3"
+            className="w-full rounded-2xl border border-white/10 bg-[#0c1427] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60 focus:ring-4 focus:ring-emerald-500/10"
             placeholder={t('propertyDetailsPage.contact.messagePlaceholder', "I'm interested in this property. Please contact me...")}
           />
         </div>
 
-        <div>
-          <label className="block text-gray-700 mb-2">{t('propertyDetailsPage.contact.preferredMethod', 'Preferred Contact Method')}</label>
-          <select
-            value={formData.preferredContact}
-            onChange={(e) => setFormData({...formData, preferredContact: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="email">{t('propertyDetailsPage.contact.methodEmail', 'Email')}</option>
-            <option value="phone">{t('propertyDetailsPage.contact.methodPhone', 'Phone')}</option>
-            <option value="whatsapp">{t('propertyDetailsPage.contact.methodWhatsapp', 'WhatsApp')}</option>
-          </select>
-        </div>
-
-        <div className="flex gap-2">
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
           <button
             type="submit"
-            className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-500"
           >
+            <FaPaperPlane />
             {actionLabel}
           </button>
           <button
             type="button"
             onClick={handleStartChat}
-            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-slate-100 transition hover:border-emerald-400/30 hover:bg-emerald-400/10 hover:text-white"
             title={t('propertyDetailsPage.contact.startChat', 'Start a chat conversation')}
-            disabled={!hasAgentMessagingAccount}
           >
             <FaComments />
+            <span className="hidden sm:inline">Chat</span>
           </button>
         </div>
       </form>

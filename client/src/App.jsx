@@ -27,6 +27,7 @@ const PropertiesMap = React.lazy(() => import('./pages/PropertiesMap'))
 const About = React.lazy(() => import('./pages/About'))
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'))
 const PropertyDetails = React.lazy(() => import('./pages/PropertyDetails'))
+const PropertyContact = React.lazy(() => import('./pages/PropertyContact'))
 const ContactPage = React.lazy(() => import('./pages/ContactPage'))
 const AdminPanel = React.lazy(() => import('./pages/AdminPanel'))
 const CompareProperties = React.lazy(() => import('./pages/CompareProperties'))
@@ -115,6 +116,7 @@ function AppShell() {
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
+            <Route path="/property/:id/contact" element={<PropertyContact />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin" element={<RequireAdmin><AdminPanel /></RequireAdmin>} />
             <Route path="/compare" element={<RequireAuth><CompareProperties /></RequireAuth>} />

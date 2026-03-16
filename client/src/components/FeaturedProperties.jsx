@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBath, FaBed, FaChevronLeft, FaChevronRight, FaMapMarkerAlt, FaRulerCombined } from 'react-icons/fa';
 import { SearchContext } from '../contexts/SearchContext.jsx';
@@ -28,9 +28,6 @@ function FeaturedProperties({
   const [groupSize, setGroupSize] = useState(3);
   const [currentGroup, setCurrentGroup] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef(null);
-  const shuffleSeedRef = useRef(Math.random());
 
   /* -------------------- FILTER & SORT -------------------- */
 
@@ -189,49 +186,10 @@ function FeaturedProperties({
     }
   });
 
-  if (sortBy === 'relevance') {
-    const seed = shuffleSeedRef.current;
-    const scoreFor = (property) => {
-      const badge = normalizeText(property.badge);
-      if (badge !== 'for sale' && badge !== 'for rent') {
-        return Number.POSITIVE_INFINITY;
-      }
-      const raw = Math.sin(property.id * 9999 + seed * 10000) * 10000;
-      return raw - Math.floor(raw);
-    };
-
-    const saleRent = filtered
-      .filter((property) => ['for sale', 'for rent'].includes(normalizeText(property.badge)))
-      .sort((a, b) => scoreFor(a) - scoreFor(b));
-    const others = filtered.filter(
-      (property) => !['for sale', 'for rent'].includes(normalizeText(property.badge))
-    );
-
-    filtered = [...saleRent, ...others];
-  }
-
   const totalGroups = Math.ceil(filtered.length / groupSize);
   const start = currentGroup * groupSize;
   const end = Math.min(start + groupSize, filtered.length);
   const displayedProperties = showAll ? filtered : filtered.slice(start, end);
-
-  /* -------------------- CAROUSEL INTERVAL -------------------- */
-
-  const clearIntervalSafe = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
-
-  const startInterval = () => {
-    clearIntervalSafe();
-    intervalRef.current = setInterval(() => {
-      if (!isPaused && !isAnimating && totalGroups > 1) {
-        handleNext();
-      }
-    }, 4000);
-  };
 
   useEffect(() => {
     const updateGroupSize = () => {
@@ -250,16 +208,6 @@ function FeaturedProperties({
     window.addEventListener('resize', updateGroupSize);
     return () => window.removeEventListener('resize', updateGroupSize);
   }, []);
-
-  useEffect(() => {
-    if (showAll || totalGroups <= 1) {
-      clearIntervalSafe();
-      return;
-    }
-
-    startInterval();
-    return clearIntervalSafe;
-  }, [showAll, totalGroups, isPaused, isAnimating]);
 
   useEffect(() => {
     if (filtered.length > 0 && currentGroup >= totalGroups) {
@@ -289,18 +237,6 @@ function FeaturedProperties({
     );
 
     setTimeout(() => setIsAnimating(false), 300);
-  };
-
-  const handlePointerEnter = (event) => {
-    if (event.pointerType === 'mouse') {
-      setIsPaused(true);
-    }
-  };
-
-  const handlePointerLeave = (event) => {
-    if (event.pointerType === 'mouse') {
-      setIsPaused(false);
-    }
   };
 
   const getShowingText = () => {
@@ -357,8 +293,6 @@ function FeaturedProperties({
           <>
             <div
               className="relative"
-              onPointerEnter={handlePointerEnter}
-              onPointerLeave={handlePointerLeave}
             >
               <div
                 className={
