@@ -168,27 +168,27 @@ const HomePage = () => {
       </div>
 
       <div className="home-content space-y-16">
-        <section className="w-full py-16 bg-emerald-950 text-white">
+        <section className="w-full py-16 text-slate-900 dark:text-white">
           <div className="container mx-auto px-4">
-            <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl">
-                <p className="text-xs uppercase tracking-[0.35em] text-emerald-200">{t('home.radar.badge', 'Market radar')}</p>
-                <h2 className="mt-4 text-3xl font-bold">{t('home.radar.title', 'Where serious buyers are focusing this week')}</h2>
-                <p className="mt-3 max-w-2xl text-emerald-50/80">
+            <div className="grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]">
+              <div className="flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl dark:border-white/10 dark:bg-white/5 dark:shadow-2xl">
+                <p className="text-xs uppercase tracking-[0.35em] text-emerald-600 dark:text-emerald-200">{t('home.radar.badge', 'Market radar')}</p>
+                <h2 className="mt-4 text-3xl font-bold text-slate-900 dark:text-white">{t('home.radar.title', 'Where serious buyers are focusing this week')}</h2>
+                <p className="mt-3 max-w-2xl text-slate-600 dark:text-emerald-50/80">
                   {t(
                     'home.radar.subtitle',
                     'Lagos and Abuja still lead conversion, but regional demand is spreading into value markets with faster response times and stronger price-per-sqm opportunities.'
                   )}
                 </p>
-                <div className="mt-8 grid gap-4 md:grid-cols-3">
+                <div className="mt-8 grid flex-1 gap-4 md:grid-cols-3">
                   {highIntentMarkets.map((property) => {
                     const trust = getPropertyTrustMetrics(property)
                     return (
-                      <div key={property.id} className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                        <p className="text-sm font-semibold text-white">{property.title}</p>
-                        <p className="mt-2 text-sm text-emerald-100/75">{property.location}</p>
-                        <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                          <span className="rounded-full bg-white/10 px-3 py-1">{trust.priceBand}</span>
+                      <div key={property.id} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-black/10">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{property.title}</p>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-emerald-100/75">{property.location}</p>
+                        <div className="mt-auto pt-4 flex flex-wrap gap-2 text-xs">
+                          <span className="rounded-full bg-slate-900 px-3 py-1 text-white dark:bg-white/10 dark:text-white">{trust.priceBand}</span>
                         </div>
                       </div>
                     )
@@ -198,10 +198,10 @@ const HomePage = () => {
 
               <div className="grid gap-4">
                 {radarCards.map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                    <p className="text-sm uppercase tracking-[0.25em] text-emerald-200">{item.value}</p>
-                    <h3 className="mt-2 text-xl font-semibold">{item.title}</h3>
-                    <p className="mt-2 text-sm text-emerald-50/75">{item.text}</p>
+                  <div key={item.title} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-none">
+                    <p className="text-sm uppercase tracking-[0.25em] text-emerald-600 dark:text-emerald-200">{item.value}</p>
+                    <h3 className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">{item.title}</h3>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-emerald-50/75">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -209,13 +209,13 @@ const HomePage = () => {
           </div>
         </section>
 
-        <section className="w-full py-16 bg-white">
+        <section className="w-full py-16">
           <div className="container mx-auto px-4">
             <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-green-600">{t('home.spotlight.badge', 'City Spotlight')}</p>
-                <h2 className="mt-3 text-3xl font-bold text-gray-900">{t('home.spotlight.title', 'Move faster in Lagos and Abuja')}</h2>
-                <p className="mt-2 max-w-2xl text-gray-600">
+                <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">{t('home.spotlight.title', 'Move faster in Lagos and Abuja')}</h2>
+                <p className="mt-2 max-w-2xl text-slate-600 dark:text-slate-300">
                   {t(
                     'home.spotlight.subtitle',
                     'These are the two markets where demand, agent response speed, and premium inventory are strongest right now.'
@@ -227,29 +227,29 @@ const HomePage = () => {
               </Link>
             </div>
 
-            <div className="grid gap-10 lg:grid-cols-2">
-              <div>
-                <div className="mb-5 flex items-center justify-between">
+            <div className="grid items-stretch gap-10 lg:grid-cols-2">
+              <div className="flex h-full flex-col">
+                <div className="mb-5 flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-2xl font-semibold text-gray-900">{t('home.spotlight.lagosTitle', 'Lagos picks')}</h3>
-                    <p className="text-sm text-gray-500">{t('home.spotlight.lagosText', 'High-intent neighborhoods with strong close rates.')}</p>
+                    <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('home.spotlight.lagosTitle', 'Lagos picks')}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-300">{t('home.spotlight.lagosText', 'High-intent neighborhoods with strong close rates.')}</p>
                   </div>
-                  <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">{t('home.spotlight.lagosBadge', 'Top market')}</span>
+                  <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">{t('home.spotlight.lagosBadge', 'Top market')}</span>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid flex-1 auto-rows-fr gap-6 md:grid-cols-2">
                   {lagosSpotlight.map((property) => <PropertyCard key={property.id} property={property} />)}
                 </div>
               </div>
 
-              <div>
-                <div className="mb-5 flex items-center justify-between">
+              <div className="flex h-full flex-col">
+                <div className="mb-5 flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-2xl font-semibold text-gray-900">{t('home.spotlight.abujaTitle', 'Abuja picks')}</h3>
-                    <p className="text-sm text-gray-500">{t('home.spotlight.abujaText', 'Executive homes and steady value markets across the capital.')}</p>
+                    <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('home.spotlight.abujaTitle', 'Abuja picks')}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-300">{t('home.spotlight.abujaText', 'Executive homes and steady value markets across the capital.')}</p>
                   </div>
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">{t('home.spotlight.abujaBadge', 'High trust')}</span>
+                  <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">{t('home.spotlight.abujaBadge', 'High trust')}</span>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid flex-1 auto-rows-fr gap-6 md:grid-cols-2">
                   {abujaSpotlight.map((property) => <PropertyCard key={property.id} property={property} />)}
                 </div>
               </div>
@@ -257,33 +257,33 @@ const HomePage = () => {
           </div>
         </section>
 
-        <section className="w-full py-16 bg-white animate-fade-in">
+        <section className="w-full py-16 animate-fade-in">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-10 animate-fade-up">
-              <h2 className="text-3xl font-bold mb-3">{t('home.market.title')}</h2>
-              <p className="text-gray-600">{t('home.market.subtitle')}</p>
+              <h2 className="text-3xl font-bold mb-3 text-slate-900 dark:text-white">{t('home.market.title')}</h2>
+              <p className="text-slate-600 dark:text-slate-300">{t('home.market.subtitle')}</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {marketCards.map((item, index) => (
                 <div
                   key={item.label}
-                  className="card p-6 text-center transition-transform hover:-translate-y-1 animate-fade-up"
+                  className="card flex h-full flex-col justify-center p-6 text-center transition-transform hover:-translate-y-1 animate-fade-up"
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   <item.icon className="text-3xl text-green-600 mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-gray-900">{item.value}</div>
-                  <p className="text-sm text-gray-500 mt-2">{item.label}</p>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">{item.value}</div>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">{item.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="w-full py-16 bg-gray-50 animate-fade-in">
+        <section className="w-full py-16 animate-fade-in">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-10 animate-fade-up">
-              <h2 className="text-3xl font-bold mb-3">{t('home.works.title')}</h2>
-              <p className="text-gray-600">{t('home.works.subtitle')}</p>
+              <h2 className="text-3xl font-bold mb-3 text-slate-900 dark:text-white">{t('home.works.title')}</h2>
+              <p className="text-slate-600 dark:text-slate-300">{t('home.works.subtitle')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {howSteps.map((step, index) => (
@@ -295,29 +295,29 @@ const HomePage = () => {
                   <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
                     <step.icon className="text-green-600 text-2xl" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.text}</p>
+                  <h3 className="mb-2 text-xl font-semibold text-slate-900 dark:text-white">{step.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-300">{step.text}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="w-full py-16 bg-white animate-fade-in">
+        <section className="w-full py-16 animate-fade-in">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-              <div className="animate-fade-left">
-                <h2 className="text-3xl font-bold mb-4">{t('home.pro.title')}</h2>
-                <p className="text-gray-600 mb-6">{t('home.pro.subtitle')}</p>
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-stretch">
+              <div className="flex h-full flex-col animate-fade-left">
+                <h2 className="mb-4 text-3xl font-bold text-slate-900 dark:text-white">{t('home.pro.title')}</h2>
+                <p className="mb-6 text-slate-600 dark:text-slate-300">{t('home.pro.subtitle')}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {proFeatures.map((feature) => (
                     <div key={feature.label} className="flex items-center gap-3">
                       <feature.icon className="text-green-600 text-xl" />
-                      <span className="text-gray-700 font-medium">{feature.label}</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-200">{feature.label}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-auto pt-6 flex flex-wrap gap-3">
                   <Link to="/create-listing" className="btn-primary">
                     {t('home.pro.listProperty')}
                   </Link>
@@ -326,15 +326,15 @@ const HomePage = () => {
                   </Link>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-fade-right" style={{ animationDelay: '120ms' }}>
+              <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 animate-fade-right" style={{ animationDelay: '120ms' }}>
                 {proCards.map((item, index) => (
                   <div
                     key={item.title}
-                    className="card p-5 animate-fade-up transition-transform hover:-translate-y-1"
+                    className="card flex h-full flex-col p-5 animate-fade-up transition-transform hover:-translate-y-1"
                     style={{ animationDelay: `${index * 90}ms` }}
                   >
-                    <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-                    <p className="text-gray-600 text-sm">{item.value}</p>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">{item.title}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -342,29 +342,29 @@ const HomePage = () => {
           </div>
         </section>
 
-        <section className="w-full py-16 bg-gray-50 animate-fade-in">
+        <section className="w-full py-16 animate-fade-in">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-10 animate-fade-up">
-              <h2 className="text-3xl font-bold mb-3">{t('home.faq.title')}</h2>
-              <p className="text-gray-600">{t('home.faq.subtitle')}</p>
+              <h2 className="text-3xl font-bold mb-3 text-slate-900 dark:text-white">{t('home.faq.title')}</h2>
+              <p className="text-slate-600 dark:text-slate-300">{t('home.faq.subtitle')}</p>
             </div>
             <div className="max-w-4xl mx-auto space-y-3">
               {safeFaqItems.map((item, index) => {
                 const isOpen = openFaq === index
                 return (
-                  <div key={item.question} className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                  <div key={item.question} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                      className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 hover:bg-gray-50"
+                      className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-slate-800"
                     >
-                      <span className="font-semibold text-gray-900">{item.question}</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{item.question}</span>
                       <FaChevronDown
                         className={`text-green-700 text-sm transition-transform ${isOpen ? 'rotate-180' : ''}`}
                         aria-hidden="true"
                       />
                     </button>
-                    {isOpen && <div className="px-5 pb-5 text-gray-600">{item.answer}</div>}
+                    {isOpen && <div className="px-5 pb-5 text-slate-600 dark:text-slate-300">{item.answer}</div>}
                   </div>
                 )
               })}

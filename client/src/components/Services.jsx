@@ -50,16 +50,16 @@ export default function Services() {
   ]
 
   return (
-    <section className="w-full py-16 bg-white">
+    <section className="w-full py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-2">{t('servicesSection.title', 'Our Services')}</h2>
-        <p className="text-center text-gray-500 mb-10">{t('servicesSection.subtitle', 'Comprehensive real estate solutions tailored to your needs')}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <h2 className="mb-2 text-center text-3xl font-bold text-slate-900 dark:text-white">{t('servicesSection.title', 'Our Services')}</h2>
+        <p className="mb-10 text-center text-slate-500 dark:text-slate-300">{t('servicesSection.subtitle', 'Comprehensive real estate solutions tailored to your needs')}</p>
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {services.map((service, idx) => (
-            <div key={idx} className="bg-gray-50 rounded-xl p-8 text-center shadow-sm hover:shadow-md transition">
+            <div key={idx} className="flex h-full flex-col rounded-xl bg-gray-50 p-8 text-center shadow-sm transition hover:shadow-md dark:bg-slate-900 dark:border dark:border-slate-700">
               {service.icon}
-              <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-              <p className="text-gray-600 text-sm">{service.desc}</p>
+              <h3 className="mb-2 text-xl font-semibold text-slate-900 dark:text-white">{service.title}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{service.desc}</p>
             </div>
           ))}
         </div>

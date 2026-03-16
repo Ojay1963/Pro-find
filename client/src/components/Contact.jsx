@@ -41,12 +41,12 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact-section" className="w-full py-16 bg-white">
+    <section id="contact-section" className="w-full py-16">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('contactSection.badge', 'Contact')}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-green-700">{t('contactSection.title', 'Get In Touch')}</h2>
-          <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
+          <p className="mt-3 mx-auto max-w-2xl text-slate-500 dark:text-slate-300">
             {t(
               'contactSection.subtitle',
               'Have questions? We would love to hear from you. Send us a message and we will respond quickly.'
@@ -55,7 +55,7 @@ export default function Contact() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12">
-          <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-8">
             {successMessage && (
               <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                 {successMessage}
@@ -63,10 +63,10 @@ export default function Contact() {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-1">{t('contactSection.form.firstName', 'First Name')} *</label>
+                <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-white">{t('contactSection.form.firstName', 'First Name')} *</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border rounded-lg input-spotlight"
+                  className="input-spotlight w-full rounded-lg border px-4 py-3 dark:border-slate-700"
                   placeholder={t('contactSection.form.firstNamePlaceholder', 'John')}
                   required
                   value={formData.firstName}
@@ -74,10 +74,10 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">{t('contactSection.form.lastName', 'Last Name')} *</label>
+                <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-white">{t('contactSection.form.lastName', 'Last Name')} *</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border rounded-lg input-spotlight"
+                  className="input-spotlight w-full rounded-lg border px-4 py-3 dark:border-slate-700"
                   placeholder={t('contactSection.form.lastNamePlaceholder', 'Doe')}
                   required
                   value={formData.lastName}
@@ -87,10 +87,10 @@ export default function Contact() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-1">{t('contactSection.form.email', 'Email')} *</label>
+                <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-white">{t('contactSection.form.email', 'Email')} *</label>
                 <input
                   type="email"
-                  className="w-full px-4 py-3 border rounded-lg input-spotlight"
+                  className="input-spotlight w-full rounded-lg border px-4 py-3 dark:border-slate-700"
                   placeholder={t('contactSection.form.emailPlaceholder', 'john@example.com')}
                   required
                   value={formData.email}
@@ -98,10 +98,10 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">{t('contactSection.form.phone', 'Phone')}</label>
+                <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-white">{t('contactSection.form.phone', 'Phone')}</label>
                 <input
                   type="tel"
-                  className="w-full px-4 py-3 border rounded-lg input-spotlight"
+                  className="input-spotlight w-full rounded-lg border px-4 py-3 dark:border-slate-700"
                   placeholder={t('contactSection.form.phonePlaceholder', '+234 800 000 0000')}
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -109,9 +109,9 @@ export default function Contact() {
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">{t('contactSection.form.message', 'Message')} *</label>
+              <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-white">{t('contactSection.form.message', 'Message')} *</label>
               <textarea
-                className="w-full px-4 py-3 border rounded-lg min-h-32 input-spotlight"
+                className="input-spotlight min-h-32 w-full rounded-lg border px-4 py-3 dark:border-slate-700"
                 placeholder={t('contactSection.form.messagePlaceholder', 'Tell us about your property needs...')}
                 required
                 value={formData.message}
@@ -124,15 +124,15 @@ export default function Contact() {
           </form>
 
           <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <h3 className="text-lg font-semibold mb-4 text-green-700">{t('contactSection.info.title', 'Contact Information')}</h3>
-              <div className="space-y-4 text-sm text-gray-700">
+              <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
                 <div className="flex items-start gap-3">
                   <span className="h-10 w-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
                     <FaPhoneAlt />
                   </span>
                   <div>
-                    <p className="text-gray-500">{t('contactSection.info.phone', 'Phone')}</p>
+                    <p className="text-slate-500 dark:text-slate-400">{t('contactSection.info.phone', 'Phone')}</p>
                     <p className="font-medium">{t('contactSection.info.phonePrimary', '+234 800 000 0000')}</p>
                     <p className="font-medium">{t('contactSection.info.phoneSecondary', '+234 700 000 0000')}</p>
                   </div>
@@ -142,7 +142,7 @@ export default function Contact() {
                     <FaEnvelope />
                   </span>
                   <div>
-                    <p className="text-gray-500">{t('contactSection.info.email', 'Email')}</p>
+                    <p className="text-slate-500 dark:text-slate-400">{t('contactSection.info.email', 'Email')}</p>
                     <p className="font-medium">{t('contactSection.info.emailPrimary', 'support@profind.ng')}</p>
                     <p className="font-medium">{t('contactSection.info.emailSecondary', 'info@profind.ng')}</p>
                   </div>
@@ -152,14 +152,14 @@ export default function Contact() {
                     <FaMapMarkerAlt />
                   </span>
                   <div>
-                    <p className="text-gray-500">{t('contactSection.info.address', 'Address')}</p>
+                    <p className="text-slate-500 dark:text-slate-400">{t('contactSection.info.address', 'Address')}</p>
                     <p className="font-medium">{t('contactSection.info.street', '123 Profind Avenue')}</p>
                     <p className="font-medium">{t('contactSection.info.location', 'Lagos, Nigeria')}</p>
                   </div>
                 </div>
               </div>
               <div className="mt-5">
-                <span className="block text-gray-500 text-sm mb-2">{t('contactSection.info.social', 'Social')}</span>
+                <span className="mb-2 block text-sm text-slate-500 dark:text-slate-400">{t('contactSection.info.social', 'Social')}</span>
                 <div className="flex items-center gap-3">
                   {[
                     { label: 'Facebook', href: 'https://facebook.com', icon: FaFacebookF },
@@ -182,9 +182,9 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="bg-green-50 rounded-2xl p-6 shadow-sm border border-emerald-100">
+            <div className="rounded-2xl border border-emerald-100 bg-green-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <h3 className="text-lg font-semibold mb-4 text-green-700">{t('contactSection.hours.title', 'Office Hours')}</h3>
-              <div className="flex flex-col gap-2 text-sm">
+              <div className="flex flex-col gap-2 text-sm text-slate-700 dark:text-slate-300">
                 <div className="flex justify-between">
                   <span>{t('contactSection.hours.weekdays', 'Monday - Friday')}</span>
                   <span>{t('contactSection.hours.weekdaysTime', '9:00 AM - 6:00 PM')}</span>
@@ -195,7 +195,7 @@ export default function Contact() {
                 </div>
                 <div className="flex justify-between">
                   <span>{t('contactSection.hours.sunday', 'Sunday')}</span>
-                  <span className="text-gray-400">{t('contactSection.hours.closed', 'Closed')}</span>
+                  <span className="text-slate-400 dark:text-slate-500">{t('contactSection.hours.closed', 'Closed')}</span>
                 </div>
               </div>
             </div>

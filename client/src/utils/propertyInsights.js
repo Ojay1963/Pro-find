@@ -30,9 +30,11 @@ export const getLocationParts = (location) =>
 
 export const getLocationSummary = (location) => {
   const parts = getLocationParts(location);
+  const rawState = parts[parts.length - 1] || 'Unknown';
+  const normalizedState = rawState === 'Abuja' ? 'FCT' : rawState;
   return {
     city: parts[0] || 'Unknown',
-    state: parts[parts.length - 1] || 'Unknown',
+    state: normalizedState,
     area: parts.length > 1 ? parts.slice(0, -1).join(', ') : parts[0] || 'Unknown'
   };
 };

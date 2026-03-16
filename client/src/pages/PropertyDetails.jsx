@@ -219,19 +219,6 @@ export default function PropertyDetails() {
   }
 
   const handlePrimaryContact = async () => {
-    const currentUser = storage.getCurrentUser();
-    const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
-
-    if (userId && property.agentId) {
-      try {
-        await storage.getOrCreateConversation(userId, property.agentId, property.id);
-        navigate('/messages');
-        return;
-      } catch (error) {
-        toast.error(error.message || t('propertyDetailsPage.contact.toastError', 'Failed to send inquiry. Please try again.'));
-      }
-    }
-
     setActiveInquiryAction('contact');
   }
 

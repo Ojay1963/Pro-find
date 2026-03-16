@@ -10,11 +10,11 @@ export default function WhyChoose() {
   ]
 
   return (
-    <section className="w-full py-16 bg-gray-50">
-      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
-        <div className="flex-1">
-          <h2 className="text-3xl font-bold mb-4">{t('whyChoose.title', 'Why Choose Profind?')}</h2>
-          <p className="text-gray-600 mb-6 max-w-lg">
+    <section className="w-full py-16">
+      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-stretch gap-12">
+        <div className="flex-1 flex flex-col justify-center">
+          <h2 className="mb-4 text-3xl font-bold text-slate-900 dark:text-white">{t('whyChoose.title', 'Why Choose Profind?')}</h2>
+          <p className="mb-6 max-w-lg text-slate-600 dark:text-slate-300">
             {t(
               'whyChoose.descriptionOne',
               "Profind is your trusted partner in finding the perfect property. With over 15 years of experience in the real estate industry, we've helped thousands of families find their dream homes."
@@ -28,14 +28,14 @@ export default function WhyChoose() {
           </p>
           <div className="grid grid-cols-2 gap-4 max-w-md">
             {stats.map((stat, idx) => (
-              <div key={idx} className="bg-white rounded-lg p-6 text-center shadow-sm">
+              <div key={idx} className="flex h-full flex-col justify-center rounded-lg bg-white p-6 text-center shadow-sm dark:border dark:border-slate-700 dark:bg-slate-900">
                 <div className="text-2xl font-bold text-green-700 mb-1">{stat.value}</div>
-                <div className="text-gray-500 text-sm">{stat.label}</div>
+                <div className="text-sm text-slate-500 dark:text-slate-300">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center items-center">
           <img
             src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80"
             alt={t('whyChoose.imageAlt', 'Why Choose Profind')}

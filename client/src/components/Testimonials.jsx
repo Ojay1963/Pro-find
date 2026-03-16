@@ -26,21 +26,21 @@ export default function Testimonials() {
     const { t } = useI18n()
 
     return (
-        <section className="bg-gray-100 py-16">
+        <section className="py-16">
             <div className="container mx-auto px-4">
                 <h2 className="text-3xl font-bold text-center mb-10 text-green-700">{t('testimonialsSection.title', 'What People Say About Us')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {testimonials.map((item, idx) => (
-                        <div key={idx} className="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                        <div key={idx} className="flex flex-col items-center rounded-xl bg-white p-6 shadow dark:border dark:border-slate-700 dark:bg-slate-900">
                             <img
                                 src={item.image}
                                 alt={item.name}
                                 className="w-24 h-24 rounded-full object-cover mb-4 border-4 border-black bg-black"
                                 style={{ backgroundColor: '#000' }}
                             />
-                            <p className="text-gray-700 italic mb-4">"{t(item.textKey, '') || ''}"</p>
+                            <p className="mb-4 italic text-slate-700 dark:text-slate-300">"{t(item.textKey, '') || ''}"</p>
                             <span className="font-semibold text-green-600">{item.name}</span>
-                            <span className="text-sm text-gray-500">{t(item.locationKey, '') || ''}</span>
+                            <span className="text-sm text-slate-500 dark:text-slate-300">{t(item.locationKey, '') || ''}</span>
                         </div>
                     ))}
                 </div>

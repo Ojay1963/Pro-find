@@ -43,6 +43,7 @@ export default function ContactAgentForm({
   const heading = title || t('propertyDetailsPage.contact.title', 'Contact Agent');
   const helperText = subtitle || t('propertyDetailsPage.contact.subtitle', 'Interested in this property? Contact the agent for more information.');
   const actionLabel = submitLabel || t('propertyDetailsPage.contact.submit', 'Send Inquiry');
+  const hasAgentMessagingAccount = agentId && storage.getUsers().some((user) => user.id === agentId);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,18 +76,23 @@ export default function ContactAgentForm({
     }
     
     // Create conversation if user is logged in
-    if (userId && agentId) {
-      const conversation = await storage.getOrCreateConversation(userId, agentId, propertyId);
-      if (formData.message) {
-        storage.addMessage(conversation.id, {
-          senderId: userId,
-          text: formData.message,
-          read: false
-        });
-        toast.success(t('propertyDetailsPage.contact.toastMessageSent', 'Message sent! Opening conversation...'));
-        setSuccessMessage(t('propertyDetailsPage.contact.successMessage', 'Your message was sent successfully.'));
-        setTimeout(() => navigate('/messages'), 1000);
-      } else {
+    if (userId && agentId && hasAgentMessagingAccount) {
+      try {
+        const conversation = await storage.getOrCreateConversation(userId, agentId, propertyId);
+        if (formData.message) {
+          storage.addMessage(conversation.id, {
+            senderId: userId,
+            text: formData.message,
+            read: false
+          });
+          toast.success(t('propertyDetailsPage.contact.toastMessageSent', 'Message sent! Opening conversation...'));
+          setSuccessMessage(t('propertyDetailsPage.contact.successMessage', 'Your message was sent successfully.'));
+          setTimeout(() => navigate('/messages'), 1000);
+        } else {
+          toast.success(t('propertyDetailsPage.contact.toastInquirySent', 'Your inquiry has been sent! The agent will contact you soon.'));
+          setSuccessMessage(t('propertyDetailsPage.contact.successInquiry', 'Your inquiry was sent successfully.'));
+        }
+      } catch (error) {
         toast.success(t('propertyDetailsPage.contact.toastInquirySent', 'Your inquiry has been sent! The agent will contact you soon.'));
         setSuccessMessage(t('propertyDetailsPage.contact.successInquiry', 'Your inquiry was sent successfully.'));
       }
@@ -108,13 +114,17 @@ export default function ContactAgentForm({
       return;
     }
     
-    if (!agentId) {
+    if (!agentId || !hasAgentMessagingAccount) {
       toast.error(t('propertyDetailsPage.contact.agentUnavailable', 'Agent information not available'));
       return;
     }
-    
-    await storage.getOrCreateConversation(userId, agentId, propertyId);
-    navigate('/messages');
+
+    try {
+      await storage.getOrCreateConversation(userId, agentId, propertyId);
+      navigate('/messages');
+    } catch (error) {
+      toast.error(error.message || t('propertyDetailsPage.contact.toastError', 'Failed to send inquiry. Please try again.'));
+    }
   };
 
   return (
@@ -211,8 +221,9 @@ export default function ContactAgentForm({
           <button
             type="button"
             onClick={handleStartChat}
-            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
+            className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2 disabled:cursor-not-allowed disabled:bg-blue-300"
             title={t('propertyDetailsPage.contact.startChat', 'Start a chat conversation')}
+            disabled={!hasAgentMessagingAccount}
           >
             <FaComments />
           </button>

@@ -34,6 +34,15 @@ const Login = () => {
       const target = location.state?.from?.pathname || '/dashboard'
       navigate(target, { state: { justLoggedIn: true }, replace: true })
     } catch (error) {
+      const message = String(error?.message || '')
+      if (error?.status === 403 && /verify.*otp|otp.*verify|verify your email/i.test(message)) {
+        toast.error(message)
+        navigate('/verify-otp', {
+          replace: true,
+          state: { email: formData.email }
+        })
+        return
+      }
       toast.error(error.message || t('loginPage.errors.invalidCredentials', 'Invalid email or password. Please try again.'))
     } finally {
       setIsSubmitting(false)

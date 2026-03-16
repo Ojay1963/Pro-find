@@ -48,7 +48,7 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    const idleLimitMs = 2 * 60 * 1000; // 2 minutes
+    const idleLimitMs = 30 * 60 * 1000; // 30 minutes
     const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
     let didExpire = false;
 

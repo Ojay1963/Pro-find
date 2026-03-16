@@ -9,7 +9,7 @@ const PropertyCard = ({ property }) => {
   const { t } = useI18n();
   const trust = getPropertyTrustMetrics(property);
   return (
-    <div className="card p-0 overflow-hidden relative group transition-shadow hover:shadow-lg">
+    <div className="card relative flex h-full flex-col overflow-hidden p-0 group transition-shadow hover:shadow-lg">
       <Link to={`/property/${property.id}`} className="relative block aspect-square overflow-hidden">
         <img
           src={getPropertyImage(property)}
@@ -33,7 +33,7 @@ const PropertyCard = ({ property }) => {
           </div>
         </div>
       </Link>
-      <div className="p-5">
+      <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center justify-between mb-4">
           <span className="text-green-600 font-bold text-lg">{property.price}</span>
           <span className="inline-flex items-center gap-1 text-xs text-gray-400">
@@ -55,7 +55,7 @@ const PropertyCard = ({ property }) => {
           <span className="rounded-full bg-green-50 border border-green-100 px-2 py-1 text-green-700 inline-flex items-center gap-1"><FaShieldAlt /> {trust.verificationLabel}</span>
           <span className="rounded-full bg-gray-50 border border-gray-200 px-2 py-1 text-gray-600 inline-flex items-center gap-1"><FaBolt /> {trust.availability}</span>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="mt-auto flex flex-col gap-2 sm:flex-row">
           <Link
             to={`/property/${property.id}`}
             className="btn-secondary w-full sm:w-auto text-center mt-2 sm:mt-0 block"
