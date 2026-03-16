@@ -105,7 +105,15 @@ function MapView({ properties, selectedProperty, onPropertySelect, userLocation,
   useEffect(() => {
     if (!selectedProperty) return;
     const coords = getCoordinates(selectedProperty.location, selectedProperty.id);
-    map.setView(coords, 13);
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+    const isAlreadyFocused =
+      Math.abs(currentCenter.lat - coords[0]) < 0.0005 &&
+      Math.abs(currentCenter.lng - coords[1]) < 0.0005 &&
+      currentZoom >= 13;
+
+    if (isAlreadyFocused) return;
+    map.flyTo(coords, Math.max(currentZoom, 13), { duration: 0.35 });
   }, [selectedProperty, map]);
 
   const points = properties.map((property) => ({
@@ -284,7 +292,7 @@ export default function PropertiesMap() {
       <main className="flex-1 mt-20">
         <div className="relative h-[calc(100vh-5rem)]">
           <MapContainer center={[6.5244, 3.3792]} zoom={11} style={{ height: '100%', width: '100%' }}>
-            <FitToBounds properties={filteredProperties} enabled={!searchWithinBounds} />
+            <FitToBounds properties={filteredProperties} enabled={!searchWithinBounds && !selectedProperty} />
             <RecenterToUser userLocation={hasActiveLocation ? userLocation : null} />
             <ViewportTracker onBoundsChange={setMapBounds} />
             <MapView

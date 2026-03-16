@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaUser, FaCalendar } from 'react-icons/fa';
 import { storage } from '../utils/localStorage';
+import { resolveApiBase } from '../utils/apiBase';
 import toast from 'react-hot-toast';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -10,7 +11,7 @@ export default function AgentReviews({ agentId }) {
   const userId = currentUser?.id || localStorage.getItem('profind_user_id');
   const [reviews, setReviews] = useState(storage.getAgentReviews(agentId));
   const agent = storage.getUsers().find(u => u.id === agentId);
-  const apiBase = (import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  const apiBase = resolveApiBase();
 
   useEffect(() => {
     const loadReviews = async () => {

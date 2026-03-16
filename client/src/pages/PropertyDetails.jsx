@@ -1,6 +1,6 @@
 ﻿
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import properties from '../components/propertiesData';
 import FavoriteButton from '../components/FavoriteButton';
 import Header from '../components/Header';
@@ -75,6 +75,7 @@ const inquiryActions = [
 export default function PropertyDetails() {
   const { t } = useI18n();
   const { id } = useParams();
+  const navigate = useNavigate();
   const storedListing = storage.getListingById(parseInt(id));
   const property = properties.find((p) => String(p.id) === String(id)) || storedListing;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -215,6 +216,23 @@ export default function PropertyDetails() {
     setReportReason('')
     setShowReportModal(false)
     toast.success(t('propertyDetailsPage.report.success', 'Listing report received.'))
+  }
+
+  const handlePrimaryContact = async () => {
+    const currentUser = storage.getCurrentUser();
+    const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
+
+    if (userId && property.agentId) {
+      try {
+        await storage.getOrCreateConversation(userId, property.agentId, property.id);
+        navigate('/messages');
+        return;
+      } catch (error) {
+        toast.error(error.message || t('propertyDetailsPage.contact.toastError', 'Failed to send inquiry. Please try again.'));
+      }
+    }
+
+    setActiveInquiryAction('contact');
   }
 
   return (
@@ -519,12 +537,13 @@ export default function PropertyDetails() {
                 <p className="mt-2 text-sm text-gray-600">{trust.marketSummary}</p>
               </div>
               <div className="space-y-3">
-                <Link
-                  to="/contact"
-                  className="block w-full bg-green-600 text-white text-center px-4 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                <button
+                  type="button"
+                  onClick={handlePrimaryContact}
+                  className="block w-full rounded-lg bg-green-600 px-4 py-3 text-center font-semibold text-white transition-colors hover:bg-green-700"
                 >
                   {t('propertyDetailsPage.contact.title', 'Contact Agent')}
-                </Link>
+                </button>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {inquiryActions.map((action) => {
                     const Icon = action.icon

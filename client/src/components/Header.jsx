@@ -97,7 +97,7 @@ export default function Header() {
 
   return (
     <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
-      <div className="container mx-auto px-4 flex items-center justify-between h-20">
+      <div className="container mx-auto flex h-20 items-center justify-between gap-4 px-4">
         
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={closeMenu}>
@@ -108,7 +108,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex md:gap-6 lg:gap-8 text-gray-700 font-medium text-sm xl:text-base">
+        <nav className="hidden lg:flex lg:gap-5 xl:gap-7 text-gray-700 font-medium text-sm xl:text-base">
           {navLinks.map(({ to, label }) => (
             <Link
               key={to}
@@ -148,7 +148,45 @@ export default function Header() {
         </nav>
 
         {/* Desktop Contact & CTA */}
-        <div className="hidden xl:flex items-center gap-3 xl:gap-4 flex-wrap justify-end">
+        <div className="hidden lg:flex 2xl:hidden items-center gap-3 shrink-0">
+          {!isInstalled && (canPrompt || showIosHint) && (
+            <button
+              type="button"
+              onClick={handleInstallApp}
+              className="h-10 px-3 rounded-full border border-green-600 text-green-700 bg-white hover:bg-green-50 transition-colors text-sm font-medium"
+              title={showIosHint ? t('header.iosInstallTitle', 'Use your browser Share menu and choose Add to Home Screen.') : t('header.installAppTitle', 'Install app')}
+            >
+              {t('nav.installApp')}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="h-10 w-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:border-green-400 transition-colors"
+            aria-label={isDark ? t('header.switchToLight', 'Switch to light mode') : t('header.switchToDark', 'Switch to dark mode')}
+            title={isDark ? t('header.lightMode', 'Light mode') : t('header.darkMode', 'Dark mode')}
+          >
+            {isDark ? <FaSun className="text-amber-400" /> : <FaMoon className="text-gray-600" />}
+          </button>
+          {isLoggedIn ? (
+            <Link
+              to="/dashboard"
+              className="btn-primary text-sm px-4 py-2 text-center whitespace-nowrap"
+            >
+              {t('nav.dashboard')}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="btn-primary text-sm px-4 py-2 text-center whitespace-nowrap"
+              onClick={handleGetStarted}
+            >
+              {t('nav.getStarted')}
+            </button>
+          )}
+        </div>
+
+        <div className="hidden 2xl:flex items-center gap-3 flex-nowrap justify-end shrink-0">
           {!isInstalled && (canPrompt || showIosHint) && (
             <button
               type="button"
@@ -211,7 +249,7 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="lg:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? t('header.closeMenu', 'Close menu') : t('header.openMenu', 'Open menu')}
           aria-expanded={menuOpen}
@@ -223,7 +261,7 @@ export default function Header() {
       {/* Mobile Navigation */}
       {menuOpen && (
         <nav
-          className="md:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
+          className="lg:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
           aria-label={t('header.mobileNavigation', 'Mobile navigation')}
         >
           {!isInstalled && (canPrompt || showIosHint) && (

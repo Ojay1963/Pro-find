@@ -102,7 +102,7 @@ export default function Contact() {
                 <input
                   type="tel"
                   className="w-full px-4 py-3 border rounded-lg input-spotlight"
-                  placeholder="+234 800 000 0000"
+                  placeholder={t('contactSection.form.phonePlaceholder', '+234 800 000 0000')}
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
@@ -133,8 +133,8 @@ export default function Contact() {
                   </span>
                   <div>
                     <p className="text-gray-500">{t('contactSection.info.phone', 'Phone')}</p>
-                    <p className="font-medium">+234 800 000 0000</p>
-                    <p className="font-medium">+234 700 000 0000</p>
+                    <p className="font-medium">{t('contactSection.info.phonePrimary', '+234 800 000 0000')}</p>
+                    <p className="font-medium">{t('contactSection.info.phoneSecondary', '+234 700 000 0000')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -143,8 +143,8 @@ export default function Contact() {
                   </span>
                   <div>
                     <p className="text-gray-500">{t('contactSection.info.email', 'Email')}</p>
-                    <p className="font-medium">support@profind.ng</p>
-                    <p className="font-medium">info@profind.ng</p>
+                    <p className="font-medium">{t('contactSection.info.emailPrimary', 'support@profind.ng')}</p>
+                    <p className="font-medium">{t('contactSection.info.emailSecondary', 'info@profind.ng')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -153,8 +153,8 @@ export default function Contact() {
                   </span>
                   <div>
                     <p className="text-gray-500">{t('contactSection.info.address', 'Address')}</p>
-                    <p className="font-medium">123 Profind Avenue</p>
-                    <p className="font-medium">Lagos, Nigeria</p>
+                    <p className="font-medium">{t('contactSection.info.street', '123 Profind Avenue')}</p>
+                    <p className="font-medium">{t('contactSection.info.location', 'Lagos, Nigeria')}</p>
                   </div>
                 </div>
               </div>

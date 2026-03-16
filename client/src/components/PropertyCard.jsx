@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { FaBath, FaBed, FaMapMarkerAlt, FaRulerCombined, FaShieldAlt, FaBolt } from 'react-icons/fa';
 import { getPropertyTrustMetrics } from '../utils/propertyInsights';
 import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
+import { useI18n } from '../contexts/I18nContext';
 
 const PropertyCard = ({ property }) => {
+  const { t } = useI18n();
   const trust = getPropertyTrustMetrics(property);
   return (
     <div className="card p-0 overflow-hidden relative group transition-shadow hover:shadow-lg">
@@ -42,11 +44,11 @@ const PropertyCard = ({ property }) => {
         <div className="grid grid-cols-2 gap-3 text-gray-500 text-sm mb-4">
           <span className="inline-flex items-center gap-2">
             <FaBed className="text-green-600" />
-            {property.beds} Beds
+            {property.beds} {t('featured.card.beds', 'Beds')}
           </span>
           <span className="inline-flex items-center gap-2">
             <FaBath className="text-green-600" />
-            {property.baths} Baths
+            {property.baths} {t('featured.card.baths', 'Baths')}
           </span>
         </div>
         <div className="mb-4 flex flex-wrap gap-2 text-xs">
@@ -58,13 +60,13 @@ const PropertyCard = ({ property }) => {
             to={`/property/${property.id}`}
             className="btn-secondary w-full sm:w-auto text-center mt-2 sm:mt-0 block"
           >
-            View Details
+            {t('featured.card.viewDetails', 'View Details')}
           </Link>
           <Link
             to={`/compare?ids=${property.id}`}
             className="w-full sm:w-auto text-center mt-2 sm:mt-0 block border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
           >
-            Compare
+            {t('featured.card.compare', 'Compare')}
           </Link>
         </div>
       </div>

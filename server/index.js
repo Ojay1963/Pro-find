@@ -418,7 +418,7 @@ const otpChallengeSchema = new mongoose.Schema(
     email: { type: String, index: true, required: true },
     purpose: { type: String, default: 'email_verification', index: true },
     otpHash: { type: String, required: true },
-    expiresAt: { type: Date, index: true, required: true },
+    expiresAt: { type: Date, required: true },
     attempts: { type: Number, default: 0 },
     lastSentAt: { type: Date, required: true }
   },
@@ -2229,7 +2229,7 @@ if (isProd && hasDist) {
 
 if (!process.env.VERCEL) {
   app.listen(port, () => {
-    console.log(`AI server listening on http://localhost:${port}`)
+    console.log(`Profind server listening on http://localhost:${port}`)
   })
 }
 
