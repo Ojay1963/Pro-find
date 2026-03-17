@@ -4,6 +4,7 @@ import { FaBath, FaBed, FaMapMarkerAlt, FaRulerCombined, FaShieldAlt, FaBolt } f
 import { getPropertyTrustMetrics } from '../utils/propertyInsights';
 import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
 import { useI18n } from '../contexts/I18nContext';
+import CompareButton from './CompareButton';
 
 const PropertyCard = ({ property }) => {
   const { t } = useI18n();
@@ -62,12 +63,9 @@ const PropertyCard = ({ property }) => {
           >
             {t('featured.card.viewDetails', 'View Details')}
           </Link>
-          <Link
-            to={`/compare?ids=${property.id}`}
-            className="w-full sm:w-auto text-center mt-2 sm:mt-0 block border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
-          >
-            {t('featured.card.compare', 'Compare')}
-          </Link>
+          <div className="mt-2 sm:mt-0 w-full sm:w-auto">
+            <CompareButton propertyId={property.id} />
+          </div>
         </div>
       </div>
     </div>

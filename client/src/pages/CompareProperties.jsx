@@ -1,71 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { FaTimes, FaBed, FaBath, FaRulerCombined, FaCar } from 'react-icons/fa';
-import properties from '../components/propertiesData';
-import { storage } from '../utils/localStorage';
-import { useI18n } from '../contexts/I18nContext';
-import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
+import React, { useMemo } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { FaBath, FaBed, FaCheckCircle, FaRulerCombined, FaTimes } from 'react-icons/fa'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import properties from '../components/propertiesData'
+import { storage } from '../utils/localStorage'
+import { useI18n } from '../contexts/I18nContext'
+import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages'
+
+const parsePrice = (value) => Number(String(value || '').replace(/[^\d]/g, '')) || 0
+const parseArea = (value) => Number(String(value || '').replace(/[^\d.]/g, '')) || 0
 
 export default function CompareProperties() {
-  const { t } = useI18n();
-  const [searchParams] = useSearchParams();
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [comparisonProperties, setComparisonProperties] = useState([]);
+  const { t } = useI18n()
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const storedListings = storage.getListings().map((listing) => ({
     ...listing,
     image: listing.image || listing.images?.[0]?.preview || listing.images?.[0] || listing.imageUrl,
     badge: listing.badge || listing.listingType || 'For Sale'
-  }));
-  const allProperties = [...properties, ...storedListings];
+  }))
 
-  useEffect(() => {
-    const ids = searchParams.get('ids')?.split(',').map(id => parseInt(id)) || [];
-    setSelectedIds(ids);
-    
-    const props = ids.map(id => allProperties.find(p => p.id === id)).filter(Boolean);
-    setComparisonProperties(props);
-  }, [searchParams, allProperties]);
+  const allProperties = useMemo(
+    () => Array.from(new Map([...properties, ...storedListings].map((item) => [item.id, item])).values()),
+    [storedListings]
+  )
 
-  const removeProperty = (id) => {
-    const updated = selectedIds.filter(pid => pid !== id);
-    const newUrl = updated.length > 0 
-      ? `/compare?ids=${updated.join(',')}`
-      : '/compare';
-    window.history.pushState({}, '', newUrl);
-    setSelectedIds(updated);
-    setComparisonProperties(comparisonProperties.filter(p => p.id !== id));
-  };
+  const selectedIds = useMemo(
+    () =>
+      (searchParams.get('ids') || '')
+        .split(',')
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id) && id > 0),
+    [searchParams]
+  )
+
+  const comparisonProperties = useMemo(
+    () => selectedIds.map((id) => allProperties.find((property) => property.id === id)).filter(Boolean),
+    [selectedIds, allProperties]
+  )
+
+  const availableProperties = useMemo(
+    () => allProperties.filter((property) => !selectedIds.includes(property.id)).slice(0, 12),
+    [allProperties, selectedIds]
+  )
+
+  const updateSelectedIds = (ids) => {
+    const nextIds = ids.slice(0, 4)
+    setSearchParams(nextIds.length ? { ids: nextIds.join(',') } : {}, { replace: false })
+  }
 
   const addProperty = (id) => {
+    if (selectedIds.includes(id)) return
     if (selectedIds.length >= 4) {
-      alert(t('comparePage.maxFour', 'Maximum 4 properties can be compared at once'));
-      return;
+      window.alert(t('comparePage.maxFour', 'Maximum 4 properties can be compared at once'))
+      return
     }
-    if (!selectedIds.includes(id)) {
-      const updated = [...selectedIds, id];
-      window.history.pushState({}, '', `/compare?ids=${updated.join(',')}`);
-      setSelectedIds(updated);
-      const prop = allProperties.find(p => p.id === id);
-      if (prop) setComparisonProperties([...comparisonProperties, prop]);
-    }
-  };
+    updateSelectedIds([...selectedIds, id])
+  }
+
+  const removeProperty = (id) => {
+    updateSelectedIds(selectedIds.filter((propertyId) => propertyId !== id))
+  }
 
   const saveComparison = () => {
-    if (selectedIds.length > 0) {
-      storage.addComparison(selectedIds);
-      alert(t('comparePage.saved', 'Comparison saved!'));
-    }
-  };
+    if (!selectedIds.length) return
+    storage.addComparison(selectedIds)
+    window.alert(t('comparePage.saved', 'Comparison saved!'))
+  }
 
-  const comparisonFields = [
-    { key: 'price', label: t('comparePage.fields.price', 'Price'), icon: null },
-    { key: 'location', label: t('comparePage.fields.location', 'Location'), icon: null },
-    { key: 'beds', label: t('comparePage.fields.bedrooms', 'Bedrooms'), icon: FaBed },
-    { key: 'baths', label: t('comparePage.fields.bathrooms', 'Bathrooms'), icon: FaBath },
-    { key: 'area', label: t('comparePage.fields.area', 'Area'), icon: FaRulerCombined },
-  ];
+  const bestPrice = comparisonProperties.length
+    ? Math.min(...comparisonProperties.map((property) => parsePrice(property.price)).filter(Boolean))
+    : null
+  const bestArea = comparisonProperties.length
+    ? Math.max(...comparisonProperties.map((property) => parseArea(property.area)).filter(Boolean))
+    : null
+  const bestBeds = comparisonProperties.length
+    ? Math.max(...comparisonProperties.map((property) => Number(property.beds) || 0))
+    : null
+  const bestBaths = comparisonProperties.length
+    ? Math.max(...comparisonProperties.map((property) => Number(property.baths) || 0))
+    : null
+
+  const comparisonRows = [
+    {
+      key: 'price',
+      label: t('comparePage.fields.price', 'Price'),
+      render: (property) => property.price || 'N/A',
+      isBest: (property) => bestPrice !== null && parsePrice(property.price) === bestPrice
+    },
+    {
+      key: 'location',
+      label: t('comparePage.fields.location', 'Location'),
+      render: (property) => property.location || 'N/A',
+      isBest: () => false
+    },
+    {
+      key: 'beds',
+      label: t('comparePage.fields.bedrooms', 'Bedrooms'),
+      render: (property) => property.beds || 'N/A',
+      isBest: (property) => bestBeds !== null && (Number(property.beds) || 0) === bestBeds
+    },
+    {
+      key: 'baths',
+      label: t('comparePage.fields.bathrooms', 'Bathrooms'),
+      render: (property) => property.baths || 'N/A',
+      isBest: (property) => bestBaths !== null && (Number(property.baths) || 0) === bestBaths
+    },
+    {
+      key: 'area',
+      label: t('comparePage.fields.area', 'Area'),
+      render: (property) => property.area || 'N/A',
+      isBest: (property) => bestArea !== null && parseArea(property.area) === bestArea
+    }
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -73,102 +122,150 @@ export default function CompareProperties() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">{t('comparePage.title', 'Compare Properties')}</h1>
-          <p className="text-gray-600">{t('comparePage.subtitle', 'Select up to 4 properties to compare side by side')}</p>
+          <p className="text-gray-600">
+            {t('comparePage.subtitle', 'Select up to 4 properties to compare side by side')}
+          </p>
         </div>
 
-        {/* Property Selection */}
-        {comparisonProperties.length < 4 && (
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
-            <h2 className="text-xl font-bold mb-4">{t('comparePage.addTitle', 'Add Properties to Compare')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {allProperties.slice(0, 8).map(property => (
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-bold">{t('comparePage.addTitle', 'Add Properties to Compare')}</h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Pick 2 to 4 listings. The table below compares price, location, bedrooms, bathrooms, and area side by side.
+              </p>
+            </div>
+            <div className="rounded-full bg-green-50 px-4 py-2 text-sm font-medium text-green-700">
+              {comparisonProperties.length}/4 selected
+            </div>
+          </div>
+
+          {availableProperties.length > 0 ? (
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {availableProperties.map((property) => (
                 <button
                   key={property.id}
+                  type="button"
                   onClick={() => addProperty(property.id)}
-                  disabled={selectedIds.includes(property.id)}
-                  className={`border-2 rounded-lg p-3 text-left hover:shadow-md transition-shadow ${
-                    selectedIds.includes(property.id)
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200'
-                  }`}
+                  className="border border-gray-200 rounded-xl p-3 text-left transition hover:border-green-500 hover:shadow-md cursor-pointer"
                 >
                   <img
                     src={getPropertyImage(property)}
                     alt={property.title}
-                    className="w-full aspect-square object-cover rounded mb-2"
-                    onError={(e) => applyFallbackImage(e, property)}
+                    className="w-full aspect-square object-cover rounded-lg mb-3"
+                    onError={(event) => applyFallbackImage(event, property)}
                   />
                   <h3 className="font-semibold text-sm mb-1">{property.title}</h3>
+                  <p className="text-xs text-gray-500 mb-2">{property.location}</p>
                   <p className="text-green-600 font-bold text-sm">{property.price}</p>
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="mt-5 text-sm text-gray-500">You have already selected the maximum number of properties.</p>
+          )}
+        </div>
 
-        {/* Comparison Table */}
         {comparisonProperties.length > 0 ? (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 overflow-x-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t('comparePage.comparison', 'Comparison')}</h2>
-              {comparisonProperties.length > 0 && (
-                <button
-                  onClick={saveComparison}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  {t('comparePage.saveComparison', 'Save Comparison')}
-                </button>
-              )}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+              <div>
+                <h2 className="text-xl font-bold">{t('comparePage.comparison', 'Comparison')}</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Green check marks highlight the strongest value in each row.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={saveComparison}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
+              >
+                {t('comparePage.saveComparison', 'Save Comparison')}
+              </button>
             </div>
-            <table className="w-full min-w-[800px]">
+
+            <table className="w-full min-w-[860px] border-separate border-spacing-0">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left p-3">{t('comparePage.feature', 'Feature')}</th>
-                  {comparisonProperties.map(property => (
-                    <th key={property.id} className="text-center p-3 relative">
-                      <button
-                        onClick={() => removeProperty(property.id)}
-                        className="absolute top-0 right-0 text-red-600 hover:text-red-800"
-                      >
-                        <FaTimes />
-                      </button>
-                      <Link to={`/property/${property.id}`}>
-                        <img
-                          src={getPropertyImage(property)}
-                          alt={property.title}
-                          className="w-full aspect-square object-cover rounded mb-2"
-                          onError={(e) => applyFallbackImage(e, property)}
-                        />
-                        <h3 className="font-semibold text-sm">{property.title}</h3>
-                      </Link>
+                <tr>
+                  <th className="w-44 bg-gray-50 text-left p-4 text-sm font-semibold text-gray-700 rounded-tl-xl">
+                    {t('comparePage.feature', 'Feature')}
+                  </th>
+                  {comparisonProperties.map((property, index) => (
+                    <th
+                      key={property.id}
+                      className={`align-top border-l border-gray-100 p-4 text-left bg-white ${index === comparisonProperties.length - 1 ? 'rounded-tr-xl' : ''}`}
+                    >
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => removeProperty(property.id)}
+                          className="absolute right-0 top-0 text-red-600 hover:text-red-800 cursor-pointer"
+                          aria-label={`Remove ${property.title}`}
+                        >
+                          <FaTimes />
+                        </button>
+                        <Link to={`/property/${property.id}`} className="block pr-8">
+                          <img
+                            src={getPropertyImage(property)}
+                            alt={property.title}
+                            className="w-full h-44 object-cover rounded-lg mb-3"
+                            onError={(event) => applyFallbackImage(event, property)}
+                          />
+                          <h3 className="font-semibold text-base text-gray-900">{property.title}</h3>
+                          <p className="text-sm text-gray-500 mt-1">{property.location}</p>
+                        </Link>
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {comparisonFields.map(field => (
-                  <tr key={field.key} className="border-b">
-                    <td className="p-3 font-semibold">
-                      {field.icon && <field.icon className="inline mr-2" />}
-                      {field.label}
+                {comparisonRows.map((row) => (
+                  <tr key={row.key}>
+                    <td className="border-t border-gray-100 bg-gray-50 p-4 font-semibold text-gray-800">
+                      {row.label}
                     </td>
-                    {comparisonProperties.map(property => (
-                      <td key={property.id} className="p-3 text-center">
-                        {property[field.key]}
+                    {comparisonProperties.map((property) => (
+                      <td key={property.id} className="border-t border-l border-gray-100 p-4 align-top">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-gray-800">{row.render(property)}</span>
+                          {row.isBest(property) ? <FaCheckCircle className="shrink-0 text-green-600" /> : null}
+                        </div>
                       </td>
                     ))}
                   </tr>
                 ))}
+                <tr>
+                  <td className="border-t border-gray-100 bg-gray-50 p-4 font-semibold text-gray-800">Quick summary</td>
+                  {comparisonProperties.map((property) => (
+                    <td key={property.id} className="border-t border-l border-gray-100 p-4">
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <p className="flex items-center gap-2"><FaBed className="text-green-600" /> {property.beds || 'N/A'} bedrooms</p>
+                        <p className="flex items-center gap-2"><FaBath className="text-green-600" /> {property.baths || 'N/A'} bathrooms</p>
+                        <p className="flex items-center gap-2"><FaRulerCombined className="text-green-600" /> {property.area || 'N/A'}</p>
+                      </div>
+                    </td>
+                  ))}
+                </tr>
               </tbody>
             </table>
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 text-center">
-            <p className="text-gray-500">{t('comparePage.empty', 'No properties selected for comparison. Add properties above to start comparing.')}</p>
+            <p className="text-gray-500">
+              {t('comparePage.empty', 'No properties selected for comparison. Add properties above to start comparing.')}
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/properties')}
+              className="mt-4 inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            >
+              Browse properties
+            </button>
           </div>
         )}
       </main>
       <Footer />
     </div>
-  );
+  )
 }

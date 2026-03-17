@@ -6,6 +6,7 @@ import { useI18n } from '../contexts/I18nContext';
 import properties from './propertiesData';
 import { storage } from '../utils/localStorage';
 import FavoriteButton from './FavoriteButton';
+import CompareButton from './CompareButton';
 import { attachDistanceToProperty } from '../utils/propertyLocation';
 import { getPropertyTrustMetrics, normalizeText, parseAreaNumber, parsePriceNumber } from '../utils/propertyInsights';
 import { applyFallbackImage, getPropertyImage } from '../utils/propertyImages';
@@ -431,12 +432,7 @@ function PropertyCard({ property, showAll = false, viewMode = 'grid', animationD
           >
             {t('featured.card.viewDetails', 'View Details')}
           </Link>
-          <Link
-            to={`/compare?ids=${property.id}`}
-            className="block w-full py-2 px-4 border border-gray-200 text-gray-600 text-center rounded-md hover:border-green-500 hover:text-green-600 transition-colors"
-          >
-            {t('featured.card.compare', 'Compare')}
-          </Link>
+          <CompareButton propertyId={property.id} />
         </div>
       </div>
     </div>
