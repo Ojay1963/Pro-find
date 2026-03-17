@@ -43,6 +43,9 @@ vi.mock('../pages/Login', () => ({
 vi.mock('../pages/ResetPassword', () => ({
   default: () => <h1 data-testid="page-reset-password">Reset Password</h1>
 }));
+vi.mock('../pages/ResetPasswordCheckEmail', () => ({
+  default: () => <h1 data-testid="page-reset-password-check-email">Reset Password Check Email</h1>
+}));
 vi.mock('../pages/RegistrationSuccess', () => ({
   default: () => <h1 data-testid="page-registration-success">Registration Success</h1>
 }));
@@ -111,6 +114,11 @@ describe('app smoke tests', () => {
   it('renders public login route', async () => {
     renderAt('/login');
     expect(await screen.findByTestId('page-login')).toBeInTheDocument();
+  });
+
+  it('renders reset password check email route', async () => {
+    renderAt('/reset-password/check-email');
+    expect(await screen.findByTestId('page-reset-password-check-email')).toBeInTheDocument();
   });
 
   it('redirects unauthenticated users from dashboard to login', async () => {

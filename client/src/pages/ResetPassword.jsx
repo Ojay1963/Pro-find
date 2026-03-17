@@ -28,11 +28,14 @@ const ResetPassword = () => {
         }
         await storage.confirmPasswordReset(formData.token, formData.newPassword)
         toast.success(t('resetPage.toast.updated', 'Password updated successfully. You can now sign in.'))
+        navigate('/login')
       } else {
         await storage.requestPasswordReset(formData.email)
         toast.success(t('resetPage.toast.sent', 'If the account exists, a reset link has been sent.'))
+        navigate('/reset-password/check-email', {
+          state: { email: formData.email.trim().toLowerCase() }
+        })
       }
-      navigate('/login')
     } catch (error) {
       toast.error(error.message || t('resetPage.errors.generic', 'Unable to process password reset request.'))
     }

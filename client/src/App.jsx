@@ -35,6 +35,7 @@ const AgentProfile = React.lazy(() => import('./pages/AgentProfile'))
 const Messages = React.lazy(() => import('./pages/Messages'))
 const BulkUpload = React.lazy(() => import('./pages/BulkUpload'))
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'))
+const ResetPasswordCheckEmail = React.lazy(() => import('./pages/ResetPasswordCheckEmail'))
 const Upgrade = React.lazy(() => import('./pages/Upgrade'))
 
 const buildAppUrl = (path) => {
@@ -108,6 +109,7 @@ function AppShell() {
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/reset-password/check-email" element={<ResetPasswordCheckEmail />} />
             <Route path="/registration-success" element={<RegistrationSuccess />} />
             <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
             <Route path="/create-listing" element={<RequireAuth><CreateListing /></RequireAuth>} />

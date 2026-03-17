@@ -76,6 +76,255 @@ const normalizePropertyImageUrl = (url) =>
     .replace('w=800&h=600', 'w=600&h=600')
     .replace('w=600&h=400', 'w=600&h=600');
 
+const customPropertyImages = {
+  1: [
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5db2a3e5ee-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5db8f7d45e-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5db9fe597d-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5dbada8025-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5dbcda3c3a-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5dc10cdc9f-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3044561/068a5dc28effb5-4-bedroom-terrace-duplex-for-sale-ajah-lagos.jpg'
+  ],
+  2: [
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbc0baeb6-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbc5af62f-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbcaa4b9b-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbd24b041-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbe3d1d01-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbed7d3df-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbf13f1a2-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3314055/06978cbfb36a2c-exquisitely-crafted-4-bedroom-semi-detached-duplex-in-magodo-phase-1-semi-detached-duplexes-for-sale-gra-phase-1-magodo-lagos.jpeg'
+  ],
+  3: [
+    'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82063370d3-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82256860a2-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82259432cf-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391953/069b8225a72a59-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391953/069b8225b88e89-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391953/069b8225f40431-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg'
+  ],
+  9: [
+    'https://images.nigeriapropertycentre.com/properties/images/3175050/069020c4174546-enjoy-peace-and-comfort-in-this-newly-built-4-bedroom-terrace-duplex-terraced-duplexes-for-sale-akowonjo-alimosho-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3175050/069020c43b3126-enjoy-peace-and-comfort-in-this-newly-built-4-bedroom-terrace-duplex-terraced-duplexes-for-sale-akowonjo-alimosho-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3175050/069020c450cdcc-enjoy-peace-and-comfort-in-this-newly-built-4-bedroom-terrace-duplex-terraced-duplexes-for-sale-akowonjo-alimosho-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3175050/069020c490177a-enjoy-peace-and-comfort-in-this-newly-built-4-bedroom-terrace-duplex-terraced-duplexes-for-sale-akowonjo-alimosho-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3175050/069020c4be204a-enjoy-peace-and-comfort-in-this-newly-built-4-bedroom-terrace-duplex-terraced-duplexes-for-sale-akowonjo-alimosho-lagos.jpeg'
+  ],
+  90: [
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866af35493-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b14c384-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b232510-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b33a6ae-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b4238d8-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b64afa1-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b905dbb-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg'
+  ],
+  96: [
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e94bb0be-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8954638-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8b1ceff-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8c8236c-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8e531d7-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e9190e23-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e832c656-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg'
+  ],
+  112: [
+    'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dc7d63f8-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dcb21a6d-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dccc6e86-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dce7608d-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg'
+  ],
+  121: [
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b6aadbf-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b8209fe-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b94ffcc-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5bbb22e5-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5bcf2ba3-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5c32c932-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b574da9-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg'
+  ],
+  122: [
+    'https://images.nigeriapropertycentre.com/properties/images/3155577/068f3c0b422045-4bedroom-terrace-duplex-with-bq-spacious-rooms-terraced-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3155577/068f3c0d198e31-4bedroom-terrace-duplex-with-bq-spacious-rooms-terraced-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3155577/068f3c1e3304af-4bedroom-terrace-duplex-with-bq-spacious-rooms-terraced-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3164344/068fa07131954a-newly-built-4-bedroom-semi-detached-duplex-with-spacious-rooms-semi-detached-duplexes-for-sale-ajah-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3164344/068fa074949ff2-newly-built-4-bedroom-semi-detached-duplex-with-spacious-rooms-semi-detached-duplexes-for-sale-ajah-lagos.jpg'
+  ],
+  45: [
+    'https://images.nigeriapropertycentre.com/properties/images/3148946/068ef6ee234795-1000-square-meter-warehouse-warehouses-for-rent-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3148946/068ef6ee364f11-1000-square-meter-warehouse-warehouses-for-rent-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/2423427/066cacf7197ceb-warehouse-capacity-of-73000sqft-with-office-warehouses-for-rent-ikeja-lagos.jpg'
+  ],
+  46: [
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b82334e993d-4bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b8235b84299-4bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b823d8a9f72-4bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b8241b3ae77-4bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b825d24f7a1-4-bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b826126839b-4-bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391980/069b82665baba3-4-bedroom-terrace-duplex-with-spacious-rooms-terraced-duplexes-for-sale-ikota-lekki-lagos.jpg'
+  ],
+  85: [
+    'https://images.nigeriapropertycentre.com/properties/images/3263722/0694930591f309-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ojodu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263722/06949305a389f1-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ojodu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263722/06949305b60f5e-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ojodu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263722/06949305c859fd-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ojodu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263722/06949305f3fafa-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ojodu-lagos.jpeg'
+  ],
+  86: [
+    'https://images.nigeriapropertycentre.com/properties/images/3264849/0694a52ef1b55d-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ologolo-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3264849/0694a52f0564b2-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ologolo-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3264849/0694a52f213eb8-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ologolo-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3264849/0694a52f35d3fe-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ologolo-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3264849/0694a52f4a6453-newly-built-4-bedroom-detached-duplex-with-bq-detached-duplexes-for-sale-ologolo-lekki-lagos.jpeg'
+  ],
+  87: [
+    'https://images.nigeriapropertycentre.com/properties/images/3391940/069b81f6094712-newly-built-4-bedroom-detached-with-open-terrace-rooftop-and-pool-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391940/069b81f534644e-newly-built-4-bedroom-detached-with-open-terrace-rooftop-and-pool-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391940/069b81f55ea913-newly-built-4-bedroom-detached-with-open-terrace-rooftop-and-pool-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391940/069b81f57d18ee-newly-built-4-bedroom-detached-with-open-terrace-rooftop-and-pool-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391940/069b81f5ee356e-newly-built-4-bedroom-detached-with-open-terrace-rooftop-and-pool-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391940/069b81f51a2025-newly-built-4-bedroom-detached-with-open-terrace-rooftop-and-pool-detached-duplexes-for-sale-lekki-lagos.jpeg'
+  ],
+  88: [
+    'https://images.nigeriapropertycentre.com/properties/images/2464636/066e9b59decc51-daily-or-monthly-royal-4-bedroom-swimming-pool-gym-inverter-detached-duplexes-short-let-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2464636/066e9b5a1c459f-daily-or-monthly-royal-4-bedroom-swimming-pool-gym-inverter-detached-duplexes-short-let-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2464636/066e9b59fe65cc-daily-or-monthly-royal-4-bedroom-swimming-pool-gym-inverter-detached-duplexes-short-let-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2464636/066e9b5c0b3228-daily-or-monthly-royal-4-bedroom-swimming-pool-gym-inverter-detached-duplexes-short-let-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2464636/066e9b5c936307-daily-or-monthly-royal-4-bedroom-swimming-pool-gym-inverter-detached-duplexes-short-let-lekki-lagos.jpeg'
+  ],
+  92: [
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/06949259714fa2-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/0694925986be85-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/069492599be4f4-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/06949259bb33f5-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/06949259d31cf2-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/06949259eb901e-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/0694925a02402b-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/0694925a314db5-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/0694925a487b7e-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3263661/0694925a64da9d-modern-4-bedroom-terrace-duplex-with-swimming-pool-terraced-duplexes-for-sale-osapa-lekki-lagos.jpeg'
+  ],
+  98: [
+    'https://images.nigeriapropertycentre.com/properties/images/3391967/069b82106d7535-eye-catching-4-bedroom-self-compound-terrace-duplex-with-bq-terraced-duplexes-for-sale-obanikoro-shomolu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391967/069b8210792a49-eye-catching-4-bedroom-self-compound-terrace-duplex-with-bq-terraced-duplexes-for-sale-obanikoro-shomolu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391967/069b821097b125-eye-catching-4-bedroom-self-compound-terrace-duplex-with-bq-terraced-duplexes-for-sale-obanikoro-shomolu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391967/069b8210b760f8-eye-catching-4-bedroom-self-compound-terrace-duplex-with-bq-terraced-duplexes-for-sale-obanikoro-shomolu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391967/069b8210c88a9f-eye-catching-4-bedroom-self-compound-terrace-duplex-with-bq-terraced-duplexes-for-sale-obanikoro-shomolu-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391967/069b8210ea971b-eye-catching-4-bedroom-self-compound-terrace-duplex-with-bq-terraced-duplexes-for-sale-obanikoro-shomolu-lagos.jpeg'
+  ],
+  119: [
+    'https://images.nigeriapropertycentre.com/properties/images/2556955/06973836f43a66-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2556955/06973837078df3-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2556955/069738359b0ad6-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2556955/06748f57812c5c-luxury-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2556955/06748f57712587-luxury-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2556955/06973836a4c291-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg'
+  ],
+  97: [
+    'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0642bae-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f07d9898-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f096a8ab-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0b494b4-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0d0365f-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg'
+  ],
+  50: [
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/069a88fec45adc-235sqm-large-off-plan-2-bedrooms-maisonette-flat-with-bq-concierge-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/0685468ff2ec34-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/06859d12c285af-large-off-plan-2-bedroom-flat-with-office-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/06859d12d79331-large-off-plan-2-bedroom-flat-with-office-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/069961f6866f69-large-off-plan-2-bedrooms-flat-with-office-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/068546904bcdb1-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/0685468fde4cf5-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/0685468fa424c7-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/068546900c05cc-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/0685469023eff2-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/2931066/06854690399cb8-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg'
+  ],
+  93: [
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c4377f2fc61-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c438cd9035f-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c438ef2725d-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c43955b941e-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c43a334451a-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c43b14d4f49-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c43b48ed3ab-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3090328/068c43ce72666e-luxury-4-bedroom-fully-detached-house-with-bq-detached-duplexes-for-sale-lekki-phase-1-lekki-lagos.jpg'
+  ],
+  51: [
+    'https://images.nigeriapropertycentre.com/properties/images/3293603/06967e3a57585f-smartly-designed-2-bedroom-furnished-apartmentgym247-power-supply-for-rent-garki-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3293603/06967e3a75d0d2-smartly-designed-2-bedroom-furnished-apartmentgym247-power-supply-for-rent-garki-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3293603/06967e3a93e637-smartly-designed-2-bedroom-furnished-apartmentgym247-power-supply-for-rent-garki-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3293603/06967e3ab7fc72-smartly-designed-2-bedroom-furnished-apartmentgym247-power-supply-for-rent-garki-abuja.jpeg'
+  ],
+  99: [
+    'https://images.nigeriapropertycentre.com/properties/images/3366765/069ac89b547de8-brand-new-5-bedroom-fully-detached-duplex-bq-office-or-residential-detached-duplexes-for-rent-wuse-2-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3366765/069ac89c534b77-brand-new-5-bedroom-fully-detached-duplex-bq-office-or-residential-detached-duplexes-for-rent-wuse-2-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3366765/069ac89d29201f-brand-new-5-bedroom-fully-detached-duplex-bq-office-or-residential-detached-duplexes-for-rent-wuse-2-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700dc73cdd-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg'
+  ],
+  100: [
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700cde2f1f-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700cfce34b-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700d582bec-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700d72f9b2-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700d88de65-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700dc73cdd-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3274315/0699700de054b5-5-bedroom-detached-duplex-with-3-rooms-bq-detached-duplexes-for-rent-maitama-district-abuja.jpeg'
+  ],
+  108: [
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce71a6ad9-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce7295835-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce745c01d-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce75306e3-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce761c3ea-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce77b79a1-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce78a5933-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce7966bcd-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3391073/069b7ce7b06f0d-astonishingly-built-4-bedroom-semi-detached-duplex-with-bq-semi-detached-duplexes-for-sale-gbagada-lagos.jpeg'
+  ],
+  101: [
+    'https://images.nigeriapropertycentre.com/properties/images/3329589/06985581d57d80-luxury-4bed-detached-duplex-at-lekki-phase-1-detached-duplexes-for-rent-gwale-kano.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3329589/06985581e5f0dc-luxury-4bed-detached-duplex-at-lekki-phase-1-detached-duplexes-for-rent-gwale-kano.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3329589/06985582196b16-luxury-4bed-detached-duplex-at-lekki-phase-1-detached-duplexes-for-rent-gwale-kano.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3329589/069855822a6ceb-luxury-4bed-detached-duplex-at-lekki-phase-1-detached-duplexes-for-rent-gwale-kano.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3329589/06985581c3744e-luxury-4bed-detached-duplex-at-lekki-phase-1-detached-duplexes-for-rent-gwale-kano.jpeg'
+  ]
+};
+
+const customGeneratedPropertyImages = {
+  'Modern 4-Bedroom Family House|Abakaliki, Ebonyi': [
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e984546f06-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e984c7aa3c-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e984ea32ad-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e9844067a7-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e984fd718e-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e985394b8c-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e98599d4d7-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3321221/0697e985f1df21-5-bedroom-semi-detached-duplex-detached-duplexes-for-rent-lekki-phase-1-lekki-lagos.jpg'
+  ],
+  'Serviced 3-Bedroom Apartment|Ado Ekiti, Ekiti': [
+    'https://images.nigeriapropertycentre.com/properties/images/3387298/069b3fc2ea18dc-lush-2bedroom-fully-furnished-and-serviced-with-swimming-pool-and-gym-for-rent-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3387298/069b3fc36e4de6-lush-2bedroom-fully-furnished-and-serviced-with-swimming-pool-and-gym-for-rent-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3387298/069b3fc319247e-lush-2bedroom-fully-furnished-and-serviced-with-swimming-pool-and-gym-for-rent-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3387298/069b3fc33b997f-lush-2bedroom-fully-furnished-and-serviced-with-swimming-pool-and-gym-for-rent-ikeja-lagos.jpg',
+    'https://images.nigeriapropertycentre.com/properties/images/3387298/069b3fc3486c01-lush-2bedroom-fully-furnished-and-serviced-with-swimming-pool-and-gym-for-rent-ikeja-lagos.jpg'
+  ],
+  'Newly Built 3-Bedroom Terrace|Osogbo, Osun': [
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee7f3b0c6-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee7dca237-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee7b14aef-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee7c7d0c0-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee823c062-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee83cc4eb-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg',
+    'https://images.nigeriapropertycentre.com/properties/images/3355583/0699bee8528246-newly-built-furnished-luxury-4-bedroom-fully-detached-duplex-bq-detached-duplexes-for-sale-lekki-lagos.jpeg'
+  ],
+  'Restaurant Building|Jalingo, Taraba': [
+    'https://media.istockphoto.com/id/1403657533/photo/small-outdoor-caf%C3%A9.jpg?s=612x612&w=0&k=20&c=Ao20CoCC_T-PJTzBDcptG7yho8Flnj-NPhO6jLgyep8='
+  ]
+};
+
 const virtualTourByLocation = {
   'Lekki, Lagos': {
     tourUrl: 'https://www.youtube.com/embed/nA2RuVbf9Rg',
@@ -394,7 +643,7 @@ const properties = [
     beds: 3,
     baths: 2,
     area: '450 sqm',
-    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82063370d3-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
     badge: 'For Sale',
     propertyType: 'House',
     description: 'This charming 3-bedroom bungalow in Gwarinpa offers cozy living with a beautiful garden and modern finishes. Perfect for small families.',
@@ -404,11 +653,12 @@ const properties = [
     agentId: 3,
     agentName: 'David Okafor',
     images: [
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82063370d3-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82256860a2-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3391953/069b82259432cf-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3391953/069b8225a72a59-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3391953/069b8225b88e89-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3391953/069b8225f40431-5bedroom-detached-duplex-detached-duplexes-for-rent-wuse-2-abuja.jpg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', title: 'Living Room Tour' },
@@ -594,7 +844,7 @@ const properties = [
     beds: 2,
     baths: 2,
     area: '110 sqm',
-    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dc7d63f8-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
     badge: 'For Sale',
     propertyType: 'Apartment',
     description: 'This modern 2-bedroom apartment in Wuse 2 offers contemporary design and convenient location. Great for professionals working in Abuja.',
@@ -879,7 +1129,7 @@ const properties = [
     beds: 2,
     baths: 2,
     area: '110 sqm',
-    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866af35493-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
     badge: 'For Rent',
     propertyType: 'Apartment',
     description: 'Conveniently located apartment with good road access and reliable power.',
@@ -889,11 +1139,13 @@ const properties = [
     agentId: 77,
     agentName: 'Mary Johnson',
     images: [
-      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866af35493-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b14c384-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b232510-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b33a6ae-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b4238d8-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b64afa1-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3392392/069b866b905dbb-spacious-3-bedroom-lower-apartment-for-rent-lekki-phase-2-lekki-lagos.jpg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/FXwr42CbKW4', title: 'City Tour' }
@@ -1065,7 +1317,7 @@ const properties = [
     beds: 4,
     baths: 4,
     area: '520 sqm',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e94bb0be-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
     badge: 'For Rent',
     propertyType: 'House',
     description: 'Modern duplex with ensuite rooms, generous living area, and secure parking.',
@@ -1075,11 +1327,13 @@ const properties = [
     agentId: 74,
     agentName: 'Sarah Ibrahim',
     images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e94bb0be-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8954638-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8b1ceff-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8c8236c-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e8e531d7-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e9190e23-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3172882/069009e832c656-5-bedroom-terrace-duplex-terraced-duplexes-for-rent-victoria-island-lagos.jpg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/FXwr42CbKW4', title: 'Duplex Tour' }
@@ -1096,7 +1350,7 @@ const properties = [
     beds: 3,
     baths: 3,
     area: '380 sqm',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0642bae-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
     badge: 'For Rent',
     propertyType: 'House',
     description: 'A neat townhouse with good road access and steady power supply.',
@@ -1106,11 +1360,11 @@ const properties = [
     agentId: 75,
     agentName: 'Michael Eze',
     images: [
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0642bae-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f07d9898-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f096a8ab-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0b494b4-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3176821/069035f0d0365f-luxury-two-bedroom-flats-pop-blast-for-rent-asaba-delta.jpg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/FXwr42CbKW4', title: 'Townhouse Tour' }
@@ -1572,11 +1826,10 @@ const properties = [
     agentId: 75,
     agentName: 'Michael Eze',
     images: [
-      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dc7d63f8-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dcb21a6d-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dccc6e86-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3085590/068c16dce7608d-3-bedroom-apartment-short-let-opebi-ikeja-lagos.jpg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/FXwr42CbKW4', title: 'Apartment Tour' }
@@ -1624,7 +1877,7 @@ const properties = [
     beds: 3,
     baths: 3,
     area: '145 sqm',
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b6aadbf-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
     badge: 'For Rent',
     propertyType: 'Apartment',
     description: 'Comfortable apartment in a central neighborhood with good access to schools and malls.',
@@ -1779,7 +2032,7 @@ const properties = [
     beds: 3,
     baths: 3,
     area: '140 sqm',
-    image: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/2556955/06973836f43a66-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
     badge: 'For Rent',
     propertyType: 'Apartment',
     description: 'Central apartment with stable utilities and secure entry.',
@@ -1789,11 +2042,12 @@ const properties = [
     agentId: 79,
     agentName: 'Sarah Ibrahim',
     images: [
-      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/2556955/06973836f43a66-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2556955/06973837078df3-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2556955/069738359b0ad6-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2556955/06748f57812c5c-luxury-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2556955/06748f57712587-luxury-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2556955/06973836a4c291-furnished-apartment-executive-2-bedrooms-for-rent-lekki-phase-1-lekki-lagos.jpeg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/FXwr42CbKW4', title: 'Apartment Tour' }
@@ -1820,11 +2074,13 @@ const properties = [
     agentId: 76,
     agentName: 'John Adebayo',
     images: [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b6aadbf-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b8209fe-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b94ffcc-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5bbb22e5-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5bcf2ba3-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5c32c932-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/3321192/06981f5b574da9-5-bedroom-fully-furnished-detached-house-for-rent-gra-ikeja-lagos.jpeg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/FXwr42CbKW4', title: 'Apartment Tour' }
@@ -3043,7 +3299,7 @@ const properties = [
     beds: 0,
     baths: 0,
     area: '1500 sqm',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/3148946/068ef6ee234795-1000-square-meter-warehouse-warehouses-for-rent-ikeja-lagos.jpg',
     badge: 'For Sale',
     propertyType: 'Commercial',
     description: 'This warehouse facility in Bauchi offers ample space for storage and logistics operations.',
@@ -3053,11 +3309,9 @@ const properties = [
     agentId: 45,
     agentName: 'Michael Eze',
     images: [
-      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/3148946/068ef6ee234795-1000-square-meter-warehouse-warehouses-for-rent-ikeja-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/3148946/068ef6ee364f11-1000-square-meter-warehouse-warehouses-for-rent-ikeja-lagos.jpg',
+      'https://images.nigeriapropertycentre.com/properties/images/2423427/066cacf7197ceb-warehouse-capacity-of-73000sqft-with-office-warehouses-for-rent-ikeja-lagos.jpg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', title: 'Warehouse Tour' },
@@ -3208,7 +3462,7 @@ const properties = [
     beds: 6,
     baths: 5,
     area: '1000 sqm',
-    image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=600&h=400&fit=crop',
+    image: 'https://images.nigeriapropertycentre.com/properties/images/2931066/069a88fec45adc-235sqm-large-off-plan-2-bedrooms-maisonette-flat-with-bq-concierge-for-sale-victoria-island-lagos.jpeg',
     badge: 'For Sale',
     propertyType: 'House',
     description: 'This 6-bedroom mansion in Yola offers luxurious living with spacious rooms and premium amenities.',
@@ -3218,11 +3472,17 @@ const properties = [
     agentId: 50,
     agentName: 'Michael Eze',
     images: [
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=600&fit=crop'
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/069a88fec45adc-235sqm-large-off-plan-2-bedrooms-maisonette-flat-with-bq-concierge-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/0685468ff2ec34-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/06859d12c285af-large-off-plan-2-bedroom-flat-with-office-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/06859d12d79331-large-off-plan-2-bedroom-flat-with-office-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/069961f6866f69-large-off-plan-2-bedrooms-flat-with-office-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/068546904bcdb1-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/0685468fde4cf5-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/0685468fa424c7-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/068546900c05cc-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/0685469023eff2-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg',
+      'https://images.nigeriapropertycentre.com/properties/images/2931066/06854690399cb8-large-luxury-off-plan-2-bedroom-flat-with-bq-concierge-coffee-shop-for-sale-victoria-island-lagos.jpeg'
     ],
     virtualTours: [
       { tourUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', title: 'Living Room Tour' },
@@ -4323,6 +4583,16 @@ properties.forEach((property) => {
 });
 
 properties.forEach((property) => {
+  const manualImages = customPropertyImages[property.id];
+  if (!manualImages?.length) {
+    return;
+  }
+
+  property.image = manualImages[0];
+  property.images = [...manualImages];
+});
+
+properties.forEach((property) => {
   if (property.image) {
     property.image = normalizePropertyImageUrl(property.image);
   }
@@ -4459,9 +4729,13 @@ const buildGeneratedStateProperties = (items) => {
   return generatedStateTemplates.map((template, index) => {
     const imagePool = imagePoolByType[template.propertyType] || houseImagePool;
     const imageStart = index % imagePool.length;
-    const images = Array.from({ length: Math.min(5, imagePool.length) }, (_, imageOffset) =>
-      toCoverImage(imagePool[(imageStart + imageOffset) % imagePool.length])
-    );
+    const generatedOverrideKey = `${template.title}|${template.location}`;
+    const manualImages = customGeneratedPropertyImages[generatedOverrideKey];
+    const images = manualImages?.length
+      ? [...manualImages]
+      : Array.from({ length: Math.min(5, imagePool.length) }, (_, imageOffset) =>
+          toCoverImage(imagePool[(imageStart + imageOffset) % imagePool.length])
+        );
 
     return {
       id: maxExistingId + index + 1,

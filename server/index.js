@@ -116,6 +116,17 @@ if (otpTransportUser && otpTransportPass) {
 }
 const canSendOtpViaSmtp = () => Boolean(otpTransporter && otpFrom)
 const canSendOtpViaBrevoApi = () => Boolean(brevoApiKey && brevoSenderEmail)
+const createSmtpTransporter = () =>
+  nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465,
+    auth: { user: smtpUser, pass: smtpPass },
+    ...(smtpAllowSelfSigned ? { tls: { rejectUnauthorized: false } } : {}),
+    connectionTimeout: 15_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000
+  })
 
 if (!jwtSecret) {
   throw new Error('Missing JWT_SECRET')
@@ -814,26 +825,59 @@ const grantEntitlementForOrder = async (order, paymentData = {}) => {
 
 const sendPasswordResetEmail = async (email, token) => {
   const resetUrl = `${String(appOrigin).replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}`
-  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass || !smtpFrom) {
-    if (isProd) throw new Error('SMTP is not configured')
-    return { resetUrl }
+  if (smtpHost && smtpPort && smtpUser && smtpPass && smtpFrom) {
+    const transporter = createSmtpTransporter()
+    await transporter.sendMail({
+      from: smtpFrom,
+      to: email,
+      subject: 'Reset your Profind password',
+      text: `Reset your password using this link: ${resetUrl}. This link expires in 1 hour.`
+    })
+    return {}
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
-    auth: { user: smtpUser, pass: smtpPass }
-  })
+  if (canSendOtpViaBrevoApi()) {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        'api-key': brevoApiKey
+      },
+      body: JSON.stringify({
+        sender: { name: brevoSenderName, email: brevoSenderEmail },
+        to: [{ email }],
+        subject: 'Reset your Profind password',
+        htmlContent: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Reset your password</h2>
+            <p>Use the button below to choose a new password. This link expires in 1 hour.</p>
+            <p style="margin: 24px 0;">
+              <a
+                href="${resetUrl}"
+                style="background-color: #16a34a; color: #ffffff; padding: 12px 20px; border-radius: 8px; text-decoration: none; display: inline-block;"
+              >
+                Reset Password
+              </a>
+            </p>
+            <p>If the button does not work, copy and paste this link into your browser:</p>
+            <p>${resetUrl}</p>
+          </div>
+        `,
+        textContent: `Reset your password using this link: ${resetUrl}. This link expires in 1 hour.`
+      })
+    })
 
-  await transporter.sendMail({
-    from: smtpFrom,
-    to: email,
-    subject: 'Reset your Profind password',
-    text: `Reset your password using this link: ${resetUrl}. This link expires in 1 hour.`
-  })
+    if (!response.ok) {
+      const brevoError = await response.text().catch(() => '')
+      throw new Error(`Brevo API send failed: ${response.status} ${brevoError}`)
+    }
 
-  return {}
+    return {}
+  }
+
+  if (isProd) throw new Error('Password reset email is not configured')
+  return { resetUrl }
 }
 
 const generateOtpCode = () => `${Math.floor(100000 + Math.random() * 900000)}`
@@ -1165,8 +1209,18 @@ app.post('/api/auth/reset-password/request', authLimiter, async (req, res) => {
     user.resetPasswordTokenHash = hashResetToken(token)
     user.resetPasswordExpiresAt = new Date(Date.now() + 60 * 60 * 1000)
     await user.save()
-    const mailResult = await sendPasswordResetEmail(user.email, token)
-    debugResetUrl = mailResult?.resetUrl
+    void sendPasswordResetEmail(user.email, token)
+      .then((mailResult) => {
+        if (mailResult?.resetUrl) {
+          console.log(`Password reset debug URL for ${user.email}: ${mailResult.resetUrl}`)
+        }
+      })
+      .catch((error) => {
+        console.error(`Password reset email send failed for ${user.email}`, error)
+      })
+    if (!isProd) {
+      debugResetUrl = `${String(appOrigin).replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}`
+    }
   }
 
   // Prevent account enumeration.
@@ -1210,8 +1264,18 @@ app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
     user.resetPasswordTokenHash = hashResetToken(token)
     user.resetPasswordExpiresAt = new Date(Date.now() + 60 * 60 * 1000)
     await user.save()
-    const mailResult = await sendPasswordResetEmail(user.email, token)
-    debugResetUrl = mailResult?.resetUrl
+    void sendPasswordResetEmail(user.email, token)
+      .then((mailResult) => {
+        if (mailResult?.resetUrl) {
+          console.log(`Password reset debug URL for ${user.email}: ${mailResult.resetUrl}`)
+        }
+      })
+      .catch((error) => {
+        console.error(`Password reset email send failed for ${user.email}`, error)
+      })
+    if (!isProd) {
+      debugResetUrl = `${String(appOrigin).replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}`
+    }
   }
 
   res.json({
