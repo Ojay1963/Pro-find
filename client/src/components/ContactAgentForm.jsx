@@ -38,8 +38,6 @@ export default function ContactAgentForm({
     message: initialMessage || getIntentMessage(inquiryType, propertyTitle),
     preferredContact: 'phone'
   });
-  const [successMessage, setSuccessMessage] = useState('');
-
   const heading = title || t('propertyDetailsPage.contact.title', 'Contact Agent');
   const helperText = subtitle || t('propertyDetailsPage.contact.subtitle', 'Interested in this property? Contact the agent for more information.');
   const actionLabel = submitLabel || t('propertyDetailsPage.contact.submit', 'Send Inquiry');
@@ -47,7 +45,6 @@ export default function ContactAgentForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage('');
     const currentUser = storage.getCurrentUser();
     const userId = currentUser?.id || parseInt(localStorage.getItem('profind_user_id'));
 
@@ -84,23 +81,19 @@ export default function ContactAgentForm({
             text: formData.message,
             read: false
           });
-          toast.success(t('propertyDetailsPage.contact.toastMessageSent', 'Message sent! Opening conversation...'));
-          setSuccessMessage(t('propertyDetailsPage.contact.successMessage', 'Your message was sent successfully.'));
-          setTimeout(() => navigate('/messages'), 1000);
-        } else {
-          toast.success(t('propertyDetailsPage.contact.toastInquirySent', 'Your inquiry has been sent! The agent will contact you soon.'));
-          setSuccessMessage(t('propertyDetailsPage.contact.successInquiry', 'Your inquiry was sent successfully.'));
         }
       } catch (error) {
-        toast.success(t('propertyDetailsPage.contact.toastInquirySent', 'Your inquiry has been sent! The agent will contact you soon.'));
-        setSuccessMessage(t('propertyDetailsPage.contact.successInquiry', 'Your inquiry was sent successfully.'));
+        // Inquiry is already saved even if chat bootstrap fails.
       }
-    } else {
-      toast.success(t('propertyDetailsPage.contact.toastInquirySent', 'Your inquiry has been sent! The agent will contact you soon.'));
-      setSuccessMessage(t('propertyDetailsPage.contact.successInquiry', 'Your inquiry was sent successfully.'));
     }
 
     setFormData({ name: '', email: '', phone: '', message: '', preferredContact: 'phone' });
+    navigate('/inquiry/success', {
+      state: {
+        propertyId,
+        propertyTitle
+      }
+    });
   };
 
   const handleStartChat = async () => {
@@ -137,12 +130,6 @@ export default function ContactAgentForm({
           Quick form
         </div>
       </div>
-
-      {successMessage && (
-        <div className="mb-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-          {successMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-3 md:grid-cols-2">

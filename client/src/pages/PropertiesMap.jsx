@@ -56,13 +56,29 @@ function FitToBounds({ properties, enabled }) {
   return null;
 }
 
-function RecenterToUser({ userLocation }) {
+function FitToClosestProperties({ properties, userLocation, enabled }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!userLocation) return;
-    map.setView(userLocation, 12);
-  }, [map, userLocation]);
+    if (!enabled) return;
+    if (!Array.isArray(userLocation)) return;
+    if (!properties.length) return;
+
+    const nearest = [...properties]
+      .sort((left, right) => {
+        const distanceA = typeof left.distanceKm === 'number' ? left.distanceKm : Number.POSITIVE_INFINITY;
+        const distanceB = typeof right.distanceKm === 'number' ? right.distanceKm : Number.POSITIVE_INFINITY;
+        return distanceA - distanceB;
+      })
+      .slice(0, 8);
+
+    const bounds = latLngBounds([
+      userLocation,
+      ...nearest.map((item) => item.coords || getCoordinates(item.location, item.id))
+    ]);
+
+    map.fitBounds(bounds.pad(0.18), { maxZoom: 12 });
+  }, [enabled, map, properties, userLocation]);
 
   return null;
 }
@@ -293,7 +309,11 @@ export default function PropertiesMap() {
         <div className="relative h-[calc(100vh-5rem)]">
           <MapContainer center={[6.5244, 3.3792]} zoom={11} style={{ height: '100%', width: '100%' }}>
             <FitToBounds properties={filteredProperties} enabled={!searchWithinBounds && !selectedProperty} />
-            <RecenterToUser userLocation={hasActiveLocation ? userLocation : null} />
+            <FitToClosestProperties
+              properties={filteredProperties}
+              userLocation={hasActiveLocation ? userLocation : null}
+              enabled={hasActiveLocation && !selectedProperty}
+            />
             <ViewportTracker onBoundsChange={setMapBounds} />
             <MapView
               properties={filteredProperties}

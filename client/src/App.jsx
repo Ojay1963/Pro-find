@@ -36,6 +36,7 @@ const Messages = React.lazy(() => import('./pages/Messages'))
 const BulkUpload = React.lazy(() => import('./pages/BulkUpload'))
 const ResetPassword = React.lazy(() => import('./pages/ResetPassword'))
 const ResetPasswordCheckEmail = React.lazy(() => import('./pages/ResetPasswordCheckEmail'))
+const InquirySuccess = React.lazy(() => import('./pages/InquirySuccess'))
 const Upgrade = React.lazy(() => import('./pages/Upgrade'))
 
 const buildAppUrl = (path) => {
@@ -119,6 +120,7 @@ function AppShell() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/property/:id/contact" element={<PropertyContact />} />
+            <Route path="/inquiry/success" element={<InquirySuccess />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin" element={<RequireAdmin><AdminPanel /></RequireAdmin>} />
             <Route path="/compare" element={<RequireAuth><CompareProperties /></RequireAuth>} />

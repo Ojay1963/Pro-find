@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import FeaturedProperties from '../components/FeaturedProperties';
@@ -8,9 +9,12 @@ import PropertySortFilter from '../components/PropertySortFilter';
 import AdvancedFilters from '../components/AdvancedFilters';
 import { FaCrosshairs, FaMap } from 'react-icons/fa';
 import { useI18n } from '../contexts/I18nContext';
+import { SearchContext } from '../contexts/SearchContext';
 
 export default function Properties() {
   const { t } = useI18n();
+  const { setSearch } = useContext(SearchContext);
+  const [searchParams] = useSearchParams();
   const [advancedFilters, setAdvancedFilters] = useState({});
   const [sortBy, setSortBy] = useState('relevance');
   const [viewMode, setViewMode] = useState('grid');
@@ -19,6 +23,17 @@ export default function Properties() {
   const [locationError, setLocationError] = useState('');
   const [isLocating, setIsLocating] = useState(false);
   const hasActiveLocation = Array.isArray(userLocation) && userLocation.length === 2;
+
+  useEffect(() => {
+    setSearch({
+      location: searchParams.get('location') || '',
+      type: searchParams.get('type') || 'All Types',
+      status: searchParams.get('status') || 'Buy',
+      beds: searchParams.get('beds') || '',
+      min: searchParams.get('min') || '',
+      max: searchParams.get('max') || ''
+    });
+  }, [searchParams, setSearch]);
 
   const handleSortChange = (sortValue) => {
     setSortBy(sortValue);

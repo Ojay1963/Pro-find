@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaBookmark, FaChevronDown, FaTimes } from 'react-icons/fa';
 import { SearchContext } from '../contexts/SearchContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -34,9 +34,10 @@ const formatSearchLabel = (search) => {
   return bits.join(' • ') || 'All properties';
 };
 
-export default function PropertiesSearchBar({ onSearchApplied }) {
+export default function PropertiesSearchBar({ onSearchApplied, resultsPath = '' }) {
   const { t } = useI18n();
   const { setSearch } = useContext(SearchContext);
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [fields, setFields] = useState(defaultFields);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
@@ -69,11 +70,25 @@ export default function PropertiesSearchBar({ onSearchApplied }) {
         params.set(key, value);
       }
     });
-    setSearchParams(params, { replace: source !== 'search_form' });
+    if (resultsPath) {
+      navigate(
+        {
+          pathname: resultsPath,
+          search: params.toString() ? `?${params.toString()}` : ''
+        },
+        { replace: false }
+      );
+    } else {
+      setSearchParams(params, { replace: source !== 'search_form' });
+    }
 
     storage.addRecentSearch(nextFields);
     void storage.trackEvent('search_submitted', { source, ...nextFields });
-    if (onSearchApplied) onSearchApplied();
+    if (onSearchApplied) {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => onSearchApplied(nextFields));
+      });
+    }
   };
 
   const handleChange = (event) => {
@@ -119,31 +134,9 @@ export default function PropertiesSearchBar({ onSearchApplied }) {
   ].filter(Boolean);
 
   const quickFilters = [
-    { label: 'Asaba', action: () => applyPreset({ location: 'Asaba, Delta' }) },
-    { label: 'Lagos', action: () => applyPreset({ location: 'Lagos' }) },
-    { label: 'Abuja', action: () => applyPreset({ location: 'Abuja' }) },
     { label: 'Rent', action: () => applyPreset({ status: 'Rent' }) },
     { label: '3 Bedrooms', action: () => applyPreset({ beds: '3' }) },
     { label: 'Under ₦100M', action: () => applyPreset({ max: '100000000' }) }
-  ];
-
-  const propertyLocations = [
-    'Asaba, Delta',
-    'Lagos',
-    'Abuja',
-    'Port Harcourt',
-    'Kano',
-    'Ibadan',
-    'Enugu',
-    'Benin City',
-    'Kaduna',
-    'Aba',
-    'Calabar',
-    'Ado Ekiti',
-    'Abakaliki',
-    'Osogbo',
-    'Lafia',
-    'Birnin Kebbi'
   ];
 
   return (
@@ -178,17 +171,11 @@ export default function PropertiesSearchBar({ onSearchApplied }) {
             <input
               name="location"
               type="text"
-              list="property-locations"
               placeholder={t('propertiesPage.search.locationPlaceholder', 'City or area (e.g. Lekki)')}
               className="w-full bg-transparent text-xl text-slate-700 outline-none placeholder:text-slate-500 md:text-2xl"
               value={fields.location}
               onChange={handleChange}
             />
-            <datalist id="property-locations">
-              {propertyLocations.map((location) => (
-                <option key={location} value={location} />
-              ))}
-            </datalist>
           </div>
 
           <div className="grid grid-cols-1 gap-4 text-white md:grid-cols-4">

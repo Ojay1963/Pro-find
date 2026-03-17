@@ -143,7 +143,7 @@ const HomePage = () => {
       <Header />
       <Hero />
       <div className="container mx-auto px-4 mt-24 py-8 animate-pop-in" style={{ animationDelay: '120ms' }}>
-        <PropertiesSearchBar onSearchApplied={handleSearchApplied} />
+        <PropertiesSearchBar onSearchApplied={handleSearchApplied} resultsPath="/properties" />
         <div className="mt-4">
           <PropertySortFilter
             onSortChange={setSortBy}
