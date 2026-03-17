@@ -70,7 +70,7 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 mt-24 py-20 bg-gray-50">
+      <main className="flex-1 py-20 bg-gray-50">
         <section className="home-content space-y-12">
           <div className="rounded-3xl border border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-green-50 p-8 sm:p-12 shadow-sm">
             <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('servicesPage.badge', 'Our Services')}</p>

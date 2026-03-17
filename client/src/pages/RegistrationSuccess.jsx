@@ -12,7 +12,7 @@ const RegistrationSuccess = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <div className="flex-1 flex items-center justify-center py-12 px-4">
+      <div className="flex-1 flex items-center justify-center pb-12 pt-12 px-4">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
             <div className="flex justify-center">

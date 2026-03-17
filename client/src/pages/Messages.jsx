@@ -110,7 +110,7 @@ export default function Messages() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 container mx-auto px-4 py-20 mt-24 text-center">
+        <main className="flex-1 container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">{t('messagesPage.loginRequired', 'Please log in to view messages')}</h1>
           <Link to="/login" className="text-green-600 underline">{t('messagesPage.goToLogin', 'Go to Login')}</Link>
         </main>
@@ -122,7 +122,7 @@ export default function Messages() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 mt-24">
+      <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">{t('messagesPage.title', 'Messages')}</h1>
           <p className="text-gray-600">{t('messagesPage.subtitle', 'Chat with agents and property owners')}</p>

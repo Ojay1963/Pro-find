@@ -17,13 +17,17 @@ const ResetPassword = () => {
     newPassword: '',
     confirmPassword: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
+    setIsSubmitting(true)
     try {
       if (formData.token && formData.newPassword) {
         if (formData.newPassword !== formData.confirmPassword) {
           toast.error(t('resetPage.errors.passwordsNoMatch', 'Passwords do not match.'))
+          setIsSubmitting(false)
           return
         }
         await storage.confirmPasswordReset(formData.token, formData.newPassword)
@@ -38,13 +42,15 @@ const ResetPassword = () => {
       }
     } catch (error) {
       toast.error(error.message || t('resetPage.errors.generic', 'Unable to process password reset request.'))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <div className="flex-1 flex items-center justify-center py-12 px-4">
+      <div className="flex-1 flex items-center justify-center pb-12 pt-12 px-4">
         <div className="max-w-md w-full">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-green-700">PROFIND</h1>
@@ -96,11 +102,16 @@ const ResetPassword = () => {
             )}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+              disabled={isSubmitting}
+              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {formData.token
-                ? t('resetPage.form.updatePassword', 'Update Password')
-                : t('resetPage.form.sendResetLink', 'Send Reset Link')}
+              {isSubmitting
+                ? formData.token
+                  ? t('resetPage.form.updatingPassword', 'Updating Password...')
+                  : t('resetPage.form.sendingResetLink', 'Sending Reset Link...')
+                : formData.token
+                  ? t('resetPage.form.updatePassword', 'Update Password')
+                  : t('resetPage.form.sendResetLink', 'Send Reset Link')}
             </button>
           </form>
         </div>

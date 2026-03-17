@@ -8,6 +8,10 @@ import { storage } from '../utils/localStorage'
 import toast from 'react-hot-toast'
 import { useI18n } from '../contexts/I18nContext'
 
+const CAC_NUMBER_REGEX = /^(RC|BN|IT)\d{7}$/i
+const CAC_NUMBER_HINT = 'Use RC, BN, or IT followed by 7 digits, for example RC1234567.'
+const PHONE_NUMBER_REGEX = /^\d{11}$/
+
 const Register = () => {
   const { t } = useI18n()
   const navigate = useNavigate()
@@ -19,7 +23,7 @@ const Register = () => {
       confirmPassword: z.string().min(1, t('registerPage.errors.confirmPasswordRequired', 'Please confirm your password')),
       phone: z.string().min(1, t('registerPage.errors.phoneRequired', 'Phone number is required')),
       role: z.enum(['seeker', 'owner', 'agent']),
-      licenseNumber: z.string().optional(),
+      cacNumber: z.string().optional(),
       companyName: z.string().optional()
     })
     .superRefine((data, ctx) => {
@@ -31,11 +35,35 @@ const Register = () => {
         })
       }
 
-      if (data.role === 'agent' && (!data.licenseNumber || data.licenseNumber.trim().length === 0)) {
+      if (!PHONE_NUMBER_REGEX.test(String(data.phone || '').trim())) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['licenseNumber'],
-          message: t('registerPage.errors.licenseRequired', 'License number is required for agents')
+          path: ['phone'],
+          message: t('registerPage.errors.phoneFormat', 'Phone number must be exactly 11 digits')
+        })
+      }
+
+      const cacNumber = String(data.cacNumber || '').trim().toUpperCase()
+
+      if (data.role === 'agent' && !cacNumber) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['cacNumber'],
+          message: t('registerPage.errors.cacRequired', 'CAC number is required for agents')
+        })
+      } else if (data.role === 'agent' && !CAC_NUMBER_REGEX.test(cacNumber)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['cacNumber'],
+          message: t('registerPage.errors.cacFormat', CAC_NUMBER_HINT)
+        })
+      }
+
+      if (data.role === 'agent' && !String(data.companyName || '').trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['companyName'],
+          message: t('registerPage.errors.companyNameRequired', 'Company name is required for agents')
         })
       }
     })
@@ -46,7 +74,7 @@ const Register = () => {
     confirmPassword: '',
     phone: '',
     role: 'seeker',
-    licenseNumber: '', // For agents
+    cacNumber: '', // For agents
     companyName: '' // For agents
   }
   const [formData, setFormData] = useState(initialFormData)
@@ -88,7 +116,7 @@ const Register = () => {
         phone: formData.phone,
         role: formData.role,
         ...(formData.role === 'agent' && {
-          licenseNumber: formData.licenseNumber,
+          cacNumber: formData.cacNumber.trim().toUpperCase(),
           companyName: formData.companyName,
           verified: false
         })
@@ -96,12 +124,13 @@ const Register = () => {
       
       try {
         await storage.addUser(userData)
-        try {
-          await storage.sendOtp(formData.email, 'email_verification')
-          toast.success(t('registerPage.toast.success', 'Account created. OTP sent to your email.'))
-        } catch (otpError) {
-          toast.error(otpError.message || 'Account created, but OTP could not be sent. Try resend on the next page.')
-        }
+        void storage.sendOtp(formData.email, 'email_verification')
+          .then(() => {
+            toast.success(t('registerPage.toast.success', 'Account created. OTP sent to your email.'))
+          })
+          .catch((otpError) => {
+            toast.error(otpError.message || 'Account created, but OTP could not be sent. Try resend on the next page.')
+          })
         setFormData(initialFormData)
         setErrors({})
         navigate('/verify-otp', { state: { email: formData.email } })
@@ -274,9 +303,12 @@ const Register = () => {
                       }`}
                       value={formData.phone}
                       onChange={(e) => {
-                        setFormData({...formData, phone: e.target.value})
+                        const phone = e.target.value.replace(/\D/g, '').slice(0, 11)
+                        setFormData({...formData, phone})
                         if (errors.phone) setErrors({...errors, phone: ''})
                       }}
+                      inputMode="numeric"
+                      maxLength={11}
                       required
                     />
                   </div>
@@ -353,23 +385,27 @@ const Register = () => {
                 {formData.role === 'agent' && (
                   <>
                     <div>
-                      <label className="block text-gray-700 mb-2">{t('registerPage.form.licenseNumber', 'License Number')}</label>
+                      <label className="block text-gray-700 mb-2">{t('registerPage.form.cacNumber', 'CAC Number')}</label>
                       <input
                         type="text"
-                        placeholder={t('registerPage.form.licenseNumberPlaceholder', 'Enter your real estate license number')}
+                        placeholder={t('registerPage.form.cacNumberPlaceholder', 'RC1234567')}
                         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
-                          errors.licenseNumber ? 'border-red-500' : 'border-gray-300'
+                          errors.cacNumber ? 'border-red-500' : 'border-gray-300'
                         }`}
-                        value={formData.licenseNumber}
+                        value={formData.cacNumber}
                         onChange={(e) => {
-                          setFormData({...formData, licenseNumber: e.target.value})
-                          if (errors.licenseNumber) setErrors({...errors, licenseNumber: ''})
+                          setFormData({...formData, cacNumber: e.target.value.toUpperCase()})
+                          if (errors.cacNumber) setErrors({...errors, cacNumber: ''})
                         }}
+                        maxLength={9}
                       />
-                      {errors.licenseNumber && <p className="text-red-500 text-sm mt-1">{errors.licenseNumber}</p>}
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('registerPage.form.cacNumberHint', CAC_NUMBER_HINT)}
+                      </p>
+                      {errors.cacNumber && <p className="text-red-500 text-sm mt-1">{errors.cacNumber}</p>}
                     </div>
                     <div>
-                      <label className="block text-gray-700 mb-2">{t('registerPage.form.companyName', 'Company Name (Optional)')}</label>
+                      <label className="block text-gray-700 mb-2">{t('registerPage.form.companyName', 'Company Name')}</label>
                       <input
                         type="text"
                         placeholder={t('registerPage.form.companyNamePlaceholder', 'Your real estate company')}
@@ -381,6 +417,7 @@ const Register = () => {
                           setFormData({...formData, companyName: e.target.value})
                           if (errors.companyName) setErrors({...errors, companyName: ''})
                         }}
+                        required={formData.role === 'agent'}
                       />
                       {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
                     </div>
@@ -390,7 +427,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? t('registerPage.form.creating', 'Creating Account...') : t('registerPage.form.create', 'Create Account')}
                 </button>
@@ -398,7 +435,7 @@ const Register = () => {
                 <div className="text-center">
                   <p className="text-gray-600">
                     {t('registerPage.form.haveAccount', 'Already have an account?')}{' '}
-                    <Link to="/login" className="text-green-600 hover:underline font-semibold">
+                    <Link to="/login" className="text-green-600 hover:underline font-semibold cursor-pointer">
                       {t('registerPage.form.signIn', 'Sign In')}
                     </Link>
                   </p>

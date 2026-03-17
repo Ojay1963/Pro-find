@@ -220,7 +220,7 @@ export default function CreateListing() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 mt-24">
+      <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-2">{editId ? 'Edit Listing' : 'Create New Listing'}</h1>
           <p className="text-gray-600 mb-6">{editId ? 'Update your listing details' : 'Fill in the details to list your property'}</p>

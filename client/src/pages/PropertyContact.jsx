@@ -42,7 +42,7 @@ export default function PropertyContact() {
     <div className="min-h-screen flex flex-col bg-[#f4f7fb]">
       <Header />
 
-      <main className="flex-1 px-4 pb-12 pt-28 sm:px-6">
+      <main className="flex-1 px-4 pb-12 pt-8 sm:px-6">
         <section className="mx-auto w-full max-w-4xl">
           <div className="overflow-hidden rounded-[32px] border border-[#22314f] bg-[#0f172d] shadow-[0_28px_80px_rgba(15,23,45,0.24)]">
             <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_42%),linear-gradient(180deg,_rgba(18,26,47,0.96),_rgba(13,21,39,0.98))] px-5 py-6 sm:px-8">

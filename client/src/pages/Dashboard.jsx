@@ -97,7 +97,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <main className="flex-1 container mx-auto px-4 py-8 mt-24">
+        <main className="flex-1 container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <p className="text-gray-600">Redirecting to homepage...</p>
           </div>
@@ -131,7 +131,7 @@ export default function Dashboard() {
     ];
 
     if (userRole === 'agent') {
-      checks.push(Boolean(currentUser?.licenseNumber));
+      checks.push(Boolean(currentUser?.cacNumber || currentUser?.licenseNumber));
       checks.push(Boolean(currentUser?.companyName));
     }
 
@@ -187,7 +187,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 mt-24 dashboard-page">
+      <main className="flex-1 container mx-auto px-4 py-8 dashboard-page">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Welcome back, {userName}!</h1>
           <p className="text-gray-600">Manage your properties, inquiries, and preferences</p>

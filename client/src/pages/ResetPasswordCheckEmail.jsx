@@ -12,7 +12,7 @@ const ResetPasswordCheckEmail = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <div className="flex-1 flex items-center justify-center py-12 px-4">
+      <div className="flex-1 flex items-center justify-center pb-12 pt-12 px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-6 text-center">
           <h1 className="text-3xl font-bold text-green-700">PROFIND</h1>
           <h2 className="text-xl font-bold mt-4">

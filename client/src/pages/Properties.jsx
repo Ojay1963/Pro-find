@@ -66,7 +66,7 @@ export default function Properties() {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="container mx-auto mt-24 px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h1 className="text-3xl font-bold">{t('propertiesPage.title', 'Properties')}</h1>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center md:w-auto">

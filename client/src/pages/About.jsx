@@ -10,7 +10,7 @@ export default function About() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-20 mt-24">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-20">
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-50 via-white to-green-50 border border-emerald-100 p-8 sm:p-12 mb-14">
           <div className="absolute -top-20 -right-16 h-56 w-56 rounded-full bg-green-200/40 blur-3xl" />
           <div className="absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-emerald-200/40 blur-3xl" />

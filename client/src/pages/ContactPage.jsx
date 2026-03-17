@@ -10,7 +10,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-20 mt-24">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-20">
         <div className="rounded-3xl border border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-green-50 p-8 sm:p-12 mb-12">
           <p className="text-xs uppercase tracking-[0.3em] text-green-600 mb-3">{t('contactPage.badge', 'Contact Profind')}</p>
           <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 mb-4">

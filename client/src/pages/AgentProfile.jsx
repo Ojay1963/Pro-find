@@ -25,7 +25,7 @@ export default function AgentProfile() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 container mx-auto px-4 py-20 mt-24 text-center">
+        <main className="flex-1 container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">Agent Not Found</h1>
           <Link to="/properties" className="text-blue-600 underline">Back to Properties</Link>
         </main>
@@ -37,7 +37,7 @@ export default function AgentProfile() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 mt-24">
+      <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Agent Header */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
@@ -65,8 +65,8 @@ export default function AgentProfile() {
                         {agent.companyName}
                       </p>
                     )}
-                    {agent.licenseNumber && (
-                      <p className="text-sm text-gray-500">License: {agent.licenseNumber}</p>
+                    {(agent.cacNumber || agent.licenseNumber) && (
+                      <p className="text-sm text-gray-500">CAC: {agent.cacNumber || agent.licenseNumber}</p>
                     )}
                   </div>
                 </div>

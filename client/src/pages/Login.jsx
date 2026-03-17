@@ -144,7 +144,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? t('loginPage.form.signingIn', 'Signing In...') : t('loginPage.form.signIn', 'Sign In')}
                 </button>
@@ -152,7 +152,7 @@ const Login = () => {
                 <div className="text-center">
                   <p className="text-gray-600">
                     {t('loginPage.form.noAccount', "Don't have an account?")}{' '}
-                    <Link to="/register" className="text-green-600 hover:underline font-semibold">
+                    <Link to="/register" className="text-green-600 hover:underline font-semibold cursor-pointer">
                       {t('loginPage.form.createAccount', 'Create Account')}
                     </Link>
                   </p>

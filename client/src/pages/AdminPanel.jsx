@@ -85,7 +85,7 @@ export default function AdminPanel() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 container mx-auto px-4 py-20 mt-24 text-center">
+        <main className="flex-1 container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-4">You don't have permission to access this page.</p>
           <button onClick={() => navigate('/')} className="px-6 py-2 bg-green-600 text-white rounded-lg">
@@ -199,7 +199,7 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 mt-24">
+      <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
             <FaShieldAlt className="text-green-600" />
@@ -340,7 +340,7 @@ export default function AdminPanel() {
                               <h3 className="font-bold text-lg mb-1">{user?.name || 'Unknown User'}</h3>
                               <p className="text-gray-600 mb-2">{user?.email}</p>
                               <div className="space-y-1 text-sm">
-                                <p><span className="font-semibold">License Number:</span> {verification.credentials?.licenseNumber || 'N/A'}</p>
+                                <p><span className="font-semibold">CAC Number:</span> {verification.credentials?.cacNumber || verification.credentials?.licenseNumber || user?.cacNumber || 'N/A'}</p>
                                 <p><span className="font-semibold">Company:</span> {verification.credentials?.companyName || user?.companyName || 'N/A'}</p>
                                 <p><span className="font-semibold">Phone:</span> {user?.phone || 'N/A'}</p>
                               </div>

@@ -190,9 +190,17 @@
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
 }
 
-.dashboard-page button,
-.dashboard-page a {
+a[href],
+button,
+[role='button'],
+label[for],
+summary {
   cursor: pointer;
+}
+
+button:disabled,
+[role='button'][aria-disabled='true'] {
+  cursor: not-allowed;
 }
 
 .dark body {

@@ -237,6 +237,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, default: '' },
     phone: { type: String },
     role: { type: String, default: 'seeker' },
+    cacNumber: { type: String },
     licenseNumber: { type: String },
     companyName: { type: String },
     verified: { type: Boolean, default: false },
@@ -536,7 +537,7 @@ const toUserResponse = (user) => ({
   emailVerified: user.emailVerified,
   averageRating: user.averageRating,
   totalReviews: user.totalReviews,
-  licenseNumber: user.licenseNumber,
+  cacNumber: user.cacNumber || user.licenseNumber,
   companyName: user.companyName
 })
 
@@ -650,16 +651,45 @@ const otpVerifyLimiter = rateLimit({
 })
 
 const allowedRoles = ['seeker', 'owner', 'agent']
+const cacNumberRegex = /^(RC|BN|IT)\d{7}$/i
 
-const authRegisterSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
-  phone: z.string().optional(),
-  role: z.enum(['seeker', 'owner', 'agent']).optional(),
-  licenseNumber: z.string().optional(),
-  companyName: z.string().optional()
-})
+const authRegisterSchema = z
+  .object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    password: z.string().min(6),
+    phone: z.string().regex(/^\d{11}$/, 'Phone number must be exactly 11 digits').optional(),
+    role: z.enum(['seeker', 'owner', 'agent']).optional(),
+    cacNumber: z.string().optional(),
+    licenseNumber: z.string().optional(),
+    companyName: z.string().optional()
+  })
+  .superRefine((data, ctx) => {
+    const cacNumber = String(data.cacNumber || data.licenseNumber || '').trim().toUpperCase()
+    if (data.role !== 'agent') return
+    if (!cacNumber) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['cacNumber'],
+        message: 'CAC number is required for agents'
+      })
+      return
+    }
+    if (!cacNumberRegex.test(cacNumber)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['cacNumber'],
+        message: 'CAC number must use RC, BN, or IT followed by 7 digits'
+      })
+    }
+    if (!String(data.companyName || '').trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['companyName'],
+        message: 'Company name is required for agents'
+      })
+    }
+  })
 
 const authLoginSchema = z.object({
   email: z.string().email(),
@@ -1094,7 +1124,7 @@ const adminUserUpdateSchema = z.object({
   phone: z.string().optional(),
   emailVerified: z.boolean().optional(),
   verified: z.boolean().optional(),
-  licenseNumber: z.string().optional(),
+  cacNumber: z.string().optional(),
   companyName: z.string().optional()
 })
 
@@ -1135,8 +1165,9 @@ app.use('/api', requireCsrf)
 app.post('/api/auth/register', authLimiter, async (req, res) => {
   const parse = authRegisterSchema.safeParse(req.body)
   if (!parse.success) return res.status(400).json({ error: 'Invalid data' })
-  const { name, password, phone, role, licenseNumber, companyName } = parse.data
+  const { name, password, phone, role, companyName } = parse.data
   const email = String(parse.data.email).trim().toLowerCase()
+  const cacNumber = String(parse.data.cacNumber || parse.data.licenseNumber || '').trim().toUpperCase()
   if (role && !allowedRoles.includes(role)) {
     return res.status(400).json({ error: 'Invalid role' })
   }
@@ -1151,7 +1182,7 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     passwordHash,
     phone,
     role: normalizedRole,
-    licenseNumber,
+    cacNumber: cacNumber || undefined,
     companyName,
     emailVerified: false
   })

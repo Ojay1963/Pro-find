@@ -96,8 +96,9 @@ export default function Header() {
   const toLanguageShort = (code) => code.toUpperCase();
 
   return (
-    <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
-      <div className="container mx-auto flex h-20 items-center justify-between gap-4 px-4">
+    <>
+      <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
+        <div className="container mx-auto flex h-20 items-center justify-between gap-4 px-4">
         
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={closeMenu}>
@@ -259,11 +260,11 @@ export default function Header() {
       </div>
 
       {/* Mobile Navigation */}
-      {menuOpen && (
-        <nav
-          className="lg:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
+        {menuOpen && (
+          <nav
+            className="lg:hidden bg-white shadow-lg absolute top-20 left-0 w-full flex flex-col py-4 px-6 z-50 animate-fade-in"
           aria-label={t('header.mobileNavigation', 'Mobile navigation')}
-        >
+          >
           {!isInstalled && (canPrompt || showIosHint) && (
             <button
               type="button"
@@ -357,9 +358,11 @@ export default function Header() {
               </a>
             ))}
           </div>
-        </nav>
-      )}
-    </header>
+          </nav>
+        )}
+      </header>
+      <div className="h-20 w-full shrink-0" aria-hidden="true" />
+    </>
   );
 }
 
