@@ -232,11 +232,11 @@ export default function PropertyDetails() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 md:py-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-[2rem] border border-gray-100 bg-white shadow-sm md:rounded-3xl">
               <div className="relative aspect-[16/11] w-full bg-gray-900">
                 <img
                   src={currentImage}
@@ -296,15 +296,23 @@ export default function PropertyDetails() {
                 </div>
               </div>
 
-              <div className="grid gap-5 p-5 lg:grid-cols-[1.15fr_0.85fr] lg:p-6">
+              <div className="grid gap-5 p-4 md:p-5 lg:grid-cols-[1.15fr_0.85fr] lg:p-6">
                 <div>
+                  <div className="mb-4 md:hidden">
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-emerald-600">
+                      {t('propertyDetailsPage.mobileBadge', 'Property overview')}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {trust.marketSummary}
+                    </p>
+                  </div>
                   <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{property.title}</h1>
                   <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
                     <FaMapMarkerAlt />
                     <span>{property.location}</span>
                   </div>
 
-                  <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-700">
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-sm text-gray-700 md:flex md:flex-wrap md:gap-3">
                     <div className="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-2">
                       <FaBed />
                       <span>{property.beds} {t('propertyDetailsPage.labels.beds', 'Beds')}</span>
@@ -332,7 +340,7 @@ export default function PropertyDetails() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-green-50 p-5">
+                <div className="rounded-[1.6rem] bg-green-50 p-5">
                   <div className="text-2xl font-bold text-green-600">
                     {isRental && monthlyRent()
                       ? formatAnnual(Number(String(property?.price || '').replace(/[^\d]/g, '')))
@@ -371,15 +379,15 @@ export default function PropertyDetails() {
             </div>
 
             {/* Description */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4">{t('propertyDetailsPage.description', 'Description')}</h2>
-              <p className="text-gray-700 leading-relaxed">{property.description}</p>
+            <div className="rounded-[1.7rem] border border-gray-100 bg-white p-5 shadow-sm md:rounded-2xl md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+              <h2 className="mb-4 text-2xl font-bold">{t('propertyDetailsPage.description', 'Description')}</h2>
+              <p className="leading-relaxed text-gray-700">{property.description}</p>
             </div>
 
             {/* Features */}
             {property.features && property.features.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">{t('propertyDetailsPage.features', 'Features & Amenities')}</h2>
+              <div className="rounded-[1.7rem] border border-gray-100 bg-white p-5 shadow-sm md:rounded-2xl md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+                <h2 className="mb-4 text-2xl font-bold">{t('propertyDetailsPage.features', 'Features & Amenities')}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {property.features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -392,7 +400,7 @@ export default function PropertyDetails() {
             )}
 
             {/* Neighborhood Insights */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-[1.7rem] shadow-sm border border-gray-100 p-5 md:rounded-2xl md:p-6">
               <h2 className="text-2xl font-bold mb-4">{t('propertyDetailsPage.neighborhoodInsights', 'Neighborhood Insights')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {neighborhoodInsights.map((item) => (
@@ -412,7 +420,7 @@ export default function PropertyDetails() {
             </div>
 
             {/* Market Pulse */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-[1.7rem] shadow-sm border border-gray-100 p-5 md:rounded-2xl md:p-6">
               <h2 className="text-2xl font-bold mb-4">{t('propertyDetailsPage.marketPulse', 'Market Pulse')}</h2>
               <p className="text-gray-600 mb-4">
                 {t('propertyDetailsPage.marketPulseText', 'Demand, price momentum, and listing velocity for this area.')}
@@ -439,7 +447,7 @@ export default function PropertyDetails() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-[1.7rem] shadow-sm border border-gray-100 p-5 md:rounded-2xl md:p-6">
               <h2 className="text-2xl font-bold mb-4">{t('propertyDetailsPage.nearbyEssentials', 'Nearby Essentials')}</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {nearbyPlaces.map((item) => (
@@ -451,7 +459,7 @@ export default function PropertyDetails() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="rounded-[1.7rem] border border-gray-100 bg-white p-5 shadow-sm md:rounded-2xl md:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{t('propertyDetailsPage.nextStep.title', 'Plan Your Next Step')}</h2>
@@ -520,7 +528,7 @@ export default function PropertyDetails() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 lg:sticky lg:top-24">
+            <div className="bg-white rounded-[1.7rem] shadow-sm p-5 border border-gray-200 lg:sticky lg:top-24 md:p-6">
               <h3 className="text-lg font-bold mb-4">{t('propertyDetailsPage.quickActions', 'Quick Actions')}</h3>
               <div className="mb-4 rounded-xl border border-green-100 bg-green-50 p-4">
                 <div className="flex items-center gap-2 text-green-700">
@@ -611,7 +619,7 @@ export default function PropertyDetails() {
 
             {/* Agent Info */}
             {property.agentName && (
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+              <div className="bg-white rounded-[1.7rem] shadow-sm p-5 border border-gray-200 md:p-6">
                 <h3 className="text-lg font-bold mb-4">{t('propertyDetailsPage.listedBy', 'Listed by')}</h3>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
@@ -652,6 +660,35 @@ export default function PropertyDetails() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="property-mobile-dock lg:hidden">
+        <div className="property-mobile-dock__inner">
+          <button
+            type="button"
+            onClick={handlePrimaryContact}
+            className="property-mobile-dock__primary"
+          >
+            {t('propertyDetailsPage.contact.title', 'Contact Agent')}
+          </button>
+          <a
+            href={`https://wa.me/2347082206013?text=${encodeURIComponent(`Hi, I am interested in ${property.title}. Please share the next step for inspection, documents, or a site visit.`)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="property-mobile-dock__secondary"
+          >
+            <FaWhatsapp />
+            <span>{t('propertyDetailsPage.whatsappShort', 'WhatsApp')}</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => setActivePanel('schedule')}
+            className="property-mobile-dock__secondary"
+          >
+            <FaCalendarAlt />
+            <span>{t('propertyDetailsPage.scheduleShort', 'Visit')}</span>
+          </button>
+        </div>
       </div>
 
       <Footer />

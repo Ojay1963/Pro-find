@@ -54,9 +54,9 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20 pb-10 px-4 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 px-4 pb-0 pt-10 backdrop-blur-[2px] md:items-start md:pb-10 md:pt-20 overflow-y-auto">
+      <div className="advanced-filters-sheet w-full max-w-4xl overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl md:max-h-[90vh] md:rounded-[1.75rem]">
+        <div className="sticky top-0 flex items-center justify-between border-b bg-white/95 p-4 backdrop-blur">
           <div className="flex items-center gap-2">
             <FaFilter className="text-green-600" />
             <h2 className="text-xl font-bold">Advanced Filters</h2>
@@ -69,7 +69,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="space-y-6 p-5 md:p-6">
           {/* Listing Type */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Listing Type</label>
@@ -79,7 +79,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
                   key={type}
                   type="button"
                   onClick={() => handleChange('listingType', filters.listingType === type ? '' : type)}
-                  className={`p-3 border-2 rounded-lg font-medium transition ${
+                  className={`min-h-[48px] rounded-2xl border-2 p-3 font-medium transition ${
                     filters.listingType === type
                       ? 'border-green-600 bg-green-50 text-green-700'
                       : 'border-gray-300 hover:border-green-300'
@@ -97,7 +97,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
             <select
               value={filters.propertyType}
               onChange={(e) => handleChange('propertyType', e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">All Property Types</option>
               <option value="House">House</option>
@@ -116,7 +116,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
               <select
                 value={filters.beds}
                 onChange={(e) => handleChange('beds', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">Any</option>
                 <option value="1">1+</option>
@@ -134,7 +134,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
               <select
                 value={filters.baths}
                 onChange={(e) => handleChange('baths', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">Any</option>
                 <option value="1">1+</option>
@@ -157,20 +157,20 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
                 placeholder="Min Size"
                 value={filters.minSize}
                 onChange={(e) => handleChange('minSize', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
               <input
                 type="number"
                 placeholder="Max Size"
                 value={filters.maxSize}
                 onChange={(e) => handleChange('maxSize', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
           </div>
 
           {/* Year Built & Parking */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-gray-700 font-semibold mb-2">Year Built</label>
               <input
@@ -178,7 +178,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
                 placeholder="e.g. 2020"
                 value={filters.yearBuilt}
                 onChange={(e) => handleChange('yearBuilt', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
             <div>
@@ -186,7 +186,7 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
               <select
                 value={filters.parking}
                 onChange={(e) => handleChange('parking', e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-2xl border border-gray-300 p-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">Any</option>
                 <option value="1">1+</option>
@@ -200,11 +200,11 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
           {/* Amenities */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Amenities</label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {amenitiesList.map(amenity => (
                 <label
                   key={amenity}
-                  className="flex items-center gap-2 p-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
+                  className="flex cursor-pointer items-center gap-2 rounded-2xl border border-gray-300 p-3 hover:bg-gray-50"
                 >
                   <input
                     type="checkbox"
@@ -219,18 +219,18 @@ export default function AdvancedFilters({ onFilterChange, isOpen, onClose }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t">
+          <div className="sticky bottom-0 flex gap-3 border-t bg-white/95 pb-5 pt-4 backdrop-blur md:static md:bg-transparent md:pb-0">
             <button
               type="button"
               onClick={clearFilters}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition"
+              className="flex-1 rounded-2xl border border-gray-300 px-4 py-3 font-medium transition hover:bg-gray-50"
             >
               Clear All
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition"
+              className="flex-1 rounded-2xl bg-green-600 px-4 py-3 font-medium text-white transition hover:bg-green-700"
             >
               Apply Filters
             </button>

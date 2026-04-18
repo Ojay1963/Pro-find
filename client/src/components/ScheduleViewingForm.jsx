@@ -65,12 +65,20 @@ export default function ScheduleViewingForm({
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-      <h3 className="text-xl font-bold mb-2">{heading}</h3>
-      <p className="text-gray-600 mb-4">{helperText}</p>
+    <div className="rounded-[28px] border border-white/10 bg-[#f8fafc] p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-5">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">{heading}</h3>
+          <p className="text-slate-600">{helperText}</p>
+        </div>
+        <div className="inline-flex w-fit rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+          Booking
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
           <label className="block text-gray-700 mb-2 flex items-center gap-2">
             <FaUser className="text-gray-400" />
             {t('propertyDetailsPage.form.fullName', 'Full Name')}
@@ -80,7 +88,7 @@ export default function ScheduleViewingForm({
             required
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             placeholder={t('propertyDetailsPage.form.fullNamePlaceholder', 'Your name')}
           />
         </div>
@@ -95,9 +103,10 @@ export default function ScheduleViewingForm({
             required
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             placeholder={t('propertyDetailsPage.form.emailPlaceholder', 'your@email.com')}
           />
+        </div>
         </div>
 
         <div>
@@ -110,12 +119,12 @@ export default function ScheduleViewingForm({
             required
             value={formData.phone}
             onChange={(e) => setFormData({...formData, phone: e.target.value})}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             placeholder={t('propertyDetailsPage.form.phonePlaceholder', '0803 123 4567')}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-gray-700 mb-2 flex items-center gap-2">
               <FaCalendar className="text-gray-400" />
@@ -127,7 +136,7 @@ export default function ScheduleViewingForm({
               min={today}
               value={formData.preferredDate}
               onChange={(e) => setFormData({...formData, preferredDate: e.target.value})}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
 
@@ -140,7 +149,7 @@ export default function ScheduleViewingForm({
               required
               value={formData.preferredTime}
               onChange={(e) => setFormData({...formData, preferredTime: e.target.value})}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">{t('propertyDetailsPage.schedule.selectTime', 'Select time')}</option>
               {timeSlots.map(time => (
@@ -156,14 +165,14 @@ export default function ScheduleViewingForm({
             value={formData.message}
             onChange={(e) => setFormData({...formData, message: e.target.value})}
             rows="3"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 focus:ring-2 focus:ring-green-500 focus:border-transparent"
             placeholder={t('propertyDetailsPage.schedule.notesPlaceholder', 'Any special requests or questions...')}
           />
         </div>
 
         <button
           type="submit"
-          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+          className="w-full rounded-2xl bg-green-600 py-3.5 font-semibold text-white transition-colors hover:bg-green-700"
         >
           {actionLabel}
         </button>

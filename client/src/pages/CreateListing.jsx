@@ -220,18 +220,21 @@ export default function CreateListing() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">{editId ? 'Edit Listing' : 'Create New Listing'}</h1>
-          <p className="text-gray-600 mb-6">{editId ? 'Update your listing details' : 'Fill in the details to list your property'}</p>
+          <div className="mb-6 overflow-hidden rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm md:rounded-3xl md:p-6">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-emerald-600">Listing studio</p>
+            <h1 className="mb-2 mt-2 text-3xl font-bold">{editId ? 'Edit Listing' : 'Create New Listing'}</h1>
+            <p className="text-gray-600">{editId ? 'Update your listing details' : 'Fill in the details to list your property'}</p>
+          </div>
 
           {/* Progress Steps */}
-          <div className="mb-8">
+          <div className="create-listing-progress mb-6 rounded-[1.75rem] border border-gray-200 bg-white/90 p-4 shadow-sm backdrop-blur md:mb-8">
             <div className="flex items-center justify-between">
               {[1, 2, 3, 4].map((num) => (
                 <React.Fragment key={num}>
                   <div className="flex items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold ${
                       step >= num ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
                     }`}>
                       {num}
@@ -246,7 +249,7 @@ export default function CreateListing() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <form id="create-listing-form" onSubmit={handleSubmit} className="create-listing-form-card rounded-[1.8rem] border border-gray-200 bg-white p-5 shadow-sm md:rounded-xl md:p-6">
             {/* Step 1: Basic Information */}
             {step === 1 && (
               <div className="space-y-6">
@@ -571,7 +574,7 @@ export default function CreateListing() {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8 pt-6 border-t">
+            <div className="hidden justify-between mt-8 border-t pt-6 md:flex">
               <button
                 type="button"
                 onClick={() => step > 1 ? setStep(step - 1) : navigate('/dashboard')}
@@ -600,6 +603,34 @@ export default function CreateListing() {
           </form>
         </div>
       </main>
+      <div className="create-listing-mobile-dock md:hidden">
+        <div className="create-listing-mobile-dock__inner">
+          <button
+            type="button"
+            onClick={() => step > 1 ? setStep(step - 1) : navigate('/dashboard')}
+            className="create-listing-mobile-dock__secondary"
+          >
+            {step > 1 ? 'Previous' : 'Cancel'}
+          </button>
+          {step < 4 ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="create-listing-mobile-dock__primary"
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              type="submit"
+              form="create-listing-form"
+              className="create-listing-mobile-dock__primary"
+            >
+              {editId ? 'Update Listing' : 'Publish Listing'}
+            </button>
+          )}
+        </div>
+      </div>
       <Footer />
     </div>
   );

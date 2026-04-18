@@ -189,7 +189,7 @@ const Register = () => {
           </div>
 
           <div className="w-full max-w-2xl">
-            <div className="rounded-3xl border border-white/10 bg-white/95 shadow-2xl backdrop-blur-lg p-6 sm:p-8">
+            <div className="rounded-[2rem] border border-white/10 bg-white/95 p-5 shadow-2xl backdrop-blur-lg sm:rounded-3xl sm:p-8">
               <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-green-700 tracking-wide">PROFIND</h1>
                 <h2 className="text-xl font-semibold mt-3">{t('registerPage.title', 'Create Your Account')}</h2>
@@ -201,7 +201,7 @@ const Register = () => {
                   <button
                     type="button"
                     onClick={() => setFormData({...formData, role: 'seeker'})}
-                    className={`p-3 border rounded-lg flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
+                    className={`min-h-[88px] rounded-2xl border p-3 flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
                       formData.role === 'seeker'
                         ? 'border-green-600 bg-green-50'
                         : 'border-gray-300'
@@ -216,7 +216,7 @@ const Register = () => {
                       setFormData({...formData, role: 'owner'})
                       if (errors.role) setErrors({...errors, role: ''})
                     }}
-                    className={`p-3 border rounded-lg flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
+                    className={`min-h-[88px] rounded-2xl border p-3 flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
                       formData.role === 'owner'
                         ? 'border-green-600 bg-green-50'
                         : 'border-gray-300'
@@ -231,7 +231,7 @@ const Register = () => {
                       setFormData({...formData, role: 'agent'})
                       if (errors.role) setErrors({...errors, role: ''})
                     }}
-                    className={`p-3 border rounded-lg flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
+                    className={`min-h-[88px] rounded-2xl border p-3 flex flex-col items-center justify-center space-y-1 text-sm transition-colors ${
                       formData.role === 'agent'
                         ? 'border-green-600 bg-green-50'
                         : 'border-gray-300'
@@ -252,7 +252,7 @@ const Register = () => {
                       name="fullName"
                       autoComplete="off"
                       placeholder={t('registerPage.form.fullNamePlaceholder', 'Enter your full name')}
-                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                      className={`w-full rounded-2xl border bg-white py-3.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                         errors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
                       value={formData.name}
@@ -275,7 +275,7 @@ const Register = () => {
                       name="email"
                       autoComplete="off"
                       placeholder={t('registerPage.form.emailPlaceholder', 'example@email.com')}
-                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                      className={`w-full rounded-2xl border bg-white py-3.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                         errors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
                       value={formData.email}
@@ -298,7 +298,7 @@ const Register = () => {
                       name="phone"
                       autoComplete="off"
                       placeholder={t('registerPage.form.phonePlaceholder', '0803 123 4567')}
-                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                      className={`w-full rounded-2xl border bg-white py-3.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                         errors.phone ? 'border-red-500' : 'border-gray-300'
                       }`}
                       value={formData.phone}
@@ -325,7 +325,7 @@ const Register = () => {
                         name="password"
                         autoComplete="new-password"
                         placeholder={t('registerPage.form.passwordPlaceholder', '********')}
-                        className={`w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        className={`w-full rounded-2xl border bg-white py-3.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                           errors.password ? 'border-red-500' : 'border-gray-300'
                         }`}
                         value={formData.password}
@@ -358,7 +358,7 @@ const Register = () => {
                         name="confirmPassword"
                         autoComplete="new-password"
                         placeholder={t('registerPage.form.confirmPasswordPlaceholder', '********')}
-                        className={`w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        className={`w-full rounded-2xl border bg-white py-3.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                           errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                         }`}
                         value={formData.confirmPassword}
@@ -389,7 +389,7 @@ const Register = () => {
                       <input
                         type="text"
                         placeholder={t('registerPage.form.cacNumberPlaceholder', 'RC1234567')}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        className={`w-full rounded-2xl border bg-white px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                           errors.cacNumber ? 'border-red-500' : 'border-gray-300'
                         }`}
                         value={formData.cacNumber}
@@ -409,7 +409,7 @@ const Register = () => {
                       <input
                         type="text"
                         placeholder={t('registerPage.form.companyNamePlaceholder', 'Your real estate company')}
-                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight ${
+                        className={`w-full rounded-2xl border bg-white px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight ${
                           errors.companyName ? 'border-red-500' : 'border-gray-300'
                         }`}
                         value={formData.companyName}
@@ -427,7 +427,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full rounded-2xl bg-green-600 py-3.5 font-semibold text-white transition-colors cursor-pointer hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSubmitting ? t('registerPage.form.creating', 'Creating Account...') : t('registerPage.form.create', 'Create Account')}
                 </button>

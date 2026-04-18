@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import { DivIcon, Icon, latLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -20,6 +20,11 @@ Icon.Default.mergeOptions({
 });
 
 const parsePrice = (value) => Number(String(value || '').replace(/[^\d]/g, '')) || 0;
+const mobileSheetHeights = {
+  peek: '11rem',
+  half: '42vh',
+  full: '72vh'
+};
 
 const createClusterIcon = (count) =>
   new DivIcon({
@@ -214,7 +219,36 @@ export default function PropertiesMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState('');
   const [isLocating, setIsLocating] = useState(false);
+  const [isMobileSheet, setIsMobileSheet] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)').matches : false
+  );
+  const [sheetMode, setSheetMode] = useState('half');
+  const [dragOffset, setDragOffset] = useState(0);
+  const touchStartYRef = useRef(0);
+  const hasActiveDragRef = useRef(false);
   const hasActiveLocation = Array.isArray(userLocation) && userLocation.length === 2;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1023px)');
+    const syncMobileSheet = (event) => {
+      setIsMobileSheet(event.matches);
+      if (!event.matches) {
+        setSheetMode('half');
+        setDragOffset(0);
+      }
+    };
+
+    syncMobileSheet(mediaQuery);
+    mediaQuery.addEventListener('change', syncMobileSheet);
+
+    return () => mediaQuery.removeEventListener('change', syncMobileSheet);
+  }, []);
+
+  useEffect(() => {
+    if (selectedProperty && isMobileSheet) {
+      setSheetMode('half');
+    }
+  }, [selectedProperty, isMobileSheet]);
 
   const storedListings = storage.getListings().map((listing) => ({
     ...listing,
@@ -302,11 +336,46 @@ export default function PropertiesMap() {
     [propertiesWithDistance, cityFilter, typeFilter, statusFilter, minPrice, maxPrice, searchWithinBounds, mapBounds, hasActiveLocation]
   );
 
+  const handleSheetTouchStart = (event) => {
+    if (!isMobileSheet) return;
+    touchStartYRef.current = event.touches[0]?.clientY || 0;
+    hasActiveDragRef.current = true;
+    setDragOffset(0);
+  };
+
+  const handleSheetTouchMove = (event) => {
+    if (!isMobileSheet || !hasActiveDragRef.current) return;
+    const currentY = event.touches[0]?.clientY || 0;
+    const nextOffset = currentY - touchStartYRef.current;
+    setDragOffset(nextOffset);
+  };
+
+  const handleSheetTouchEnd = () => {
+    if (!isMobileSheet || !hasActiveDragRef.current) return;
+    const threshold = 48;
+    if (dragOffset <= -threshold) {
+      setSheetMode((current) => (current === 'peek' ? 'half' : 'full'));
+    } else if (dragOffset >= threshold) {
+      setSheetMode((current) => (current === 'full' ? 'half' : 'peek'));
+    }
+    hasActiveDragRef.current = false;
+    setDragOffset(0);
+  };
+
+  const toggleSheetMode = () => {
+    if (!isMobileSheet) return;
+    setSheetMode((current) => {
+      if (current === 'peek') return 'half';
+      if (current === 'half') return 'full';
+      return 'peek';
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 mt-20">
-        <div className="relative h-[calc(100vh-5rem)]">
+      <main className="flex-1">
+        <div className="relative h-[calc(100dvh-4.75rem)] lg:h-[calc(100vh-5rem)]">
           <MapContainer center={[6.5244, 3.3792]} zoom={11} style={{ height: '100%', width: '100%' }}>
             <FitToBounds properties={filteredProperties} enabled={!searchWithinBounds && !selectedProperty} />
             <FitToClosestProperties
@@ -324,39 +393,70 @@ export default function PropertiesMap() {
             />
           </MapContainer>
 
-          <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-sm max-h-[80vh] overflow-y-auto z-[1000]">
-            <h2 className="font-bold mb-1">{t('propertiesMapPage.panelTitle', 'Properties on Map')}</h2>
-            <p className="text-xs text-gray-500 mb-3">
-              {t('propertiesMapPage.panelCount', '{visible} of {total} listings')
-                .replace('{visible}', String(filteredProperties.length))
-                .replace('{total}', String(propertiesWithDistance.length))}
-            </p>
-            <button
-              type="button"
-              onClick={handleUseCurrentLocation}
-              disabled={isLocating}
-              className="mb-3 w-full rounded border border-green-200 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-60"
+          <div
+            className="properties-map-panel absolute left-4 right-4 bottom-[calc(5.8rem+env(safe-area-inset-bottom,0px))] z-40 flex flex-col overflow-hidden rounded-[1.7rem] bg-white shadow-lg transition-[height,transform] duration-200 ease-out md:right-auto md:top-4 md:bottom-auto md:max-h-[80vh] md:max-w-sm md:rounded-lg md:z-[1000]"
+            style={{
+              height: isMobileSheet ? mobileSheetHeights[sheetMode] : undefined,
+              maxHeight: isMobileSheet ? undefined : '80vh',
+              transform: isMobileSheet ? `translateY(${Math.min(Math.max(dragOffset, -120), 120)}px)` : undefined
+            }}
+          >
+            <div
+              className="properties-map-panel__header border-b border-slate-200/80 px-4 pb-3 pt-3 md:border-b-0"
+              onClick={toggleSheetMode}
+              onTouchStart={handleSheetTouchStart}
+              onTouchMove={handleSheetTouchMove}
+              onTouchEnd={handleSheetTouchEnd}
             >
-              {isLocating
-                ? t('propertiesMapPage.findingLocation', 'Finding your location...')
-                : t('propertiesMapPage.showClosest', 'Show closest to me')}
-            </button>
-            {locationError ? <p className="mb-3 text-xs text-red-600">{locationError}</p> : null}
-            {hasActiveLocation ? <p className="mb-3 text-xs text-green-700">{t('propertiesMapPage.sortedByDistance', 'Listings are sorted by distance from your current location.')}</p> : null}
-            {!hasActiveLocation ? (
-              <p className="mb-3 text-xs text-gray-500">
-                {t(
-                  'propertiesMapPage.locationHelp',
-                  'Allow location access to rank properties by distance. If permission is denied, you can still filter by city, price, and type.'
-                )}
-              </p>
-            ) : null}
+              <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-slate-300 md:hidden" />
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-bold mb-1">{t('propertiesMapPage.panelTitle', 'Properties on Map')}</h2>
+                  <p className="text-xs text-gray-500">
+                    {t('propertiesMapPage.panelCount', '{visible} of {total} listings')
+                      .replace('{visible}', String(filteredProperties.length))
+                      .replace('{total}', String(propertiesWithDistance.length))}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="hidden rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 md:inline-flex"
+                  onClick={toggleSheetMode}
+                >
+                  {sheetMode === 'full' ? t('propertiesMapPage.collapse', 'Collapse') : t('propertiesMapPage.expand', 'Expand')}
+                </button>
+              </div>
+            </div>
+
+            <div className="properties-map-panel__content flex-1 overflow-y-auto px-4 pb-4">
+              <div className="pt-3">
+                <button
+                  type="button"
+                  onClick={handleUseCurrentLocation}
+                  disabled={isLocating}
+                  className="mb-3 w-full rounded-2xl border border-green-200 px-3 py-2.5 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-60"
+                >
+                  {isLocating
+                    ? t('propertiesMapPage.findingLocation', 'Finding your location...')
+                    : t('propertiesMapPage.showClosest', 'Show closest to me')}
+                </button>
+                {locationError ? <p className="mb-3 text-xs text-red-600">{locationError}</p> : null}
+                {hasActiveLocation ? <p className="mb-3 text-xs text-green-700">{t('propertiesMapPage.sortedByDistance', 'Listings are sorted by distance from your current location.')}</p> : null}
+                {!hasActiveLocation ? (
+                  <p className="mb-3 text-xs text-gray-500">
+                    {t(
+                      'propertiesMapPage.locationHelp',
+                      'Allow location access to rank properties by distance. If permission is denied, you can still filter by city, price, and type.'
+                    )}
+                  </p>
+                ) : null}
+              </div>
 
             <div className="grid grid-cols-2 gap-2 mb-3">
               <select
                 value={cityFilter}
                 onChange={(event) => setCityFilter(event.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 text-xs"
+                className="rounded-xl border border-gray-300 px-2 py-2 text-xs"
               >
                 <option value="All">{t('propertiesMapPage.allCities', 'All Cities')}</option>
                 {cities.map((city) => (
@@ -369,7 +469,7 @@ export default function PropertiesMap() {
               <select
                 value={typeFilter}
                 onChange={(event) => setTypeFilter(event.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 text-xs"
+                className="rounded-xl border border-gray-300 px-2 py-2 text-xs"
               >
                 <option value="All">{t('propertiesMapPage.allTypes', 'All Types')}</option>
                 <option value="House">{t('propertiesPage.search.house', 'House')}</option>
@@ -381,7 +481,7 @@ export default function PropertiesMap() {
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 text-xs"
+                className="rounded-xl border border-gray-300 px-2 py-2 text-xs"
               >
                 <option value="All">{t('propertiesMapPage.allStatus', 'All Status')}</option>
                 <option value="For Sale">{t('propertiesPage.search.forSale', 'For Sale')}</option>
@@ -399,7 +499,7 @@ export default function PropertiesMap() {
                   setMaxPrice('');
                   setSearchWithinBounds(false);
                 }}
-                className="border border-gray-300 rounded px-2 py-1 text-xs hover:bg-gray-50"
+                className="rounded-xl border border-gray-300 px-2 py-2 text-xs hover:bg-gray-50"
               >
                 {t('propertiesMapPage.clear', 'Clear')}
               </button>
@@ -409,7 +509,7 @@ export default function PropertiesMap() {
                 value={minPrice}
                 onChange={(event) => setMinPrice(event.target.value)}
                 placeholder={t('propertiesMapPage.minPrice', 'Min price')}
-                className="border border-gray-300 rounded px-2 py-1 text-xs"
+                className="rounded-xl border border-gray-300 px-2 py-2 text-xs"
               />
 
               <input
@@ -417,10 +517,10 @@ export default function PropertiesMap() {
                 value={maxPrice}
                 onChange={(event) => setMaxPrice(event.target.value)}
                 placeholder={t('propertiesMapPage.maxPrice', 'Max price')}
-                className="border border-gray-300 rounded px-2 py-1 text-xs"
+                className="rounded-xl border border-gray-300 px-2 py-2 text-xs"
               />
 
-              <label className="col-span-2 flex items-center gap-2 border border-gray-300 rounded px-2 py-1 text-xs">
+              <label className="col-span-2 flex items-center gap-2 rounded-xl border border-gray-300 px-2 py-2 text-xs">
                 <input
                   type="checkbox"
                   checked={searchWithinBounds}
@@ -437,8 +537,13 @@ export default function PropertiesMap() {
                   return (
                 <div
                   key={property.id}
-                  onClick={() => setSelectedProperty(property)}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  onClick={() => {
+                    setSelectedProperty(property);
+                    if (isMobileSheet) {
+                      setSheetMode('half');
+                    }
+                  }}
+                  className={`cursor-pointer rounded-2xl border p-3 transition-colors ${
                     selectedProperty?.id === property.id
                       ? 'border-green-600 bg-green-50'
                       : 'border-gray-200 hover:border-green-300'
@@ -455,6 +560,7 @@ export default function PropertiesMap() {
                   );
                 })()
               ))}
+            </div>
             </div>
           </div>
         </div>

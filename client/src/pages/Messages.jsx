@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -20,6 +20,7 @@ export default function Messages() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (userId) {
@@ -57,6 +58,10 @@ export default function Messages() {
     };
     void loadMessages();
   }, [selectedConversation?.id, apiBase]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [selectedConversation?.messages?.length]);
 
   const getOtherParticipant = (conversation) => {
     const otherId = conversation.participantIds.find(id => id !== userId);
@@ -122,16 +127,17 @@ export default function Messages() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">{t('messagesPage.title', 'Messages')}</h1>
+      <main className="flex-1 container mx-auto px-4 py-6 md:py-8">
+        <div className="mb-6 overflow-hidden rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm md:rounded-3xl md:p-6">
+          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-emerald-600">Inbox</p>
+          <h1 className="mb-2 mt-2 text-3xl font-bold">{t('messagesPage.title', 'Messages')}</h1>
           <p className="text-gray-600">{t('messagesPage.subtitle', 'Chat with agents and property owners')}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
+        <div className="grid h-[calc(100vh-12.75rem)] grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
           {/* Conversations List */}
-          <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
-            <div className="p-4 border-b">
+          <div className={`lg:col-span-1 bg-white rounded-[1.75rem] shadow-sm border border-gray-200 flex flex-col overflow-hidden ${selectedConversation ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="border-b p-4">
               <div className="relative">
                 <FaSearch className="absolute left-3 top-3 text-gray-400" />
                 <input
@@ -161,7 +167,7 @@ export default function Messages() {
                     <button
                       key={conv.id}
                       onClick={() => setSelectedConversation(conv)}
-                      className={`w-full p-4 text-left border-b hover:bg-gray-50 transition-colors ${
+                      className={`w-full border-b p-4 text-left transition-colors hover:bg-gray-50 ${
                         selectedConversation?.id === conv.id ? 'bg-green-50 border-green-200' : ''
                       }`}
                     >
@@ -200,10 +206,10 @@ export default function Messages() {
           </div>
 
           {/* Message Thread */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+          <div className={`lg:col-span-2 bg-white rounded-[1.75rem] shadow-sm border border-gray-200 flex flex-col overflow-hidden ${selectedConversation ? 'flex' : 'hidden lg:flex'}`}>
             {selectedConversation ? (
               <>
-                <div className="p-4 border-b">
+                <div className="border-b p-4">
                   {(() => {
                     const other = getOtherParticipant(selectedConversation);
                     const prop = selectedConversation.propertyId 
@@ -211,23 +217,41 @@ export default function Messages() {
                       : null;
                     
                     return (
-                      <div>
-                        <h2 className="font-bold text-lg">{other.name}</h2>
-                        {prop && (
-                          <Link 
-                            to={`/property/${prop.id}`}
-                            className="text-sm text-green-600 hover:underline flex items-center gap-1 mt-1"
-                          >
-                            <FaHome className="text-xs" />
-                            {prop.title}
-                          </Link>
-                        )}
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h2 className="text-lg font-bold">{other.name}</h2>
+                          <p className="mt-1 text-sm text-slate-500">{other.email}</p>
+                        </div>
+                        <button
+                          type="button"
+                          className="rounded-full border border-gray-200 px-3 py-1 text-sm text-slate-600 lg:hidden"
+                          onClick={() => setSelectedConversation(null)}
+                        >
+                          {t('messagesPage.backToThreads', 'Back')}
+                        </button>
                       </div>
                     );
                   })()}
+                  {(() => {
+                    const prop = selectedConversation.propertyId 
+                      ? getPropertyInfo(selectedConversation.propertyId) 
+                      : null;
+                    
+                    return prop ? (
+                      <div className="mt-3">
+                        <Link 
+                          to={`/property/${prop.id}`}
+                          className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-sm text-green-700 hover:underline"
+                        >
+                          <FaHome className="text-xs" />
+                          {prop.title}
+                        </Link>
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="messages-thread-body flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-slate-50 to-white">
                   {(selectedConversation.messages || []).length === 0 ? (
                     <div className="text-center text-gray-500 mt-8">
                       <p>{t('messagesPage.noMessages', 'No messages yet. Start the conversation!')}</p>
@@ -241,10 +265,10 @@ export default function Messages() {
                           className={`flex ${isSender ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[70%] rounded-lg p-3 ${
+                            className={`max-w-[82%] rounded-[1.35rem] p-3 shadow-sm ${
                               isSender
                                 ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 text-gray-800'
+                                : 'bg-white text-gray-800 border border-gray-200'
                             }`}
                           >
                             <p className="text-sm">{message.text}</p>
@@ -258,23 +282,26 @@ export default function Messages() {
                       );
                     })
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
 
-                <form onSubmit={handleSendMessage} className="p-4 border-t flex gap-2">
-                  <input
-                    type="text"
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    placeholder={t('messagesPage.typeMessage', 'Type a message...')}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  />
-                  <button
-                    type="submit"
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-                  >
-                    <FaPaperPlane />
-                    {t('messagesPage.send', 'Send')}
-                  </button>
+                <form onSubmit={handleSendMessage} className="border-t p-3 md:p-4">
+                  <div className="flex gap-2 rounded-[1.4rem] border border-gray-200 bg-white p-2 shadow-sm">
+                    <input
+                      type="text"
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      placeholder={t('messagesPage.typeMessage', 'Type a message...')}
+                      className="flex-1 rounded-xl px-4 py-3 outline-none"
+                    />
+                    <button
+                      type="submit"
+                      className="flex min-h-[48px] items-center gap-2 rounded-2xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                    >
+                      <FaPaperPlane />
+                      <span className="hidden sm:inline">{t('messagesPage.send', 'Send')}</span>
+                    </button>
+                  </div>
                 </form>
               </>
             ) : (

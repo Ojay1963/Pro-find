@@ -36,15 +36,15 @@ export default function CompareButton({ propertyId }) {
   return (
     <button
       onClick={handleAddToCompare}
-      className={`p-2 rounded-full transition-colors ${
+      className={`flex min-h-[44px] w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-4 py-2 text-sm font-semibold transition-all ${
         isInComparison
-          ? 'bg-blue-600 text-white hover:bg-blue-700'
-          : 'bg-white text-gray-400 hover:text-blue-500 hover:bg-blue-50'
-      } shadow-lg w-full sm:w-auto sm:min-w-[110px] border border-gray-200 px-4 py-2 text-sm font-medium flex items-center justify-center gap-2`}
+          ? 'border-blue-600 bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:border-blue-700'
+          : 'border-gray-200 bg-white text-gray-400 shadow-[0_10px_24px_rgba(15,23,42,0.08)] hover:border-gray-300 hover:text-gray-500'
+      }`}
       title="Add to comparison"
       type="button"
     >
-      <FaBalanceScale />
+      <FaBalanceScale className="text-[0.95rem]" />
       <span>Compare</span>
     </button>
   );

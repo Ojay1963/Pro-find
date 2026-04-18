@@ -30,7 +30,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="site-footer w-full bg-gray-900 text-white pt-16 pb-8 mt-12">
+    <footer className="site-footer mt-12 hidden w-full bg-gray-900 pb-8 pt-16 text-white md:block">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-10">
           <div className="md:col-span-2">

@@ -184,41 +184,85 @@ export default function Dashboard() {
     }
   };
 
+  const dashboardNavItems = [
+    { id: 'overview', label: 'Overview', icon: FaHome },
+    { id: 'favorites', label: 'Favorites', icon: FaHeart },
+    { id: 'recently-viewed', label: 'Recently Viewed', icon: FaEye },
+    { id: 'saved-searches', label: 'Saved Searches', icon: FaSearch },
+    { id: 'price-alerts', label: 'Price Alerts', icon: FaEnvelope },
+    ...(userRole === 'owner' || userRole === 'agent' ? [
+      { id: 'my-listings', label: 'My Listings', icon: FaEdit },
+      { id: 'create-listing', label: 'Create Listing', icon: FaPlus },
+      ...(userRole === 'agent' ? [
+        { id: 'bulk-upload', label: 'Bulk Upload', icon: FaPlus },
+      ] : []),
+      { id: 'analytics', label: 'Analytics', icon: FaChartLine },
+    ] : []),
+    { id: 'inquiries', label: 'Inquiries', icon: FaEnvelope, count: myInquiries.filter(i => i.status === 'new').length },
+    { id: 'messages', label: 'Messages', icon: FaComments },
+    ...(userRole === 'admin' ? [
+      { id: 'admin', label: 'Admin Panel', icon: FaShieldAlt },
+    ] : []),
+    { id: 'logout', label: 'Logout', icon: FaSignOutAlt },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 dashboard-page">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back, {userName}!</h1>
-          <p className="text-gray-600">Manage your properties, inquiries, and preferences</p>
+      <main className="flex-1 container mx-auto px-4 py-6 md:py-8 dashboard-page">
+        <div className="mb-6 overflow-hidden rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm md:mb-8 md:rounded-3xl md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-emerald-600">Workspace</p>
+              <h1 className="mb-2 mt-2 text-3xl font-bold">Welcome back, {userName}!</h1>
+              <p className="text-gray-600">Manage your properties, inquiries, and preferences</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 md:max-w-sm">
+              <div className="rounded-2xl bg-white/85 px-3 py-3 text-center shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Favorites</p>
+                <p className="mt-2 text-xl font-bold text-gray-900">{favorites.length}</p>
+              </div>
+              <div className="rounded-2xl bg-white/85 px-3 py-3 text-center shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Viewed</p>
+                <p className="mt-2 text-xl font-bold text-gray-900">{recentlyViewed.length}</p>
+              </div>
+              <div className="rounded-2xl bg-white/85 px-3 py-3 text-center shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Inquiries</p>
+                <p className="mt-2 text-xl font-bold text-gray-900">{myInquiries.length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-mobile-tabs mb-4 lg:hidden">
+          {dashboardNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === 'admin') navigate('/admin');
+                  else if (item.id === 'messages') navigate('/messages');
+                  else if (item.id === 'logout') handleLogout();
+                  else setActiveTab(item.id);
+                }}
+                className={`dashboard-mobile-tabs__item ${isActive ? 'dashboard-mobile-tabs__item--active' : ''}`}
+              >
+                <Icon />
+                <span>{item.label}</span>
+                {item.count > 0 ? <strong>{item.count}</strong> : null}
+              </button>
+            );
+          })}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white/90 rounded-2xl shadow-lg p-4 border border-gray-100 backdrop-blur lg:sticky lg:top-28">
+            <div className="hidden bg-white/90 rounded-2xl shadow-lg p-4 border border-gray-100 backdrop-blur lg:sticky lg:top-28 lg:block">
               <nav className="space-y-2">
-                {[
-                  { id: 'overview', label: 'Overview', icon: FaHome },
-                  { id: 'favorites', label: 'Favorites', icon: FaHeart },
-                  { id: 'recently-viewed', label: 'Recently Viewed', icon: FaEye },
-                  { id: 'saved-searches', label: 'Saved Searches', icon: FaSearch },
-                  { id: 'price-alerts', label: 'Price Alerts', icon: FaEnvelope },
-                  ...(userRole === 'owner' || userRole === 'agent' ? [
-                    { id: 'my-listings', label: 'My Listings', icon: FaEdit },
-                    { id: 'create-listing', label: 'Create Listing', icon: FaPlus },
-                    ...(userRole === 'agent' ? [
-                      { id: 'bulk-upload', label: 'Bulk Upload', icon: FaPlus },
-                    ] : []),
-                    { id: 'analytics', label: 'Analytics', icon: FaChartLine },
-                  ] : []),
-                  { id: 'inquiries', label: 'Inquiries', icon: FaEnvelope, count: myInquiries.filter(i => i.status === 'new').length },
-                  { id: 'messages', label: 'Messages', icon: FaComments },
-                  ...(userRole === 'admin' ? [
-                    { id: 'admin', label: 'Admin Panel', icon: FaShieldAlt },
-                  ] : []),
-                  { id: 'logout', label: 'Logout', icon: FaSignOutAlt },
-                ].map(item => {
+                {dashboardNavItems.map(item => {
                   const Icon = item.icon;
                   return (
                     <button

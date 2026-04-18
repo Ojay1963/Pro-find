@@ -365,10 +365,10 @@ function PropertyCard({ property, showAll = false, viewMode = 'grid', animationD
   const trust = getPropertyTrustMetrics(property);
   return (
     <div
-      className={`${viewMode === 'list' ? 'w-full' : showAll ? 'w-full max-w-sm' : 'w-80'} card p-0 overflow-hidden hover:shadow-xl transition-all duration-300 group animate-pop-in`}
+      className={`${viewMode === 'list' ? 'w-full' : showAll ? 'w-full max-w-sm' : 'w-80'} property-card-mobile card overflow-hidden p-0 transition-all duration-300 group hover:shadow-xl animate-pop-in`}
       style={{ animationDelay }}
     >
-      <Link to={`/property/${property.id}`} className="relative block aspect-square overflow-hidden">
+      <Link to={`/property/${property.id}`} className="relative block aspect-[1/1] overflow-hidden sm:aspect-square">
         <img
           src={getPropertyImage(property)}
           alt={property.title}
@@ -398,21 +398,26 @@ function PropertyCard({ property, showAll = false, viewMode = 'grid', animationD
         </div>
       </Link>
 
-      <div className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-green-600 font-bold text-lg">{property.price}</span>
+      <div className="p-4 sm:p-5">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <span className="text-lg font-bold text-green-600">{property.price}</span>
+            <p className="mt-1 text-xs uppercase tracking-[0.22em] text-slate-400">
+              {t('featured.card.readyLabel', 'Ready to view')}
+            </p>
+          </div>
           <span className="inline-flex items-center gap-1 text-xs text-gray-500">
             <FaRulerCombined />
             {property.area}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 mb-5">
-          <span className="inline-flex items-center gap-2">
+        <div className="mb-5 grid grid-cols-2 gap-3 text-sm text-gray-600">
+          <span className="inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
             <FaBed className="text-green-600" />
             {property.beds} {t('featured.card.beds', 'Beds')}
           </span>
-          <span className="inline-flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
             <FaBath className="text-green-600" />
             {property.baths} {t('featured.card.baths', 'Baths')}
           </span>
@@ -428,7 +433,7 @@ function PropertyCard({ property, showAll = false, viewMode = 'grid', animationD
         <div className="grid grid-cols-2 gap-2">
           <Link
             to={`/property/${property.id}`}
-            className="block w-full py-2 px-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transition-colors"
+            className="flex min-h-[48px] w-full min-w-0 items-center justify-center whitespace-nowrap rounded-2xl bg-green-600 px-4 py-2 text-center text-white transition-colors hover:bg-green-700"
           >
             {t('featured.card.viewDetails', 'View Details')}
           </Link>

@@ -84,7 +84,7 @@ const Login = () => {
           </div>
 
           <div className="w-full max-w-md">
-            <div className="rounded-3xl border border-white/10 bg-white/95 shadow-2xl backdrop-blur-lg p-6 sm:p-8">
+            <div className="rounded-[2rem] border border-white/10 bg-white/95 p-5 shadow-2xl backdrop-blur-lg sm:rounded-3xl sm:p-8">
               <div className="mb-6 text-center">
                 <h1 className="text-2xl font-bold text-green-700 tracking-wide">PROFIND</h1>
                 <h2 className="text-xl font-semibold mt-3">{t('loginPage.title', 'Sign In')}</h2>
@@ -99,7 +99,7 @@ const Login = () => {
                     <input
                       type="email"
                       placeholder={t('loginPage.form.emailPlaceholder', 'example@email.com')}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                      className="w-full rounded-2xl border border-gray-300 bg-white py-3.5 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       required
@@ -114,7 +114,7 @@ const Login = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder={t('loginPage.form.passwordPlaceholder', '********')}
-                      className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white input-spotlight"
+                      className="w-full rounded-2xl border border-gray-300 bg-white py-3.5 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent input-spotlight"
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
                       required
@@ -144,7 +144,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full rounded-2xl bg-green-600 py-3.5 font-semibold text-white transition-colors cursor-pointer hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSubmitting ? t('loginPage.form.signingIn', 'Signing In...') : t('loginPage.form.signIn', 'Sign In')}
                 </button>
