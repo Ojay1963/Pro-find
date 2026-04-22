@@ -172,7 +172,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 z-50 w-full border-b border-white/60 bg-white/88 shadow-sm backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-950/88">
+      <header className="site-header fixed top-0 left-0 z-50 w-full border-b border-white/60 bg-white/88 shadow-sm backdrop-blur-xl dark:border-slate-800/90 dark:bg-slate-950/96">
         <div className="container mx-auto hidden h-20 items-center justify-between gap-4 px-4 lg:flex">
           <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80" onClick={closeMenu}>
             <img src={logo} alt="Profind Logo" className="h-9 w-9 rounded-full object-contain shadow" />
@@ -181,12 +181,12 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="flex gap-5 text-sm font-medium text-gray-700 xl:gap-7 xl:text-base">
+          <nav className="flex gap-5 text-sm font-medium text-gray-700 dark:text-slate-100 xl:gap-7 xl:text-base">
             {navLinks.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
-                className="transition-colors hover:text-green-700 focus:text-green-700 focus:outline-none"
+                className="site-header__nav-link transition-colors hover:text-green-700 focus:text-green-700 focus:outline-none dark:text-slate-100 dark:hover:text-emerald-300 dark:focus:text-emerald-300"
                 onClick={closeMenu}
               >
                 {label}
@@ -196,7 +196,7 @@ export default function Header() {
               <select
                 value={language}
                 onChange={(event) => setLanguage(event.target.value)}
-                className="appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-7 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-green-600"
+                className="site-header__select appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-7 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-green-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 aria-label={t('language.label')}
               >
                 {languages.map((item) => (
@@ -214,7 +214,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={handleInstallApp}
-                className="h-10 rounded-full border border-green-600 bg-white px-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-50"
+                className="h-10 rounded-full border border-green-600 bg-white px-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-50 dark:bg-slate-900 dark:text-emerald-300 dark:hover:bg-slate-800"
                 title={showIosHint ? t('header.iosInstallTitle', 'Use your browser Share menu and choose Add to Home Screen.') : t('header.installAppTitle', 'Install app')}
               >
                 {t('nav.installApp')}
@@ -237,14 +237,14 @@ export default function Header() {
               <button
                 type="button"
                 onClick={handleInstallApp}
-                className="h-10 rounded-full border border-green-600 bg-white px-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-50"
+                className="h-10 rounded-full border border-green-600 bg-white px-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-50 dark:bg-slate-900 dark:text-emerald-300 dark:hover:bg-slate-800"
                 title={showIosHint ? t('header.iosInstallTitle', 'Use your browser Share menu and choose Add to Home Screen.') : t('header.installAppTitle', 'Install app')}
               >
                 {t('nav.installApp')}
               </button>
             )}
             <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} t={t} />
-            <div className="hidden items-center gap-2 text-gray-500 xl:flex">
+            <div className="site-header__muted hidden items-center gap-2 text-gray-500 dark:text-slate-300 xl:flex">
               {socialLinks.map((item) => (
                 <a
                   key={item.label}
@@ -252,13 +252,13 @@ export default function Header() {
                   aria-label={item.label}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-green-50 hover:text-green-600"
+                  className="site-header__icon-link flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors hover:bg-green-50 hover:text-green-600 dark:bg-slate-900 dark:hover:bg-slate-800 dark:hover:text-emerald-300"
                 >
                   <item.icon className="text-sm" />
                 </a>
               ))}
             </div>
-            <div className="hidden items-center gap-2 text-sm text-gray-600 xl:flex">
+            <div className="site-header__muted hidden items-center gap-2 text-sm text-gray-600 dark:text-slate-200 xl:flex">
               <PhoneIcon />
               <span>+234 (708-220-6013)</span>
             </div>
@@ -459,11 +459,11 @@ function ThemeToggle({ isDark, toggleTheme, t }) {
     <button
       type="button"
       onClick={toggleTheme}
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition-colors hover:border-green-400"
+      className="site-header__theme-toggle flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition-colors hover:border-green-400 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-emerald-400 dark:hover:bg-slate-800"
       aria-label={isDark ? t('header.switchToLight', 'Switch to light mode') : t('header.switchToDark', 'Switch to dark mode')}
       title={isDark ? t('header.lightMode', 'Light mode') : t('header.darkMode', 'Dark mode')}
     >
-      {isDark ? <FaSun className="text-amber-400" /> : <FaMoon className="text-gray-600" />}
+      {isDark ? <FaSun className="text-amber-400" /> : <FaMoon className="text-gray-600 dark:text-slate-100" />}
     </button>
   );
 }

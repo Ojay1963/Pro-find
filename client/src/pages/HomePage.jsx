@@ -184,11 +184,11 @@ const HomePage = () => {
                   {highIntentMarkets.map((property) => {
                     const trust = getPropertyTrustMetrics(property)
                     return (
-                      <div key={property.id} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-black/10">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{property.title}</p>
-                        <p className="mt-2 text-sm text-slate-600 dark:text-emerald-100/75">{property.location}</p>
+                      <div key={property.id} className="market-radar-card flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-200 dark:bg-white">
+                        <p className="market-radar-card__title text-sm font-semibold text-slate-900 dark:text-slate-900">{property.title}</p>
+                        <p className="market-radar-card__location mt-2 text-sm text-slate-600 dark:text-slate-600">{property.location}</p>
                         <div className="mt-auto pt-4 flex flex-wrap gap-2 text-xs">
-                          <span className="rounded-full bg-slate-900 px-3 py-1 text-white dark:bg-white/10 dark:text-white">{trust.priceBand}</span>
+                          <span className="market-radar-card__badge rounded-full bg-slate-900 px-3 py-1 text-white dark:bg-slate-900 dark:text-white">{trust.priceBand}</span>
                         </div>
                       </div>
                     )

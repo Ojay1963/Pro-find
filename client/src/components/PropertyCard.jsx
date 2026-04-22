@@ -42,18 +42,18 @@ const PropertyCard = ({ property }) => {
               {t('featured.card.readyLabel', 'Ready to view')}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+          <span className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-slate-300">
             <FaRulerCombined />
             {property.area}
           </span>
         </div>
-        <div className="mb-4 grid grid-cols-2 gap-3 text-sm text-gray-500">
-          <span className="inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-            <FaBed className="text-green-600" />
+        <div className="mb-4 grid grid-cols-2 gap-3 text-sm text-gray-500 dark:text-slate-200">
+          <span className="property-stat-pill inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-slate-700 dark:bg-white dark:text-slate-800">
+            <FaBed className="property-stat-pill__icon text-green-600 dark:text-green-600" />
             {property.beds} {t('featured.card.beds', 'Beds')}
           </span>
-          <span className="inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-            <FaBath className="text-green-600" />
+          <span className="property-stat-pill inline-flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2 text-slate-700 dark:bg-white dark:text-slate-800">
+            <FaBath className="property-stat-pill__icon text-green-600 dark:text-green-600" />
             {property.baths} {t('featured.card.baths', 'Baths')}
           </span>
         </div>

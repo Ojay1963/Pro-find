@@ -339,6 +339,78 @@ button:disabled,
   color: rgba(226, 232, 240, 0.6);
 }
 
+.dark .site-header {
+  background-color: rgba(2, 6, 23, 0.96) !important;
+  border-color: rgba(51, 65, 85, 0.95) !important;
+}
+
+.dark .site-header__nav-link {
+  color: #f8fafc !important;
+}
+
+.dark .site-header__nav-link:hover,
+.dark .site-header__nav-link:focus-visible {
+  color: #6ee7b7 !important;
+}
+
+.dark .site-header__select {
+  background-color: #0f172a !important;
+  border-color: rgba(71, 85, 105, 0.9) !important;
+  color: #f8fafc !important;
+}
+
+.dark .site-header__muted {
+  color: #cbd5e1 !important;
+}
+
+.dark .site-header__icon-link,
+.dark .site-header__theme-toggle {
+  background-color: #0f172a !important;
+  border-color: rgba(71, 85, 105, 0.9) !important;
+  color: #f8fafc !important;
+}
+
+.dark .site-header__icon-link:hover,
+.dark .site-header__theme-toggle:hover {
+  background-color: #1e293b !important;
+  color: #6ee7b7 !important;
+}
+
+.property-stat-pill {
+  color: #334155;
+}
+
+.property-stat-pill__icon {
+  color: #16a34a;
+}
+
+.dark .property-stat-pill {
+  background-color: #ffffff !important;
+  color: #334155 !important;
+}
+
+.dark .property-stat-pill__icon {
+  color: #22c55e !important;
+}
+
+.dark .market-radar-card {
+  background-color: #ffffff !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+}
+
+.dark .market-radar-card__title {
+  color: #0f172a !important;
+}
+
+.dark .market-radar-card__location {
+  color: #475569 !important;
+}
+
+.dark .market-radar-card__badge {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
 .mobile-app-icon-button {
   display: inline-flex;
   height: 2.75rem;
